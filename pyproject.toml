@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codeupipe"
+version = "0.1.0"
+description = "Python pipeline framework — composable State-Link-Chain pattern"
+authors = [{name = "Joshua Wink"}]
+dependencies = []  # Pure Python - zero external dependencies!
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["codeuchain*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-v", "--tb=short"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "core: Core functionality tests",
+    "utils: Utility tests"
+]
