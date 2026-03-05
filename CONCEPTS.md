@@ -110,7 +110,7 @@ p = m.to_immutable()   # → Payload
 # --- Common pattern inside a Filter ---
 async def normalize(payload):
     m = payload.with_mutation()   # Payload → MutablePayload
-    m.set("name", payload.get("name", "").strip().lower())
+    m.set("name", payload.get("name", "").strip().lchrome remoteower())
     m.set("normalized", True)
     return m.to_immutable()       # MutablePayload → Payload
 ```

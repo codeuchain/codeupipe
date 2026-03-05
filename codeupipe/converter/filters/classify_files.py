@@ -46,13 +46,16 @@ def _match_dir_to_role(file_dir: str, dir_to_role: Dict[str, str]) -> str:
     """Match a file's directory to the closest role."""
     normalized = file_dir.rstrip("/")
 
-    # Exact match
-    if normalized in dir_to_role:
-        return dir_to_role[normalized]
+    # Normalize keys too (strip trailing slashes)
+    normalized_map = {k.rstrip("/"): v for k, v in dir_to_role.items()}
 
-    # Check if file_dir is under a role directory
-    for directory, role in dir_to_role.items():
-        if normalized.startswith(directory):
+    # Exact match
+    if normalized in normalized_map:
+        return normalized_map[normalized]
+
+    # Check if file_dir is under a role directory (must have / separator)
+    for directory, role in normalized_map.items():
+        if normalized.startswith(directory + "/"):
             return role
 
     return "uncategorized"

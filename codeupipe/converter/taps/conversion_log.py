@@ -23,7 +23,7 @@ class ConversionLogTap:
         files = payload.get("files")
         cup_files = payload.get("cup_files")
 
-        if config and not steps and not classified:
+        if config is not None and not steps and not classified:
             pattern = config.get("pattern", "?")
             self.entries.append(f"Config loaded: pattern={pattern}")
 

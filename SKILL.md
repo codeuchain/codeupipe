@@ -4,7 +4,7 @@
 > **Branch:** `main`
 > **Language:** Python 3.9+
 > **Dependencies:** Zero — pure stdlib
-> **Tests:** 203 passing (`pytest`)
+> **Tests:** 312 passing (`pytest`)
 > **License:** Apache 2.0
 
 ---
@@ -97,7 +97,10 @@ tests/
     ├── __init__.py
     ├── test_unit.py         # 36 tests — config, all 7 filters, log tap
     ├── test_integration.py  # 12 tests — export & import pipeline integration
-    └── test_e2e.py          # 11 tests — round-trip: MVC, Clean, Hexagonal, Flat
+    ├── test_integration_edge.py  # 16 tests — edge cases for full pipelines
+    ├── test_e2e.py          # 11 tests — round-trip: MVC, Clean, Hexagonal, Flat
+    ├── test_edge_cases.py   # 75 tests — boundary conditions, tricky inputs
+    └── test_workflows.py    # 18 tests — real-world ETL, auth, validation workflows
 examples/
 ├── simple_math.py
 ├── typed_example.py
