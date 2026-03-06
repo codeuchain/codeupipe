@@ -25,8 +25,7 @@ class AnalyzePipelineFilter:
             raise ValueError("Payload must contain 'pipeline' key")
 
         steps = []
-        for name, instance in pipeline._steps:
-            step_type = pipeline._step_types.get(name, "filter")
+        for name, instance, step_type in pipeline._steps:
             info: Dict[str, Any] = {
                 "name": name,
                 "type": step_type,

@@ -1,11 +1,16 @@
 # codeupipe
 
-Python pipeline framework — composable Payload-Filter-Pipeline pattern with streaming support.
+<!-- cup:ref file=codeupipe/__init__.py hash=7a603ab -->
+
+Python pipeline framework — composable **Payload → Filter → Pipeline** pattern with streaming support. Zero external dependencies.
 
 Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain) (Python only).
 
+<!-- /cup:ref -->
+
 ## Core Concepts
 
+<!-- cup:ref file=codeupipe/core/__init__.py hash=e3e2418 -->
 | Concept | Role |
 |---|---|
 | **Payload** | Immutable data container flowing through the pipeline |
@@ -18,6 +23,7 @@ Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain)
 | **State** | Pipeline execution metadata — tracks what ran, what was skipped, errors, chunk counts |
 | **Hook** | Lifecycle hooks — before/after/on_error for pipeline execution (sync or async) |
 | **RetryFilter** | Resilience wrapper — retries a Filter up to N times before giving up |
+<!-- /cup:ref -->
 
 ## Install
 
@@ -130,12 +136,53 @@ print(pipeline.state.chunks_processed)   # {'upper': 3}  (streaming mode)
 
 ## Docs
 
-See [CONCEPTS.md](CONCEPTS.md) for comprehensive examples and API reference for every type, verified by `tests/test_docs_examples.py`.
+| Document | Purpose |
+|----------|---------|
+| [INDEX.md](INDEX.md) | Project structure map (verified by `cup doc-check`) |
+| [CONCEPTS.md](CONCEPTS.md) | Full API reference with runnable examples |
+| [BEST_PRACTICES.md](BEST_PRACTICES.md) | Project structure, naming, testing strategy |
+| [SKILL.md](SKILL.md) | Agent skill reference — types, patterns, conversion |
+
+## CLI (`cup`)
+
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=1e63d0e -->
+The `cup` command-line tool scaffolds, lints, and analyzes CUP projects:
+
+```bash
+cup new filter validate_email src/signup   # Scaffold a filter + test
+cup new pipeline signup src/signup --steps validate_email hash_password
+cup list                                   # Show available component types
+cup bundle src/signup                      # Generate __init__.py re-exports
+cup lint src/signup                        # Check CUP conventions (CUP000–CUP008)
+cup coverage src/signup                    # Map component↔test coverage gaps
+cup report src/signup                      # Health report with scores, orphans, staleness
+cup doc-check .                            # Verify doc freshness (cup:ref markers)
+```
+<!-- /cup:ref -->
+
+## Testing Utilities
+
+<!-- cup:ref file=codeupipe/testing.py symbols=run_filter,assert_payload,mock_filter hash=c119f9c -->
+`codeupipe.testing` provides zero-boilerplate test helpers:
+
+```python
+from codeupipe.testing import run_filter, assert_payload, mock_filter
+
+def test_my_filter():
+    result = run_filter(MyFilter(), {"input": "data"})
+    assert_payload(result, output="expected")
+
+def test_with_mock():
+    f = mock_filter(status="ok")
+    result = run_filter(f, {"x": 1})
+    assert f.call_count == 1
+```
+<!-- /cup:ref -->
 
 ## Test
 
 ```bash
-pytest
+pytest  # 909 tests
 ```
 
 ## License

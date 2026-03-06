@@ -18,6 +18,7 @@ A practical reference for every type in the framework. Each section shows the cl
 10. [RetryFilter](#retryfilter)
 11. [StreamFilter & Streaming](#streamfilter--streaming)
 12. [Complete Workflow](#complete-workflow)
+13. [Quick Reference](#quick-reference)
 
 ---
 
@@ -34,6 +35,7 @@ State records what happened.
 Hooks attach lifecycle behaviour.
 ```
 
+<!-- cup:ref file=codeupipe/core/__init__.py hash=e3e2418 -->
 | Concept | Role |
 |---|---|
 | `Payload` | The data box moving through the pipe — immutable |
@@ -46,10 +48,13 @@ Hooks attach lifecycle behaviour.
 | `Hook` | Lifecycle callbacks — `before`, `after`, `on_error` for every filter call |
 | `RetryFilter` | A resilience wrapper — retries a Filter up to N times before giving up |
 | `StreamFilter` | A streaming station — receives one chunk, yields 0, 1, or N output chunks |
+<!-- /cup:ref -->
 
 ---
 
 ## Payload
+
+<!-- cup:ref file=codeupipe/core/payload.py symbols=Payload hash=0a33b12 -->
 
 **Immutable data container.** Every operation returns a fresh copy.
 
@@ -85,9 +90,13 @@ mut = p.with_mutation()   # → MutablePayload
 
 **Key contract:** `insert()` and `merge()` never mutate `self`. They always return a new `Payload`.
 
+<!-- /cup:ref -->
+
 ---
 
 ## MutablePayload
+
+<!-- cup:ref file=codeupipe/core/payload.py symbols=MutablePayload hash=0a33b12 -->
 
 **Mutable sibling of Payload** — use inside a Filter when raw performance matters or when multiple keys need updating in one pass.
 
@@ -110,14 +119,18 @@ p = m.to_immutable()   # → Payload
 # --- Common pattern inside a Filter ---
 async def normalize(payload):
     m = payload.with_mutation()   # Payload → MutablePayload
-    m.set("name", payload.get("name", "").strip().lchrome remoteower())
+    m.set("name", payload.get("name", "").strip().lower())
     m.set("normalized", True)
     return m.to_immutable()       # MutablePayload → Payload
 ```
 
+<!-- /cup:ref -->
+
 ---
 
 ## Filter
+
+<!-- cup:ref file=codeupipe/core/filter.py symbols=Filter hash=1800d12 -->
 
 **A `Protocol` — any class with `call(payload) -> payload` qualifies.** Both `async def` and plain `def` work.
 
@@ -165,9 +178,13 @@ class NormalizeFilter:
 - Raise an exception to signal failure — the Pipeline propagates it.
 - Return the received payload (or a new one) to continue.
 
+<!-- /cup:ref -->
+
 ---
 
 ## Pipeline
+
+<!-- cup:ref file=codeupipe/core/pipeline.py symbols=Pipeline hash=80c0c4e -->
 
 **The orchestrator — sequences filters, taps, and valves.**
 
@@ -205,9 +222,13 @@ asyncio.run(main())
 | `async for chunk in pipeline.stream(source)` | Execute stream mode — yield chunks at constant memory |
 | `pipeline.state` | Access execution metadata after `run()` or `stream()` |
 
+<!-- /cup:ref -->
+
 ---
 
 ## Valve
+
+<!-- cup:ref file=codeupipe/core/valve.py symbols=Valve hash=faf6427 -->
 
 **Conditional gate — runs an inner Filter only when a predicate returns `True`.**
 
@@ -253,9 +274,13 @@ asyncio.run(main())
 
 **Valve conforms to the Filter protocol** — add it with `pipeline.add_filter(valve)`.
 
+<!-- /cup:ref -->
+
 ---
 
 ## Tap
+
+<!-- cup:ref file=codeupipe/core/tap.py symbols=Tap hash=c344078 -->
 
 **A `Protocol` — any class with `async observe(payload) -> None` qualifies.**
 
@@ -292,9 +317,13 @@ asyncio.run(main())
 - The pipeline discards the return value, so `return None` is always correct.
 - Taps appear between filters in the sequence — place them where you need the snapshot.
 
+<!-- /cup:ref -->
+
 ---
 
 ## State
+
+<!-- cup:ref file=codeupipe/core/state.py symbols=State hash=2cee84d -->
 
 **Execution metadata — read after `pipeline.run()`.**
 
@@ -349,9 +378,13 @@ asyncio.run(main())
 | `state.get(key, default)` | `Any` | Read custom metadata |
 | `state.reset()` | — | Clear everything for a fresh run |
 
+<!-- /cup:ref -->
+
 ---
 
 ## Hook
+
+<!-- cup:ref file=codeupipe/core/hook.py symbols=Hook hash=86339f4 -->
 
 **Lifecycle callbacks — subclass `Hook` and override the methods you need.**
 
@@ -406,9 +439,13 @@ class Hook(ABC):
 - `filter` is the Filter instance when called per-filter.
 - All three methods have no-op defaults — only override what you need.
 
+<!-- /cup:ref -->
+
 ---
 
 ## RetryFilter
+
+<!-- cup:ref file=codeupipe/utils/error_handling.py symbols=RetryFilter hash=dc0f5ec -->
 
 **Resilience wrapper — retries a failing Filter up to `max_retries` times.**
 
@@ -458,9 +495,13 @@ asyncio.run(main())
 - If the inner filter succeeds on any attempt, that result is returned.
 - If all retries are exhausted, a fresh Payload is returned with `"error"` set to `"Max retries: <message>"`.
 
+<!-- /cup:ref -->
+
 ---
 
 ## StreamFilter & Streaming
+
+<!-- cup:ref file=codeupipe/core/stream_filter.py symbols=StreamFilter hash=66b4374 -->
 
 **Stream mode** lets you process an async stream of Payload chunks through the pipeline at constant memory — one chunk at a time, with built-in backpressure.
 
@@ -603,6 +644,8 @@ async def main():
     # {"upper": 3, "split": 5}  — 3 chunks through upper, 5 words out of split
 ```
 
+<!-- /cup:ref -->
+
 ---
 
 ## Complete Workflow
@@ -696,6 +739,7 @@ asyncio.run(main())
 
 ## Quick Reference
 
+<!-- cup:ref file=codeupipe/__init__.py hash=7a603ab -->
 ```python
 from codeupipe import (
     Payload,           # immutable data container
@@ -710,3 +754,4 @@ from codeupipe import (
     RetryFilter,       # resilience wrapper
 )
 ```
+<!-- /cup:ref -->

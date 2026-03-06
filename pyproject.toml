@@ -8,7 +8,8 @@ version = "0.1.0"
 description = "Python pipeline framework — composable Payload-Filter-Pipeline pattern"
 authors = [{name = "Joshua Wink"}]
 dependencies = []  # Pure Python - zero external dependencies!
-
+[project.scripts]
+cup = "codeupipe.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["codeupipe*"]

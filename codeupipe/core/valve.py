@@ -40,10 +40,12 @@ class Valve(Generic[TInput, TOutput]):
     async def call(self, payload: Payload[TInput]) -> Payload[TOutput]:
         """Execute the inner filter only if the predicate passes."""
         if self._predicate(payload):
+            self._last_skipped = False
             result = self._inner.call(payload)
             if inspect.isawaitable(result):
                 result = await result
             return result
+        self._last_skipped = True
         return payload  # type: ignore — pass through unchanged
 
     def __repr__(self) -> str:

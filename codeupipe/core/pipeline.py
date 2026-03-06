@@ -31,8 +31,7 @@ class Pipeline(Generic[TInput, TOutput]):
     """
 
     def __init__(self):
-        self._steps: List[Tuple[str, Union[Filter, Tap]]] = []
-        self._step_types: Dict[str, str] = {}  # name -> "filter" | "tap"
+        self._steps: List[Tuple[str, Union[Filter, Tap], str]] = []  # (name, step, type)
         self._hooks: List[Hook] = []
         self._state: State = State()
 
@@ -44,14 +43,12 @@ class Pipeline(Generic[TInput, TOutput]):
     def add_filter(self, filter: Filter[TInput, TOutput], name: Optional[str] = None) -> None:
         """Add a filter to the pipeline."""
         filter_name = name or filter.__class__.__name__
-        self._steps.append((filter_name, filter))
-        self._step_types[filter_name] = "filter"
+        self._steps.append((filter_name, filter, "filter"))
 
     def add_tap(self, tap: Tap, name: Optional[str] = None) -> None:
         """Add a tap (observation point) to the pipeline."""
         tap_name = name or tap.__class__.__name__
-        self._steps.append((tap_name, tap))
-        self._step_types[tap_name] = "tap"
+        self._steps.append((tap_name, tap, "tap"))
 
     def use_hook(self, hook: Hook) -> None:
         """Attach a lifecycle hook."""
@@ -67,6 +64,15 @@ class Pipeline(Generic[TInput, TOutput]):
 
     async def run(self, initial_payload: Payload[TInput]) -> Payload[TOutput]:
         """Execute the pipeline — flow payload through all filters and taps."""
+        # Check for StreamFilters — .run() is 1→1, StreamFilters are 0..N
+        for name, step, step_type in self._steps:
+            if step_type == "filter" and self._is_stream_filter(step):
+                raise ValueError(
+                    f"Pipeline contains StreamFilter '{name}'. "
+                    f"Use pipeline.stream(source) with an async generator instead. "
+                    f"Example: async for result in pipeline.stream(async_generator_of_payloads): ..."
+                )
+        
         self._state = State()
         payload = initial_payload
 
@@ -75,8 +81,7 @@ class Pipeline(Generic[TInput, TOutput]):
             await self._invoke(hook.before, None, payload)
 
         try:
-            for name, step in self._steps:
-                step_type = self._step_types[name]
+            for name, step, step_type in self._steps:
 
                 if step_type == "tap":
                     await self._invoke(step.observe, payload)  # type: ignore
@@ -87,11 +92,10 @@ class Pipeline(Generic[TInput, TOutput]):
                 for hook in self._hooks:
                     await self._invoke(hook.before, step, payload)
 
-                prev_payload = payload
                 payload = await self._invoke(step.call, payload)  # type: ignore
 
-                # Track valve skips: if payload is unchanged, the valve skipped
-                if hasattr(step, '_predicate') and payload is prev_payload:
+                # Track valve skips via Valve's own tracking
+                if hasattr(step, '_last_skipped') and step._last_skipped:
                     self._state.mark_skipped(name)
                 else:
                     self._state.mark_executed(name)
@@ -151,8 +155,7 @@ class Pipeline(Generic[TInput, TOutput]):
 
             current = _source_gen()
 
-            for name, step in self._steps:
-                step_type = self._step_types[name]
+            for name, step, step_type in self._steps:
                 current = self._wrap_step(current, name, step, step_type)
 
             # Drain the chain, yielding results to the caller

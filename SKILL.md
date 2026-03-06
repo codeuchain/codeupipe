@@ -4,7 +4,7 @@
 > **Branch:** `main`
 > **Language:** Python 3.9+
 > **Dependencies:** Zero — pure stdlib
-> **Tests:** 312 passing (`pytest`)
+> **Tests:** 909 passing (`pytest`)
 > **License:** Apache 2.0
 
 ---
@@ -19,6 +19,7 @@ Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain)
 
 ## Architecture Overview
 
+<!-- cup:ref file=codeupipe/__init__.py hash=7a603ab -->
 ```
 Payload (data)
    │
@@ -38,10 +39,13 @@ Pipeline.run(payload)  ──or──  Pipeline.stream(async_iter)
    │
    └─ Hook.on_error()  (on exception)
 ```
+<!-- /cup:ref -->
 
 ---
 
 ## Project Structure
+
+<!-- cup:ref file=codeupipe/__init__.py hash=7a603ab -->
 
 ```
 codeupipe/
@@ -76,6 +80,32 @@ codeupipe/
 │       ├── __init__.py          # Exports: build_export_pipeline, build_import_pipeline
 │       ├── export_pipeline.py   # CUP → Standard pipeline
 │       └── import_pipeline.py   # Standard → CUP pipeline
+├── linter/
+│   ├── __init__.py          # 24 exports across lint, coverage, report, and doc-check pipelines
+│   ├── scan_directory.py    # ScanDirectory — walks directory tree
+│   ├── check_naming.py      # CheckNaming — CUP007 snake_case enforcement
+│   ├── check_structure.py   # CheckStructure — CUP001 one-per-file
+│   ├── check_protocols.py   # CheckProtocols — CUP003-006 method checks
+│   ├── check_tests.py       # CheckTests — CUP002 test file pairing
+│   ├── check_bundle.py      # CheckBundle — CUP008 stale __init__.py
+│   ├── lint_pipeline.py     # build_lint_pipeline()
+│   ├── scan_components.py   # ScanComponents — component discovery
+│   ├── scan_tests.py        # ScanTests — test file discovery
+│   ├── map_coverage.py      # MapCoverage — component↔test mapping
+│   ├── report_gaps.py       # ReportGaps — missing test detection
+│   ├── coverage_pipeline.py # build_coverage_pipeline()
+│   ├── detect_orphans.py    # DetectOrphans — orphaned file detection
+│   ├── git_history.py       # GitHistory — git blame/commit data
+│   ├── assemble_report.py   # AssembleReport — health score generation
+│   ├── report_pipeline.py   # build_report_pipeline()
+│   ├── scan_docs.py         # ScanDocs — extract cup:ref markers from .md files
+│   ├── resolve_refs.py      # ResolveRefs — resolve file paths in markers
+│   ├── check_symbols.py     # CheckSymbols — verify symbols exist in source
+│   ├── detect_drift.py      # DetectDrift — hash comparison for staleness
+│   ├── assemble_doc_report.py  # AssembleDocReport — build doc-check report
+│   └── doc_check_pipeline.py   # build_doc_check_pipeline()
+├── testing.py               # Test utilities — run_filter, assert_payload, mock_filter, etc.
+├── cli.py                   # CLI entry point — cup new/list/bundle/lint/coverage/report/doc-check
 ├── utils/
 │   ├── __init__.py
 │   └── error_handling.py    # ErrorHandlingMixin, RetryFilter
@@ -94,6 +124,34 @@ tests/
 ├── test_streaming.py        # 18 tests
 ├── test_sync_support.py     # 9 tests
 ├── test_core_edge_cases.py  # 31 tests — core framework edge cases
+├── test_mixed_stream_pipeline.py  # 8 tests — sync+async+stream coexistence
+├── test_stream_filter_run_protection.py  # 8 tests — StreamFilter on .run() guard
+├── test_unintended_usage.py # 68 tests — misuse and boundary conditions
+├── test_real_world_pipelines.py  # 36 tests — realistic multi-stage demos
+├── test_cli.py              # 210 tests — CLI scaffolding, bundle, lint, coverage, report
+├── test_scan_directory.py   # 20 tests — ScanDirectory filter
+├── test_check_naming.py     # 8 tests — CheckNaming filter
+├── test_check_structure.py  # 8 tests — CheckStructure filter
+├── test_check_protocols.py  # 14 tests — CheckProtocols filter
+├── test_check_tests.py      # 8 tests — CheckTests filter
+├── test_check_bundle.py     # 7 tests — CheckBundle filter
+├── test_lint_pipeline.py    # 12 tests — lint pipeline integration
+├── test_scan_components.py  # 14 tests — ScanComponents filter
+├── test_scan_tests.py       # 11 tests — ScanTests filter
+├── test_map_coverage.py     # 9 tests — MapCoverage filter
+├── test_report_gaps.py      # 7 tests — ReportGaps filter
+├── test_coverage_pipeline.py  # 8 tests — coverage pipeline integration
+├── test_detect_orphans.py   # 11 tests — DetectOrphans filter
+├── test_git_history.py      # 7 tests — GitHistory filter
+├── test_assemble_report.py  # 11 tests — AssembleReport filter
+├── test_report_pipeline.py  # 7 tests — report pipeline integration
+├── test_scan_docs.py        # 8 tests — ScanDocs filter
+├── test_resolve_refs.py     # 6 tests — ResolveRefs filter
+├── test_check_symbols.py    # 6 tests — CheckSymbols filter
+├── test_detect_drift.py     # 6 tests — DetectDrift filter
+├── test_assemble_doc_report.py  # 6 tests — AssembleDocReport filter
+├── test_doc_check_pipeline.py   # 9 tests — doc-check pipeline + CLI integration
+├── test_testing.py          # 33 tests — testing wrapper utilities
 └── converter/
     ├── __init__.py
     ├── test_unit.py         # 36 tests — config, all 7 filters, log tap
@@ -105,18 +163,22 @@ tests/
 examples/
 ├── simple_math.py
 ├── typed_example.py
-├── payload_default_demo.py
-├── valve_tap_demo.py
-├── streaming_demo.py
+├── context_default_demo.py
+├── typed_vs_untyped_comparison.py
+├── typed_workflow_patterns.py
 └── components/              # Organized filter/hook/tap/pipeline files
+INDEX.md                     # Project structure map (verified by cup doc-check)
 CONCEPTS.md                  # Full API reference with runnable examples
+BEST_PRACTICES.md            # Project structure, naming, testing guidance
 README.md                    # Quick-start guide
 ```
+<!-- /cup:ref -->
 
 ---
 
 ## Core Types — Quick Reference
 
+<!-- cup:ref file=codeupipe/core/__init__.py hash=e3e2418 -->
 | Type | Kind | Purpose |
 |---|---|---|
 | `Payload[T]` | Class | Immutable data container. `.get()`, `.insert()`, `.merge()`, `.to_dict()`, `.with_mutation()` |
@@ -133,6 +195,31 @@ README.md                    # Quick-start guide
 | `load_config` | Function | Parse `.cup.json` or apply pattern defaults (`mvc`, `clean`, `hexagonal`, `flat`). |
 | `build_export_pipeline` | Function | Returns a Pipeline that converts CUP → standard Python (with pattern layout). |
 | `build_import_pipeline` | Function | Returns a Pipeline that converts standard Python → CUP. |
+| `build_lint_pipeline` | Function | Returns a Pipeline that checks CUP conventions (CUP000–CUP008). |
+| `build_coverage_pipeline` | Function | Returns a Pipeline that maps component↔test coverage gaps. |
+| `build_report_pipeline` | Function | Returns a Pipeline that generates project health reports. |
+| `build_doc_check_pipeline` | Function | Returns a Pipeline that verifies doc freshness (cup:ref markers). |
+<!-- /cup:ref -->
+
+### Testing Utilities (`from codeupipe.testing import ...`)
+
+<!-- cup:ref file=codeupipe/testing.py symbols=run_filter,run_pipeline,assert_payload,assert_keys,assert_state,mock_filter hash=c119f9c -->
+
+| Export | Kind | Purpose |
+|---|---|---|
+| `run_filter` | Function | Run a single filter with dict or Payload — handles sync/async transparently. |
+| `run_pipeline` | Function | Run a pipeline, optionally returning `(result, state)`. |
+| `assert_pipeline_streaming` | Function | Run pipeline in streaming mode, collect output chunks for assertion. |
+| `assert_payload` | Function | Assert payload contains expected key=value pairs. |
+| `assert_keys` | Function | Assert payload contains specified keys. |
+| `assert_state` | Function | Assert pipeline state after execution. |
+| `mock_filter` | Function | Create a mock filter that inserts predefined data and records calls. |
+| `mock_tap` | Function | Create a recording tap for testing. |
+| `mock_hook` | Function | Create a recording hook for testing. |
+| `cup_component` | Function | Scaffold a CUP component file on disk for analysis tests. |
+| `RecordingTap` | Class | Tap that records every payload it observes. |
+| `RecordingHook` | Class | Hook that records all lifecycle events. |
+<!-- /cup:ref -->
 
 ---
 
@@ -147,6 +234,20 @@ from codeupipe import (
     ErrorHandlingMixin, RetryFilter,
     # Converter
     load_config, build_export_pipeline, build_import_pipeline,
+)
+
+# Linter / Analysis pipelines
+from codeupipe.linter import (
+    build_lint_pipeline, build_coverage_pipeline, build_report_pipeline,
+    build_doc_check_pipeline,
+)
+
+# Testing utilities
+from codeupipe.testing import (
+    run_filter, run_pipeline, assert_pipeline_streaming,
+    assert_payload, assert_keys, assert_state,
+    mock_filter, mock_tap, mock_hook,
+    cup_component, RecordingTap, RecordingHook,
 )
 ```
 
@@ -372,7 +473,7 @@ pipeline.state.reset()            # clear everything for a fresh run
 ## Testing
 
 ```bash
-# Run all 343 tests
+# Run all 909 tests
 pytest
 
 # Run with verbose output
@@ -403,6 +504,41 @@ Test configuration lives in `pyproject.toml` — `asyncio_mode = strict`, test p
 | `test_docs_examples.py` | 37 | Every runnable example from CONCEPTS.md |
 | `test_streaming.py` | 18 | StreamFilter, Pipeline.stream(), streaming state |
 | `test_sync_support.py` | 9 | Sync filters, taps, hooks, valves |
+| `test_core_edge_cases.py` | 31 | Core framework edge cases |
+| `test_mixed_stream_pipeline.py` | 8 | Sync+async+stream filter coexistence |
+| `test_stream_filter_run_protection.py` | 8 | StreamFilter on .run() guard |
+| `test_unintended_usage.py` | 68 | Misuse patterns and boundary conditions |
+| `test_real_world_pipelines.py` | 36 | Realistic multi-stage pipeline demos |
+| `test_cli.py` | 210 | CLI scaffolding, bundle, lint, coverage, report |
+| `test_scan_directory.py` | 20 | ScanDirectory filter |
+| `test_check_naming.py` | 8 | CheckNaming filter |
+| `test_check_structure.py` | 8 | CheckStructure filter |
+| `test_check_protocols.py` | 14 | CheckProtocols filter |
+| `test_check_tests.py` | 8 | CheckTests filter |
+| `test_check_bundle.py` | 7 | CheckBundle filter |
+| `test_lint_pipeline.py` | 12 | Lint pipeline integration |
+| `test_scan_components.py` | 14 | ScanComponents filter |
+| `test_scan_tests.py` | 11 | ScanTests filter |
+| `test_map_coverage.py` | 9 | MapCoverage filter |
+| `test_report_gaps.py` | 7 | ReportGaps filter |
+| `test_coverage_pipeline.py` | 8 | Coverage pipeline integration |
+| `test_detect_orphans.py` | 11 | DetectOrphans filter |
+| `test_git_history.py` | 7 | GitHistory filter |
+| `test_assemble_report.py` | 11 | AssembleReport filter |
+| `test_report_pipeline.py` | 7 | Report pipeline integration |
+| `test_scan_docs.py` | 8 | ScanDocs doc-check filter |
+| `test_resolve_refs.py` | 6 | ResolveRefs doc-check filter |
+| `test_check_symbols.py` | 6 | CheckSymbols doc-check filter |
+| `test_detect_drift.py` | 6 | DetectDrift doc-check filter |
+| `test_assemble_doc_report.py` | 6 | AssembleDocReport doc-check filter |
+| `test_doc_check_pipeline.py` | 9 | Doc-check pipeline + CLI integration |
+| `test_testing.py` | 33 | Testing wrapper utilities |
+| converter/`test_unit.py` | 36 | Config, all 7 converter filters, log tap |
+| converter/`test_integration.py` | 12 | Export & import pipeline integration |
+| converter/`test_integration_edge.py` | 16 | Edge cases for full pipelines |
+| converter/`test_e2e.py` | 11 | Round-trip: MVC, Clean, Hexagonal, Flat |
+| converter/`test_edge_cases.py` | 75 | Boundary conditions, tricky inputs |
+| converter/`test_workflows.py` | 18 | Real-world ETL, auth, validation workflows |
 
 ---
 

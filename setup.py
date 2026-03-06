@@ -7,4 +7,7 @@ setup(
     author="Joshua Wink",
     packages=find_packages(),
     install_requires=[],  # Pure Python - zero dependencies!
+    entry_points={
+        "console_scripts": ["cup=codeupipe.cli:main"],
+    },
 )
