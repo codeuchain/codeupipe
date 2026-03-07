@@ -19,28 +19,41 @@ def _comp(name, stem, kind="filter", file_path=None):
     }
 
 
+_GIT_ENV = {
+    "GIT_AUTHOR_NAME": "Test User",
+    "GIT_AUTHOR_EMAIL": "test@test.com",
+    "GIT_COMMITTER_NAME": "Test User",
+    "GIT_COMMITTER_EMAIL": "test@test.com",
+}
+
+
+def _git(args, cwd, **kwargs):
+    """Run a git command with check=True so test setup failures are loud."""
+    env = {**os.environ, **_GIT_ENV}
+    return subprocess.run(
+        ["git"] + args, cwd=str(cwd), capture_output=True, text=True,
+        check=True, env=env, **kwargs,
+    )
+
+
+def _init_repo(tmp_path):
+    """Create a git repo with identity configured. Returns repo path."""
+    _git(["init", "-b", "main"], tmp_path)
+    _git(["config", "user.email", "test@test.com"], tmp_path)
+    _git(["config", "user.name", "Test User"], tmp_path)
+    return tmp_path
+
+
 class TestGitHistory:
     """Unit tests for GitHistory filter."""
 
     def test_returns_git_data_for_tracked_file(self, tmp_path):
         """Components in a real git repo get last_modified, author, commit_count."""
-        # Create a real git repo
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "config", "user.email", "test@test.com"],
-            cwd=str(tmp_path), capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.name", "Test User"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _init_repo(tmp_path)
         f = tmp_path / "auth.py"
         f.write_text("class Auth:\n    def call(self, p): ...\n")
-        subprocess.run(["git", "add", "."], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _git(["add", "."], tmp_path)
+        _git(["commit", "-m", "init"], tmp_path)
 
         comps = [_comp("Auth", "auth", file_path=str(f))]
         payload = Payload({"components": comps, "directory": str(tmp_path)})
@@ -57,15 +70,7 @@ class TestGitHistory:
 
     def test_untracked_file_gets_none_info(self, tmp_path):
         """Files not in git get null/default git info."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "config", "user.email", "t@t.com"],
-            cwd=str(tmp_path), capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.name", "T"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _init_repo(tmp_path)
         # Create file but don't commit
         f = tmp_path / "new.py"
         f.write_text("class New:\n    def call(self, p): ...\n")
@@ -91,22 +96,11 @@ class TestGitHistory:
 
     def test_days_since_change_computed(self, tmp_path):
         """Each file entry should have days_since_change >= 0."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "config", "user.email", "t@t.com"],
-            cwd=str(tmp_path), capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.name", "T"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _init_repo(tmp_path)
         f = tmp_path / "auth.py"
         f.write_text("class Auth:\n    def call(self, p): ...\n")
-        subprocess.run(["git", "add", "."], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _git(["add", "."], tmp_path)
+        _git(["commit", "-m", "init"], tmp_path)
 
         comps = [_comp("Auth", "auth", file_path=str(f))]
         payload = Payload({"components": comps, "directory": str(tmp_path)})
@@ -117,31 +111,20 @@ class TestGitHistory:
         assert entry["days_since_change"] >= 0
 
     def test_empty_components(self, tmp_path):
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
+        _init_repo(tmp_path)
         payload = Payload({"components": [], "directory": str(tmp_path)})
         result = GitHistory().call(payload)
         assert result.get("git_info") == {}
 
     def test_multiple_files(self, tmp_path):
         """Multiple component files each get their own git info."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "config", "user.email", "t@t.com"],
-            cwd=str(tmp_path), capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.name", "T"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _init_repo(tmp_path)
         f1 = tmp_path / "a.py"
         f1.write_text("class A:\n    def call(self, p): ...\n")
         f2 = tmp_path / "b.py"
         f2.write_text("class B:\n    def call(self, p): ...\n")
-        subprocess.run(["git", "add", "."], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _git(["add", "."], tmp_path)
+        _git(["commit", "-m", "init"], tmp_path)
 
         comps = [
             _comp("A", "a", file_path=str(f1)),
@@ -155,15 +138,7 @@ class TestGitHistory:
 
     def test_test_files_included_when_present(self, tmp_path):
         """test_map file entries also get git history."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "config", "user.email", "t@t.com"],
-            cwd=str(tmp_path), capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.name", "T"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _init_repo(tmp_path)
         comp_dir = tmp_path / "src"
         comp_dir.mkdir()
         f = comp_dir / "auth.py"
@@ -172,11 +147,8 @@ class TestGitHistory:
         tests_dir.mkdir()
         tf = tests_dir / "test_auth.py"
         tf.write_text("def test_a(): ...\n")
-        subprocess.run(["git", "add", "."], cwd=str(tmp_path), capture_output=True)
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=str(tmp_path), capture_output=True,
-        )
+        _git(["add", "."], tmp_path)
+        _git(["commit", "-m", "init"], tmp_path)
 
         comps = [_comp("Auth", "auth", file_path=str(f))]
         test_map = [{"test_file": str(tf), "stem": "auth", "test_methods": ["test_a"],
