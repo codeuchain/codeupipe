@@ -18,7 +18,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=cc63942 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=de21af3 -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -124,14 +124,15 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=7667652 -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=a042eab -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
-<!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=fbf6e3d -->
-<!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=0235160 -->
+<!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=cfaa8e1 -->
+<!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
 <!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
 <!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=d55f1d0 -->
-<!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=c46af7d -->
+<!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=42f644d -->
 <!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
+<!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
 <!-- cup:ref file=codeupipe/deploy/recipe.py symbols=RecipeError,list_recipes,resolve_recipe hash=6e84b7a -->
 <!-- cup:ref file=codeupipe/deploy/vercel.py symbols=VercelAdapter hash=33ddeb5 -->
 | Type | Source | Role |
@@ -142,6 +143,7 @@ codeupipe/
 | `DockerAdapter` | deploy/docker.py | Docker build + push |
 | `VercelAdapter` | deploy/vercel.py | Vercel deployment |
 | `NetlifyAdapter` | deploy/netlify.py | Netlify deployment |
+| `RenderAdapter` | deploy/render.py | Render free-tier deployment |
 | `render_*_handler` | deploy/handlers.py | Serverless entry-point renderers |
 | `init_project` | deploy/init.py | `cup init` scaffolding |
 | `load_manifest` | deploy/manifest.py | Parse & validate cup.toml |

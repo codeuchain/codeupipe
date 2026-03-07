@@ -29,7 +29,7 @@ from .converter.pipelines import build_export_pipeline, build_import_pipeline
 from .registry import Registry, cup_component, default_registry
 from .distribute import RemoteFilter, Checkpoint, CheckpointHook, IterableSource, FileSource, WorkerPool
 from .deploy import (
-    DeployTarget, DeployAdapter, DockerAdapter, VercelAdapter, NetlifyAdapter,
+    DeployTarget, DeployAdapter, DockerAdapter, VercelAdapter, NetlifyAdapter, RenderAdapter,
     find_adapters, load_manifest, ManifestError,
     resolve_recipe, list_recipes, RecipeError,
     init_project, list_templates, InitError,
@@ -68,7 +68,7 @@ __all__ = [
     "IterableSource", "FileSource", "WorkerPool",
     # Deploy
     "DeployTarget", "DeployAdapter", "DockerAdapter",
-    "VercelAdapter", "NetlifyAdapter",
+    "VercelAdapter", "NetlifyAdapter", "RenderAdapter",
     "find_adapters", "load_manifest", "ManifestError",
     "resolve_recipe", "list_recipes", "RecipeError",
     "init_project", "list_templates", "InitError",

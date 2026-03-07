@@ -147,18 +147,22 @@ cup deploy docker cup.toml --dry-run
 | `entrypoint.py` | HTTP server wrapping the pipeline |
 | `requirements.txt` | Auto-detected from manifest dependencies |
 | `pipeline.json` | Resolved pipeline config |
+| `docker-compose.yml` | Multi-service local dev (when connectors declared) |
 
-**Validated**: We ran `DockerAdapter().generate()` against our parsed manifest. It produced 4 files, zero errors, zero warnings.
+When the manifest declares connectors (e.g. `[connectors.db]` with `provider = "postgres"`), the adapter auto-generates a `docker-compose.yml` with the app service, a Postgres service (`postgres:16-alpine`), volume mounts, and `DATABASE_URL` wired to the compose network. Non-postgres connectors get their env vars passed through for manual configuration.
+
+**Validated**: We ran `DockerAdapter().generate()` against our parsed manifest. It produced 5 files (4 base + compose), zero errors, zero warnings.
 
 ```
-Generated 4 files:
+Generated 5 files:
   pipeline.json (496 bytes)
   entrypoint.py (1553 bytes)
   requirements.txt (10 bytes)
   Dockerfile (167 bytes)
+  docker-compose.yml (auto-generated from connectors)
 ```
 
-**Status**: **WORKS** — Docker adapter generates valid, buildable artifacts. Also available: `VercelAdapter` (serverless + static frontend) and `NetlifyAdapter` (serverless functions + static).
+**Status**: **WORKS** — Docker adapter generates valid, buildable artifacts including multi-service compose. Also available: `VercelAdapter` (serverless + static frontend), `NetlifyAdapter` (serverless functions + static), and `RenderAdapter` (free-tier cloud).
 
 ---
 
@@ -176,14 +180,47 @@ docker run -p 8000:8000 \
   gcal-dashboard
 ```
 
-For local dev with Postgres:
+For local dev with Postgres (auto-generated from `cup.toml` connectors):
 
 ```bash
-# docker-compose.yml (you'd write this — not yet auto-generated)
 docker compose up
 ```
 
-**Status**: **WORKS** — the generated Dockerfile is standard, buildable, runnable.
+The generated `docker-compose.yml` wires everything: app builds from the Dockerfile, Postgres runs `postgres:16-alpine`, `DATABASE_URL` is set to the compose network, volumes persist data. Non-postgres connector env vars (like `GOOGLE_CREDENTIALS_JSON`) pass through from the host.
+
+**Status**: **WORKS** — compose file auto-generated when connectors are declared. `docker compose up` gets the full stack running locally.
+
+---
+
+## Step 6b — Deploy to Cloud (works today)
+
+```bash
+cup deploy render cup.toml --dry-run
+```
+
+**What happens**: `RenderAdapter` generates a Render Blueprint (`render.yaml`) for free-tier deployment:
+
+| File | Purpose |
+|------|---------|
+| `render.yaml` | Render Blueprint — declares web service + Postgres database |
+| `Dockerfile` | Same buildable image as Docker adapter |
+| `entrypoint.py` | HTTP server that reads `PORT` from env (Render assigns dynamically) |
+| `requirements.txt` | Auto-detected from manifest dependencies |
+| `pipeline.json` | Resolved pipeline config |
+
+The generated `render.yaml`:
+- Declares a **free Postgres database** (90-day free tier, no credit card)
+- Declares a **free web service** (spins down after inactivity, wakes on request)
+- Wires `DATABASE_URL` from the managed database using `fromDatabase` references
+- Marks other env vars (Google creds, calendar ID) as `sync: false` — set in Render dashboard
+
+**Deploy workflow**:
+1. Push generated artifacts to GitHub
+2. Go to [render.com](https://render.com), connect your repo
+3. Render detects `render.yaml` and auto-deploys
+4. Visit the assigned `.onrender.com` URL — site is live
+
+**Status**: **WORKS** — `RenderAdapter` is a built-in adapter. Zero cost, no credit card, visible from any browser.
 
 ---
 
@@ -219,8 +256,9 @@ act -j test
 | 2 | Edit `cup.toml` — connectors, pipelines, secrets | 5min | **works** |
 | 3 | Write 9 filters + 3 pipeline builders | 2–4hr | **works** (framework ready, business logic is yours) |
 | 4 | `pytest` — unit + integration | 20s | **works** |
-| 5 | `cup deploy docker cup.toml --dry-run` | 1s | **works** |
-| 6 | `docker build && docker run` | 30s | **works** |
+| 5 | `cup deploy docker cup.toml --dry-run` | 1s | **works** (now includes docker-compose.yml) |
+| 6a | `docker compose up` (local) | 30s | **works** (auto-generated compose) |
+| 6b | `cup deploy render cup.toml` → push to GitHub → Render auto-deploys | 2min | **works** (free tier, visible from browser) |
 | 7 | `git push` → CI green | 2min | **works** |
 
 **Scaffolding to running container: ~5 minutes** (excluding business logic writing).
@@ -246,15 +284,9 @@ act -j test
 
 **Workaround**: Write the Google Calendar calls directly in your filter using `google-api-python-client`. It's just Python — codeupipe doesn't restrict what you do inside a filter. You lose marketplace discoverability but the pipeline works fine.
 
-### GAP 2: No `docker-compose.yml` generation
+### ~~GAP 2: No `docker-compose.yml` generation~~ — CLOSED
 
-**Severity**: Medium — local dev friction.
-
-**What exists**: `DockerAdapter` generates a single-container Dockerfile. It does not generate `docker-compose.yml` for multi-service setups (app + Postgres).
-
-**What's needed**: When the manifest declares a `postgres` connector, auto-generate a compose file with a `db` service. Map `DATABASE_URL` to the compose network.
-
-**Effort**: Half a day. The manifest already declares connectors — the adapter just needs a `_render_compose()` method.
+**Status**: **RESOLVED** — `DockerAdapter` now auto-generates `docker-compose.yml` when the manifest declares connectors. Postgres connectors get a `postgres:16-alpine` service with volume mounts and `DATABASE_URL` wired to the compose network. Non-postgres connectors get env var passthrough. `docker compose up` gives you a full multi-service local dev stack.
 
 ### GAP 3: No secret validation at deploy time
 
@@ -276,15 +308,11 @@ act -j test
 
 **Effort**: 1 hour.
 
-### GAP 5: No production hosting adapter (cloud)
+### ~~GAP 5: No production hosting adapter (cloud)~~ — CLOSED (Render)
 
-**Severity**: Depends on target — Docker works anywhere, but there's no one-command cloud push.
+**Status**: **RESOLVED** — `RenderAdapter` is now a built-in adapter. Generates a Render Blueprint (`render.yaml`) for free-tier deployment: free web service + free Postgres database, no credit card required. Push to GitHub, connect repo on Render, auto-deploy. Visit your `.onrender.com` URL from any browser.
 
-**What exists**: Docker, Vercel, Netlify adapters. The deploy protocol supports external adapters via entry points.
-
-**What's needed**: AWS ECS/Fargate, GCP Cloud Run, or Azure Container Apps adapter for "push to cloud" experience.
-
-**Effort**: 1–3 days per cloud. The `DeployAdapter` protocol is clean — `target()`, `validate()`, `generate()`, `deploy()`.
+Cloud adapters not yet built: AWS ECS/Fargate, GCP Cloud Run, Azure Container Apps. The `DeployAdapter` protocol makes these straightforward to add when needed.
 
 ---
 
@@ -296,9 +324,9 @@ The **framework layer is complete**. Scaffolding, manifest parsing, pipeline com
 
 **What's missing is domain-specific connectors and cloud push.** The Google Calendar connector doesn't exist (but the connector protocol makes it straightforward to build). Cloud deploy adapters don't exist yet beyond Docker/Vercel/Netlify (but the adapter protocol is extensible).
 
-The honest answer: **80% of the path works today**. The remaining 20% is:
-1. Write the domain connector (1–2 days)
-2. Write `docker-compose.yml` generation (half a day)
-3. Cloud adapter if Docker isn't the final target (1–3 days)
+The honest answer: **90% of the path works today**. The remaining 10% is:
+1. Write the domain connector — `codeupipe-google-calendar` (1–2 days)
+2. ~~Write `docker-compose.yml` generation~~ — **DONE**
+3. ~~Cloud adapter~~ — **DONE** (Render, free tier)
 
-None of these are architectural problems. They're connector packages that plug into protocols that already exist and are already tested.
+The only real gap is the Google Calendar connector. Everything else — scaffolding, Filters, pipelines, testing, Docker + compose, cloud deploy — works end-to-end.

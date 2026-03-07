@@ -925,3 +925,272 @@ class TestExportsRing7b:
         assert callable(render_vercel_handler)
         assert callable(render_netlify_handler)
         assert callable(render_lambda_handler)
+
+
+# ── Docker Compose Generation ───────────────────────────────────────
+
+class TestDockerCompose:
+    """Tests for docker-compose.yml generation in DockerAdapter."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.docker import DockerAdapter
+        return DockerAdapter()
+
+    @pytest.fixture
+    def config_with_postgres(self):
+        return {
+            "project": {"name": "my-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {
+                "db": {
+                    "provider": "postgres",
+                    "connection_string_env": "DATABASE_URL",
+                },
+            },
+        }
+
+    @pytest.fixture
+    def config_no_connectors(self):
+        return {
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+        }
+
+    def test_compose_generated_when_connectors_present(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(config_with_postgres, out)
+        names = [f.name for f in files]
+        assert "docker-compose.yml" in names
+
+    def test_compose_not_generated_without_connectors(self, adapter, config_no_connectors, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(config_no_connectors, out)
+        names = [f.name for f in files]
+        assert "docker-compose.yml" not in names
+
+    def test_compose_contains_postgres_service(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(config_with_postgres, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "postgres:16-alpine" in compose
+        assert "POSTGRES_USER" in compose
+        assert "5432" in compose
+
+    def test_compose_wires_database_url(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(config_with_postgres, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "DATABASE_URL:" in compose
+        assert "postgresql://" in compose
+
+    def test_compose_contains_app_service(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(config_with_postgres, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "my-app:" in compose
+        assert "build: ." in compose
+        assert "8000:8000" in compose
+
+    def test_compose_has_depends_on(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(config_with_postgres, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "depends_on:" in compose
+
+    def test_compose_has_volumes(self, adapter, config_with_postgres, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(config_with_postgres, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "volumes:" in compose
+
+    def test_compose_generic_connector_passes_env(self, adapter, tmp_path):
+        config = {
+            "project": {"name": "test"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {
+                "gcal": {
+                    "provider": "google-calendar",
+                    "credentials_env": "GOOGLE_CREDS",
+                },
+            },
+        }
+        out = tmp_path / "out"
+        adapter.generate(config, out)
+        compose = (out / "docker-compose.yml").read_text()
+        assert "GOOGLE_CREDS" in compose
+
+
+# ── RenderAdapter ───────────────────────────────────────────────────
+
+class TestRenderAdapter:
+    """Tests for the RenderAdapter — free-tier cloud deploy."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.render import RenderAdapter
+        return RenderAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {
+                "db": {
+                    "provider": "postgres",
+                    "connection_string_env": "DATABASE_URL",
+                },
+            },
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "render"
+        assert "free" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        issues = adapter.validate(valid_config)
+        assert issues == []
+
+    def test_validate_missing_pipeline(self, adapter):
+        issues = adapter.validate({"not_pipeline": {}})
+        assert len(issues) == 1
+
+    def test_validate_missing_steps(self, adapter):
+        issues = adapter.validate({"pipeline": {"name": "x"}})
+        assert len(issues) == 1
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "render.yaml" in names
+        assert "Dockerfile" in names
+        assert "pipeline.json" in names
+        assert "entrypoint.py" in names
+        assert "requirements.txt" in names
+
+    def test_render_yaml_has_free_plan(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "plan: free" in blueprint
+
+    def test_render_yaml_has_database(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "databases:" in blueprint
+        assert "test-app-db" in blueprint
+
+    def test_render_yaml_wires_database_url(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "DATABASE_URL" in blueprint
+        assert "fromDatabase:" in blueprint
+        assert "connectionString" in blueprint
+
+    def test_render_yaml_has_web_service(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "services:" in blueprint
+        assert "type: web" in blueprint
+        assert "runtime: docker" in blueprint
+
+    def test_render_yaml_generic_connector_env(self, adapter, tmp_path):
+        config = {
+            "project": {"name": "x"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {
+                "gcal": {
+                    "provider": "google-calendar",
+                    "credentials_env": "GOOGLE_CREDS",
+                },
+            },
+        }
+        out = tmp_path / "out"
+        adapter.generate(config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "GOOGLE_CREDS" in blueprint
+        assert "sync: false" in blueprint
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "render.com" in result.lower() or "render" in result.lower()
+
+    def test_deploy_with_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        result = adapter.deploy(out)
+        assert "render.yaml" in result.lower() or "render" in result.lower()
+        assert "github" in result.lower()
+
+    def test_entrypoint_reads_port_from_env(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        ep = (out / "entrypoint.py").read_text()
+        assert "PORT" in ep
+        assert "os.environ" in ep
+
+    def test_no_connectors_no_databases(self, adapter, tmp_path):
+        config = {
+            "project": {"name": "simple"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+        out = tmp_path / "out"
+        adapter.generate(config, out)
+        blueprint = (out / "render.yaml").read_text()
+        assert "databases:" not in blueprint
+
+
+# ── Render Discovery + Manifest ─────────────────────────────────────
+
+class TestRenderDiscovery:
+    """Verify Render adapter is discovered and manifest accepts 'render' target."""
+
+    def test_render_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        adapters = find_adapters()
+        assert "render" in adapters
+
+    def test_manifest_accepts_render_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml_content = (
+            '[project]\nname = "test"\n\n'
+            '[deploy]\ntarget = "render"\n'
+        )
+        toml_file = tmp_path / "cup.toml"
+        toml_file.write_text(toml_content)
+        m = load_manifest(str(toml_file))
+        assert m["deploy"]["target"] == "render"
+
+    def test_render_export_from_top_level(self):
+        from codeupipe import RenderAdapter
+        assert RenderAdapter is not None
+
+    def test_render_export_from_deploy(self):
+        from codeupipe.deploy import RenderAdapter
+        assert RenderAdapter is not None

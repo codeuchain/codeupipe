@@ -11,6 +11,7 @@ from .discovery import find_adapters
 from .docker import DockerAdapter
 from .vercel import VercelAdapter
 from .netlify import NetlifyAdapter
+from .render import RenderAdapter
 from .manifest import load_manifest, ManifestError
 from .recipe import resolve_recipe, list_recipes, RecipeError
 from .init import init_project, list_templates, InitError
@@ -22,6 +23,7 @@ __all__ = [
     "DockerAdapter",
     "VercelAdapter",
     "NetlifyAdapter",
+    "RenderAdapter",
     "find_adapters",
     "load_manifest",
     "ManifestError",

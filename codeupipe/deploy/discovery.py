@@ -24,11 +24,12 @@ def find_adapters() -> Dict[str, DeployAdapter]:
     from .docker import DockerAdapter
     from .vercel import VercelAdapter
     from .netlify import NetlifyAdapter
+    from .render import RenderAdapter
 
     adapters: Dict[str, DeployAdapter] = {}
 
     # Built-in adapters — always available
-    for cls in (DockerAdapter, VercelAdapter, NetlifyAdapter):
+    for cls in (DockerAdapter, VercelAdapter, NetlifyAdapter, RenderAdapter):
         adapter = cls()
         adapters[adapter.target().name] = adapter
 
