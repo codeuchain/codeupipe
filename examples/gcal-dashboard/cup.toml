@@ -1,0 +1,99 @@
+# ─────────────────────────────────────────────────────────────
+# Google Calendar Dashboard — cup.toml
+#
+# A React + Postgres app that syncs, displays, and manages
+# Google Calendar events. Deployed as Docker containers.
+#
+# Run: cup deploy docker cup.toml
+# ─────────────────────────────────────────────────────────────
+
+[project]
+name        = "gcal-dashboard"
+version     = "0.1.0"
+description = "Google Calendar management dashboard — sync, view, edit events"
+
+[frontend]
+framework     = "react"
+build_command = "npm run build"
+output_dir    = "dist"
+
+[deploy]
+target = "docker"
+
+[deploy.options]
+mode           = "http"
+port           = 8000
+python_version = "3.12"
+
+[dependencies]
+codeupipe          = ">=0.9.0"
+codeupipe-postgres = ">=0.1.0"
+
+# ── Connectors ──────────────────────────────────────────────
+
+[connectors.db]
+provider             = "postgres"
+connection_string_env = "DATABASE_URL"
+
+# NOTE: codeupipe-google-calendar does not exist yet.
+# The google-ai connector exists, but a Calendar-specific
+# connector (OAuth + Calendar API) would need to be built.
+# See DEPLOY.md § Gap Analysis for details.
+#
+# For this manifest we declare the intended shape:
+[connectors.gcal]
+provider        = "google-calendar"
+credentials_env = "GOOGLE_CREDENTIALS_JSON"
+calendar_id_env = "GOOGLE_CALENDAR_ID"
+
+# ── Pipeline: Sync Events ──────────────────────────────────
+
+[pipelines.sync_events]
+description = "Pull events from Google Calendar → upsert into Postgres"
+schedule    = "*/15 * * * *"
+steps       = [
+    { name = "FetchCalendarEvents", type = "filter" },
+    { name = "NormalizeEvents",     type = "filter" },
+    { name = "DeduplicateEvents",   type = "valve"  },
+    { name = "UpsertEvents",        type = "filter" },
+    { name = "SyncAuditLog",        type = "tap"    },
+]
+require_input    = ["calendar_id", "sync_token"]
+guarantee_output = ["synced_count", "next_sync_token"]
+
+# ── Pipeline: CRUD Events ──────────────────────────────────
+
+[pipelines.crud_events]
+description = "Create / Read / Update / Delete calendar events"
+steps       = [
+    { name = "ValidateEventInput", type = "filter" },
+    { name = "AuthorizeUser",      type = "valve"  },
+    { name = "RouteByMethod",      type = "filter" },
+    { name = "PersistToPostgres",  type = "filter" },
+    { name = "PushToGoogleCal",    type = "filter" },
+    { name = "FormatResponse",     type = "filter" },
+]
+require_input    = ["method", "event"]
+guarantee_output = ["status", "event_id"]
+
+# ── Pipeline: Dashboard Query ──────────────────────────────
+
+[pipelines.dashboard_query]
+description = "Serve the React frontend's data needs — upcoming events, stats"
+steps       = [
+    { name = "ParseQueryParams",   type = "filter" },
+    { name = "QueryEventStore",    type = "filter" },
+    { name = "AggregateStats",     type = "filter" },
+    { name = "FormatDashboardJSON", type = "filter" },
+]
+require_input    = ["view", "date_range"]
+guarantee_output = ["events", "stats"]
+
+# ── Secrets ─────────────────────────────────────────────────
+
+[secrets]
+required = [
+    "DATABASE_URL",
+    "GOOGLE_CREDENTIALS_JSON",
+    "GOOGLE_CALENDAR_ID",
+]
