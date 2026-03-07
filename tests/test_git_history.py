@@ -47,6 +47,13 @@ def _init_repo(tmp_path):
 class TestGitHistory:
     """Unit tests for GitHistory filter."""
 
+    @pytest.fixture(autouse=True)
+    def _clean_git_env(self, monkeypatch):
+        """Remove inherited GIT_* env vars that could mislead the filter."""
+        for key in list(os.environ):
+            if key.startswith("GIT_"):
+                monkeypatch.delenv(key, raising=False)
+
     def test_returns_git_data_for_tracked_file(self, tmp_path):
         """Components in a real git repo get last_modified, author, commit_count."""
         _init_repo(tmp_path)
