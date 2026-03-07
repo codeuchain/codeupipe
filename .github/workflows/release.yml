@@ -72,13 +72,11 @@ jobs:
           name: dist
           path: dist/
 
-  # ── Publish to PyPI via trusted publishing ──
+  # ── Publish to PyPI ──
   publish:
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
-    permissions:
-      id-token: write  # Required for trusted publishing
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -87,3 +85,5 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
