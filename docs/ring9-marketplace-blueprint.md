@@ -96,7 +96,7 @@ NPM didn't succeed because Node was the best runtime. It succeeded because every
 │  (actual packages)  │     │  (source, issues, CI badges)     │
 │                     │     │                                  │
 │  codeupipe-stripe   │     │  codeuchain/codeupipe-stripe     │
-│  codeupipe-openai   │     │  codeuchain/codeupipe-openai     │
+│  codeupipe-google-ai│     │  codeuchain/codeupipe-google-ai  │
 │  codeupipe-twilio   │     │  community/codeupipe-twilio      │
 └─────────────────────┘     └──────────────────────────────────┘
 ```
@@ -123,13 +123,13 @@ The marketplace index is a static JSON file (later backed by a simple API) hoste
       "latest": "0.2.1"
     },
     {
-      "name": "codeupipe-openai",
-      "provider": "openai",
-      "pypi": "codeupipe-openai",
-      "repo": "https://github.com/codeuchain/codeupipe-openai",
-      "description": "OpenAI chat completions, embeddings, and image generation",
-      "categories": ["ai", "llm", "embeddings"],
-      "filters": ["OpenAIChat", "OpenAIEmbed", "OpenAIImage"],
+      "name": "codeupipe-google-ai",
+      "provider": "google-ai",
+      "pypi": "codeupipe-google-ai",
+      "repo": "https://github.com/codeuchain/codeupipe-google-ai",
+      "description": "Google AI (Gemini) — multimodal generation, embeddings, and vision",
+      "categories": ["ai", "llm", "multimodal", "vision", "embeddings"],
+      "filters": ["GeminiGenerate", "GeminiGenerateStream", "GeminiEmbed", "GeminiVision"],
       "trust": "verified",
       "min_codeupipe": "0.8.0",
       "latest": "0.1.0"
@@ -158,9 +158,9 @@ cup marketplace search "payments"
 #   pip install codeupipe-stripe
 
 cup marketplace search "ai"
-# → codeupipe-openai ✅ (v0.1.0) — Chat, Embeddings, Images
+# → codeupipe-google-ai ✅ (v0.1.0) — Multimodal Generation, Embeddings, Vision
 # → codeupipe-anthropic 🔷 (v0.3.0) — Claude completions
-#   Categories: ai, llm
+#   Categories: ai, llm, multimodal
 
 # Get detailed info
 cup marketplace info codeupipe-stripe
@@ -207,32 +207,40 @@ The first connectors need to:
 
 | # | Package | Provider | Why This One |
 |---|---------|----------|-------------|
-| 1 | `codeupipe-openai` | OpenAI | **The gravity well.** Every AI pipeline needs an LLM connector. Proves the pattern for SDK-heavy services with API-key auth. Chat completions, embeddings, and image gen cover 80% of AI pipeline use cases. |
+| 1 | `codeupipe-google-ai` | Google AI (Gemini) | **The multimodal gravity well.** One model handles text, images, audio, video, and code — no juggling separate endpoints per modality. Proves the pattern for SDK-heavy services with API-key auth. Covers 90% of AI pipeline use cases with a single connector. |
 | 2 | `codeupipe-stripe` | Stripe | **The payments workhorse.** Most SaaS pipelines need payments. Proves the pattern for webhook-driven services with complex objects. Checkout, subscription management, and webhook verification. |
 | 3 | `codeupipe-postgres` | PostgreSQL | **The database anchor.** Pipelines that don't touch a database are demos. Proves the pattern for connection-pooled, stateful services. Query, transaction, and bulk insert cover data pipeline needs. |
 | 4 | `codeupipe-resend` | Resend | **The modern email sender.** Simpler than SendGrid, developer-friendly API, proves the pattern for lightweight REST-first services. Send transactional email, template rendering, audience management. |
 
 ### Why These Four Specifically
 
-#### 1. `codeupipe-openai` — AI is the draw
+#### 1. `codeupipe-google-ai` — Multimodal is the draw
 
 ```
-User writes a pipeline → needs LLM → installs codeupipe-openai → discovers codeupipe
+User writes a pipeline → needs AI → installs codeupipe-google-ai → one connector handles text, vision, audio, code
 ```
 
-OpenAI is the most common first integration for any AI framework. If we don't have this, developers will roll their own HTTP calls and never reach for the connector system. This validates:
-- **SDK wrapping**: openai Python SDK → Filter
-- **Config-driven models**: `model = "gpt-4"` in cup.toml
-- **Streaming**: OpenAI's streaming API maps to `StreamFilter`
-- **Multi-filter packages**: Chat, Embed, Image are separate Filters in one package
+Google AI (Gemini) is the strongest first AI connector because of its native multimodality. A single model accepts text, images, audio, video, and PDFs — no separate endpoints, no modality-specific Filters, no model juggling. For 90% of real-world pipelines (analyze an image, summarize a PDF, transcribe audio, generate code), one connector does it all. This validates:
+- **SDK wrapping**: `google-genai` Python SDK → Filter
+- **Config-driven models**: `model = "gemini-2.0-flash"` in cup.toml
+- **Streaming**: Gemini's streaming API maps to `StreamFilter`
+- **Multimodal input**: Same Filter accepts text, image bytes, audio — pipeline decides what to send
+- **Multi-filter packages**: Generate, Embed, Vision are separate Filters but share one model config
 
 **Filters:**
 | Filter | Purpose |
-|--------|---------|
-| `OpenAIChat` | Chat completions (sync) |
-| `OpenAIChatStream` | Chat completions (streaming via StreamFilter) |
-| `OpenAIEmbed` | Text embeddings |
-| `OpenAIImage` | Image generation (DALL-E) |
+|--------|--------|
+| `GeminiGenerate` | Text generation / chat (sync) — accepts text + optional media |
+| `GeminiGenerateStream` | Streaming generation (via StreamFilter) |
+| `GeminiEmbed` | Text embeddings |
+| `GeminiVision` | Image/video/PDF analysis — structured output from visual input |
+
+**Why Google AI over OpenAI:**
+- **Native multimodality**: Gemini processes text + images + audio + video in a single call. OpenAI requires separate models (GPT for text, DALL-E for images, Whisper for audio).
+- **Generous free tier**: Gemini API has a free tier that works for development and testing.
+- **Structured output**: Native JSON mode and function calling work across all modalities.
+- **One model, many use cases**: A pipeline that analyzes a receipt image, extracts text, and generates a summary uses one Filter, not three.
+- OpenAI is still valuable — the community can publish `codeupipe-openai` and it'll work identically via the connector protocol.
 
 #### 2. `codeupipe-stripe` — Payments are the validator
 
@@ -291,6 +299,7 @@ This validates:
 
 | Service | Why Not Yet |
 |---------|-------------|
+| **OpenAI** | Strong SDK, but single-modality per model. Google AI covers more use cases with one connector. Community can publish `codeupipe-openai` — the protocol makes it trivial. |
 | **AWS S3** | Complex auth (IAM roles, STS), better served by boto3 directly. Too much scope for a first connector. |
 | **MongoDB** | Postgres covers the database category. Mongo adds complexity without proving a new pattern. |
 | **Twilio** | Voice/SMS is niche. Resend covers the "communications" category with less surface area. |
@@ -317,7 +326,7 @@ This validates:
 
 | # | Package | Priority | Surface Area |
 |---|---------|----------|-------------|
-| 1 | `codeupipe-openai` | Highest — AI is the draw | 4 Filters |
+| 1 | `codeupipe-google-ai` | Highest — multimodal AI is the draw | 4 Filters |
 | 2 | `codeupipe-stripe` | High — validates complexity | 4 Filters |
 | 3 | `codeupipe-postgres` | High — proves database pattern | 4 Filters |
 | 4 | `codeupipe-resend` | Medium — proves simplicity | 2 Filters |
@@ -357,7 +366,7 @@ codeupipe-{provider}/
 
 3. **Trust tiers, not gates.** Anyone can publish a connector. Verification adds a signal, not a wall.
 
-4. **Four connectors prove four patterns.** SDK-heavy (OpenAI), complex auth (Stripe), stateful connection (Postgres), lightweight REST (Resend).
+4. **Four connectors prove four patterns.** Multimodal SDK (Google AI), complex auth (Stripe), stateful connection (Postgres), lightweight REST (Resend).
 
 5. **Connectors are separate repos.** They have their own release cycles, their own dependencies, their own tests. Core stays zero-dep.
 

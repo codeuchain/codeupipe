@@ -59,10 +59,10 @@ key_env = "STRIPE_KEY"      auto-configured from toml
 │  provider = "stripe"                                    │
 │  key_env = "STRIPE_API_KEY"                             │
 │                                                         │
-│  [connectors.openai]                                    │
-│  provider = "openai"                                    │
-│  key_env = "OPENAI_API_KEY"                             │
-│  model = "gpt-4"                                        │
+│  [connectors.google-ai]                                    │
+│  provider = "google-ai"                                    │
+│  key_env = "GOOGLE_AI_API_KEY"                             │
+│  model = "gemini-2.0-flash"                                │
 │                                                         │
 │  [connectors.my-webhook]                                │
 │  provider = "http"              ← built-in, no install  │
@@ -75,7 +75,7 @@ key_env = "STRIPE_KEY"      auto-configured from toml
 │  ConnectorConfig          │     │  Entry Points         │
 │  parse [connectors.*]     │     │  codeupipe.connectors │
 │  resolve env vars         │     │  ├─ stripe            │
-│  validate provider exists │     │  ├─ openai            │
+│  validate provider exists │     │  ├─ google-ai         │
 └───────────┬───────────────┘     │  └─ postgres          │
             │                     └──────────┬───────────┘
             ▼                                │
@@ -84,7 +84,7 @@ key_env = "STRIPE_KEY"      auto-configured from toml
 │  ┌─────────────────┐  ┌──────────────────┐            │
 │  │ kind="filter"   │  │ kind="connector" │            │
 │  │ SanitizeInput   │  │ StripeCheckout   │            │
-│  │ FormatResponse  │  │ OpenAIChat       │            │
+│  │ FormatResponse  │  │ GeminiGenerate   │            │
 │  │ ValidateEmail   │  │ HttpConnector    │ ← built-in │
 │  └─────────────────┘  └──────────────────┘            │
 └───────────────────────────────────────────────────────┘
@@ -93,7 +93,7 @@ key_env = "STRIPE_KEY"      auto-configured from toml
 ┌───────────────────────────────────────────────────────┐
 │  Pipeline                                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
-│  │ Sanitize │→ │ OpenAI   │→ │ Format   │            │
+│  │ Sanitize │→ │ Gemini   │→ │ Format   │            │
 │  │ (filter) │  │(connector│  │ (filter) │            │
 │  │          │  │  filter) │  │          │            │
 │  └──────────┘  └──────────┘  └──────────┘            │
@@ -223,14 +223,14 @@ Every `cup` command gains `--json` for structured output:
 $ cup connect --list
 Connectors:
   stripe        StripeCheckout, StripeSubscription
-  openai        OpenAIChat
+  google-ai     GeminiGenerate
 
 # Machine-friendly
 $ cup connect --list --json
 {
   "connectors": [
     {"provider": "stripe", "filters": ["StripeCheckout", "StripeSubscription"]},
-    {"provider": "openai", "filters": ["OpenAIChat"]}
+    {"provider": "google-ai", "filters": ["GeminiGenerate"]}
   ]
 }
 ```
@@ -257,25 +257,25 @@ $ cup describe pipelines/ai-chat.json
 Pipeline: ai-chat
   Steps:
     1. SanitizeInput      (filter)
-    2. OpenAIChat          (connector → openai)
+    2. GeminiGenerate      (connector → google-ai)
     3. SafetyFilter        (filter)
     4. FormatResponse      (filter)
   Requires input:  message
   Guarantees output: response
-  Connectors needed: openai
+  Connectors needed: google-ai
 
 $ cup describe pipelines/ai-chat.json --json
 {
   "name": "ai-chat",
   "steps": [
     {"name": "SanitizeInput", "kind": "filter"},
-    {"name": "OpenAIChat", "kind": "connector", "provider": "openai"},
+    {"name": "GeminiGenerate", "kind": "connector", "provider": "google-ai"},
     {"name": "SafetyFilter", "kind": "filter"},
     {"name": "FormatResponse", "kind": "filter"}
   ],
   "require_input": ["message"],
   "guarantee_output": ["response"],
-  "connectors": ["openai"]
+  "connectors": ["google-ai"]
 }
 ```
 
@@ -300,10 +300,10 @@ version = "0.1.0"
 provider = "stripe"              # matches entry point name
 key_env = "STRIPE_API_KEY"       # env var — never hardcoded
 
-[connectors.openai]
-provider = "openai"
-key_env = "OPENAI_API_KEY"
-model = "gpt-4"                  # provider-specific config
+[connectors.google-ai]
+provider = "google-ai"
+key_env = "GOOGLE_AI_API_KEY"
+model = "gemini-2.0-flash"           # provider-specific config
 
 [connectors.my-api]
 provider = "http"                # built-in, no install needed
@@ -317,7 +317,7 @@ target = "vercel"
 [dependencies]
 codeupipe = ">=0.7.0"
 codeupipe-stripe = ">=0.1.0"    # pip install codeupipe-stripe
-codeupipe-openai = ">=0.1.0"
+codeupipe-google-ai = ">=0.1.0"
 ```
 
 ### Config Resolution Rules
@@ -371,10 +371,10 @@ codeupipe/
 
 | Package | Service | Entry Point |
 |---|---|---|
-| `codeupipe-openai` | OpenAI (chat, embeddings, images) | `codeupipe.connectors: openai` |
+| `codeupipe-google-ai` | Google AI / Gemini (multimodal generation, embeddings, vision) | `codeupipe.connectors: google-ai` |
 | `codeupipe-stripe` | Stripe (checkout, subscriptions, webhooks) | `codeupipe.connectors: stripe` |
 | `codeupipe-postgres` | PostgreSQL (query, transaction) | `codeupipe.connectors: postgres` |
-| `codeupipe-sendgrid` | SendGrid (send email, templates) | `codeupipe.connectors: sendgrid` |
+| `codeupipe-resend` | Resend (send email, templates) | `codeupipe.connectors: resend` |
 
 These are separate repos/packages. Core provides the convention; packages provide the implementation.
 
@@ -388,7 +388,7 @@ Once the connector protocol is proven and the first-party packages are stable, w
 
 | Service Has... | What Ships | User Installs |
 |---|---|---|
-| SDK (Stripe, OpenAI, AWS) | Nothing in core | `pip install codeupipe-stripe` — wraps SDK, registers as connector |
+| SDK (Stripe, Google AI, AWS) | Nothing in core | `pip install codeupipe-stripe` — wraps SDK, registers as connector |
 | REST API only | `HttpConnector` in core | Nothing extra — configure in cup.toml |
 | Database | Nothing in core | `pip install codeupipe-postgres` — wraps driver |
 | Custom / internal | User writes a Filter with `kind="connector"` | Nothing — uses existing Registry |
