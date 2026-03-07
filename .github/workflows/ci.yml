@@ -40,7 +40,7 @@ jobs:
           git config --global --get-all safe.directory 2>/dev/null || echo "not set"
 
       - name: Run tests
-        run: python -m pytest --tb=short -q
+        run: python -m pytest --tb=long -q -s
 
       - name: Lint components
         run: |
