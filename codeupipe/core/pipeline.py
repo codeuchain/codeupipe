@@ -20,6 +20,10 @@ from .tap import Tap
 from .hook import Hook
 from .state import State
 from .event import PipelineEvent, EventEmitter
+from .govern import (
+    PayloadSchema, SchemaViolation, ContractViolation, PipelineTimeoutError,
+    AuditTrail, AuditHook, DeadLetterHandler,
+)
 
 __all__ = ["Pipeline", "CircuitOpenError"]
 
@@ -48,6 +52,11 @@ class Pipeline(Generic[TInput, TOutput]):
         self._emitter: EventEmitter = EventEmitter()
         self._observe_timing: bool = False
         self._observe_lineage: bool = False
+        # Govern — contracts
+        self._require_input_keys: Optional[Set[str]] = None
+        self._guarantee_output_keys: Optional[Set[str]] = None
+        self._input_schema: Optional[PayloadSchema] = None
+        self._output_schema: Optional[PayloadSchema] = None
 
     @property
     def state(self) -> State:
@@ -82,6 +91,33 @@ class Pipeline(Generic[TInput, TOutput]):
         """Enable observation features (timing, lineage tracking)."""
         self._observe_timing = timing
         self._observe_lineage = lineage
+
+    # ------------------------------------------------------------------
+    # Govern — contracts and schemas
+    # ------------------------------------------------------------------
+
+    def require_input(self, *keys: str) -> None:
+        """Declare required input keys — validated at the start of run()."""
+        self._require_input_keys = set(keys)
+
+    def guarantee_output(self, *keys: str) -> None:
+        """Declare guaranteed output keys — validated at the end of run()."""
+        self._guarantee_output_keys = set(keys)
+
+    def require_input_schema(self, schema: PayloadSchema) -> None:
+        """Attach a schema to validate input payloads at the start of run()."""
+        self._input_schema = schema
+
+    def guarantee_output_schema(self, schema: PayloadSchema) -> None:
+        """Attach a schema to validate output payloads at the end of run()."""
+        self._output_schema = schema
+
+    def enable_audit(self, trail: Optional['AuditTrail'] = None) -> 'AuditTrail':
+        """Attach an AuditHook and return the AuditTrail for later inspection."""
+        if trail is None:
+            trail = AuditTrail()
+        self.use_hook(AuditHook(trail))
+        return trail
 
     def on(self, event_kind: str, callback) -> None:
         """Subscribe to pipeline events. Use '*' for all events."""
@@ -118,6 +154,17 @@ class Pipeline(Generic[TInput, TOutput]):
         payload = initial_payload
         _step_name: Optional[str] = None
         _step_t0: Optional[float] = None
+
+        # Govern — validate input contracts
+        if self._require_input_keys:
+            data = payload.to_dict()
+            missing = self._require_input_keys - set(data.keys())
+            if missing:
+                raise ContractViolation(
+                    f"Input contract violated — missing keys: {', '.join(sorted(missing))}"
+                )
+        if self._input_schema:
+            self._input_schema.validate(payload)
 
         # Emit pipeline.start
         await self._emitter.emit(PipelineEvent(
@@ -207,6 +254,17 @@ class Pipeline(Generic[TInput, TOutput]):
         await self._emitter.emit(PipelineEvent(
             kind="pipeline.end", trace_id=getattr(payload, 'trace_id', None),
         ))
+
+        # Govern — validate output contracts
+        if self._guarantee_output_keys:
+            data = payload.to_dict()
+            missing = self._guarantee_output_keys - set(data.keys())
+            if missing:
+                raise ContractViolation(
+                    f"Output contract violated — missing keys: {', '.join(sorted(missing))}"
+                )
+        if self._output_schema:
+            self._output_schema.validate(payload)
 
         return payload  # type: ignore
 
@@ -384,6 +442,18 @@ class Pipeline(Generic[TInput, TOutput]):
         """Return a wrapper that opens a circuit breaker after consecutive failures."""
         return _CircuitBreakerPipeline(self, failure_threshold)
 
+    def with_timeout(self, seconds: float) -> '_TimeoutPipeline':
+        """Return a wrapper that cancels if run() exceeds the given duration."""
+        return _TimeoutPipeline(self, seconds)
+
+    def with_rate_limit(self, calls_per_second: float) -> '_RateLimitedPipeline':
+        """Return a wrapper that throttles run() to at most calls_per_second invocations."""
+        return _RateLimitedPipeline(self, calls_per_second)
+
+    def with_dead_letter(self, handler: 'DeadLetterHandler') -> '_DeadLetterPipeline':
+        """Return a wrapper that routes failed payloads to a handler instead of raising."""
+        return _DeadLetterPipeline(self, handler)
+
     # ------------------------------------------------------------------
     # Config-driven assembly
     # ------------------------------------------------------------------
@@ -447,23 +517,44 @@ class Pipeline(Generic[TInput, TOutput]):
                 lineage=obs.get("lineage", False),
             )
 
-        # Wrap with resilience if configured
-        # Both wrappers reference the base pipeline; retry wraps circuit breaker
+        # Apply govern config — contracts
+        if "require_input" in pipeline_cfg:
+            pipe.require_input(*pipeline_cfg["require_input"])
+        if "guarantee_output" in pipeline_cfg:
+            pipe.guarantee_output(*pipeline_cfg["guarantee_output"])
+
+        # Wrap with govern wrappers first (innermost layer)
+        result: Any = pipe
+
+        if "dead_letter" in pipeline_cfg:
+            dl_name = pipeline_cfg["dead_letter"]
+            dl_handler = registry.get(dl_name)
+            result = _DeadLetterPipeline(result, dl_handler)
+
+        if "timeout" in pipeline_cfg:
+            result = _TimeoutPipeline(result, float(pipeline_cfg["timeout"]))
+
+        if "rate_limit" in pipeline_cfg:
+            rl = pipeline_cfg["rate_limit"]
+            cps = rl if isinstance(rl, (int, float)) else rl.get("calls_per_second", 10)
+            result = _RateLimitedPipeline(result, float(cps))
+
+        # Wrap with resilience if configured (outermost layer)
         if "circuit_breaker" in pipeline_cfg and "retry" in pipeline_cfg:
             threshold = pipeline_cfg["circuit_breaker"].get("failure_threshold", 5)
             max_retries = pipeline_cfg["retry"].get("max_retries", 3)
-            cb = _CircuitBreakerPipeline(pipe, threshold)
+            cb = _CircuitBreakerPipeline(result, threshold)
             return _RetryPipeline(cb, max_retries)  # type: ignore[return-value]
 
         if "circuit_breaker" in pipeline_cfg:
             threshold = pipeline_cfg["circuit_breaker"].get("failure_threshold", 5)
-            return _CircuitBreakerPipeline(pipe, threshold)  # type: ignore[return-value]
+            return _CircuitBreakerPipeline(result, threshold)  # type: ignore[return-value]
 
         if "retry" in pipeline_cfg:
             max_retries = pipeline_cfg["retry"].get("max_retries", 3)
-            return _RetryPipeline(pipe, max_retries)  # type: ignore[return-value]
+            return _RetryPipeline(result, max_retries)  # type: ignore[return-value]
 
-        return pipe
+        return result
 
     @classmethod
     def _build_from_steps(cls, steps_cfg: List[Dict], *, registry: Any) -> "Pipeline":
@@ -588,6 +679,77 @@ class _CircuitBreakerPipeline:
         except Exception:
             self._consecutive_failures += 1
             raise
+
+    def run_sync(self, payload: Payload) -> Payload:
+        return asyncio.run(self.run(payload))
+
+
+class _TimeoutPipeline:
+    """Wraps a Pipeline with a timeout — raises PipelineTimeoutError on expiry."""
+
+    def __init__(self, pipeline: Pipeline, seconds: float):
+        self._pipeline = pipeline
+        self._seconds = seconds
+
+    async def run(self, payload: Payload) -> Payload:
+        try:
+            return await asyncio.wait_for(self._pipeline.run(payload), timeout=self._seconds)
+        except asyncio.TimeoutError:
+            # Emit timeout event
+            if hasattr(self._pipeline, '_emitter'):
+                await self._pipeline._emitter.emit(PipelineEvent(
+                    kind="pipeline.timeout",
+                    metadata={"timeout_seconds": self._seconds},
+                    trace_id=getattr(payload, 'trace_id', None),
+                ))
+            raise PipelineTimeoutError(
+                f"Pipeline timed out after {self._seconds}s"
+            )
+
+    def run_sync(self, payload: Payload) -> Payload:
+        return asyncio.run(self.run(payload))
+
+
+class _RateLimitedPipeline:
+    """Wraps a Pipeline with token-bucket rate limiting."""
+
+    def __init__(self, pipeline: Pipeline, calls_per_second: float):
+        self._pipeline = pipeline
+        self._min_interval = 1.0 / calls_per_second
+        self._last_call: float = 0.0
+
+    async def run(self, payload: Payload) -> Payload:
+        now = time.monotonic()
+        elapsed = now - self._last_call
+        if elapsed < self._min_interval:
+            await asyncio.sleep(self._min_interval - elapsed)
+        self._last_call = time.monotonic()
+        return await self._pipeline.run(payload)
+
+    def run_sync(self, payload: Payload) -> Payload:
+        return asyncio.run(self.run(payload))
+
+
+class _DeadLetterPipeline:
+    """Wraps a Pipeline — routes failed payloads to a handler instead of raising."""
+
+    def __init__(self, pipeline: Pipeline, handler: DeadLetterHandler):
+        self._pipeline = pipeline
+        self._handler = handler
+
+    async def run(self, payload: Payload) -> Payload:
+        try:
+            return await self._pipeline.run(payload)
+        except Exception as e:
+            # Emit dead_letter event
+            if hasattr(self._pipeline, '_emitter'):
+                await self._pipeline._emitter.emit(PipelineEvent(
+                    kind="dead_letter",
+                    error=e,
+                    trace_id=getattr(payload, 'trace_id', None),
+                ))
+            await self._handler.handle(payload, e)
+            return payload  # return original payload as-is
 
     def run_sync(self, payload: Payload) -> Payload:
         return asyncio.run(self.run(payload))

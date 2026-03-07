@@ -16,7 +16,13 @@ Core concepts:
 - Hook: Lifecycle hooks — before / after / on_error (sync or async)
 """
 
-from .core import Payload, MutablePayload, Filter, StreamFilter, Pipeline, CircuitOpenError, Valve, Tap, State, Hook, PipelineEvent, EventEmitter
+from .core import (
+    Payload, MutablePayload, Filter, StreamFilter, Pipeline, CircuitOpenError, Valve, Tap,
+    State, Hook, PipelineEvent, EventEmitter,
+    PayloadSchema, SchemaViolation, ContractViolation, PipelineTimeoutError,
+    AuditEntry, AuditTrail, AuditHook,
+    DeadLetterHandler, LogDeadLetterHandler,
+)
 from .utils import ErrorHandlingMixin, RetryFilter
 from .converter import load_config, DEFAULT_CONFIG, PATTERN_DEFAULTS
 from .converter.pipelines import build_export_pipeline, build_import_pipeline
@@ -27,7 +33,7 @@ from importlib.metadata import version as _pkg_version, PackageNotFoundError
 try:
     __version__ = _pkg_version("codeupipe")
 except PackageNotFoundError:
-    __version__ = "0.4.0"  # fallback for editable / non-installed usage
+    __version__ = "0.5.0"  # fallback for editable / non-installed usage
 __all__ = [
     # Core
     "Payload", "MutablePayload",
@@ -35,6 +41,10 @@ __all__ = [
     "State", "Hook",
     # Observe
     "PipelineEvent", "EventEmitter",
+    # Govern
+    "PayloadSchema", "SchemaViolation", "ContractViolation", "PipelineTimeoutError",
+    "AuditEntry", "AuditTrail", "AuditHook",
+    "DeadLetterHandler", "LogDeadLetterHandler",
     # Utils
     "ErrorHandlingMixin", "RetryFilter",
     # Converter

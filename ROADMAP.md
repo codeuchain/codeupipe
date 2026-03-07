@@ -60,22 +60,20 @@ Cross-process and network boundaries without changing pipeline logic.
 
 ---
 
-## Next Rings
+### Ring 6 — Govern ✅ (v0.5.0)
 
-### Ring 6 — Govern
+Guarantees at the pipeline level — shape, time, rate, and failure policy.
 
-**Goal:** Guarantees at the pipeline level — shape, time, rate, and failure policy.
-
-| Feature | Description |
-|---|---|
-| **Payload schemas** | Optional shape validation on Payload at pipeline boundaries. TypedDict/dataclass based. Pydantic adapter available as extra. |
-| **Pipeline contracts** | Declarative pre/post conditions: `pipeline.require_input("user_id")`, `pipeline.guarantee_output("result")`. Validated at build time or runtime. |
-| **Timeout policies** | Per-step and per-pipeline timeouts. `pipeline.with_timeout(seconds=5)`. Clean cancellation. |
-| **Rate limiting** | `pipeline.with_rate_limit(calls_per_second=10)`. Essential when filters hit external APIs. |
-| **Dead letter handling** | Failed payloads route to a configurable handler instead of being lost. |
-| **Audit trail** | Immutable log of every payload transformation for compliance. |
-
-**Config-driven:** `"pipeline": { "timeout": 5.0, "require_input": ["user_id"], "dead_letter": "LogDeadLetter" }`
+- **PayloadSchema** — shape validation with key presence + type checking, `PayloadSchema.keys()` shorthand
+- **Pipeline contracts** — `pipeline.require_input()` / `pipeline.guarantee_output()` for pre/post conditions
+- **Schema validation** — `pipeline.require_input_schema()` / `pipeline.guarantee_output_schema()` on run boundaries
+- **Timeout policies** — `pipeline.with_timeout(seconds=5)` with clean cancellation via `PipelineTimeoutError`
+- **Rate limiting** — `pipeline.with_rate_limit(calls_per_second=10)` token-bucket throttle
+- **Dead letter handling** — `pipeline.with_dead_letter(handler)` routes failures to `DeadLetterHandler`
+- **Audit trail** — `AuditTrail` + `AuditHook` for immutable transformation logging, `pipeline.enable_audit()`
+- **LogDeadLetterHandler** — built-in dead letter collector for testing and debugging
+- Events: `pipeline.timeout`, `dead_letter`
+- Config-driven: `timeout`, `rate_limit`, `require_input`, `guarantee_output`, `dead_letter`
 
 ---
 
