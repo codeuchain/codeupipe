@@ -74,6 +74,9 @@ markdown_extensions:
 plugins:
   - search
 
+hooks:
+  - hooks/copy_raw.py
+
 extra:
   social:
     - icon: fontawesome/brands/github
