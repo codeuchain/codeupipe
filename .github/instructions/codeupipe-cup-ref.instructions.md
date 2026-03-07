@@ -36,7 +36,7 @@ The `State` class tracks execution metadata...
 
 ### Hash-only (detect file changes, no symbol check)
 ```html
-<!-- cup:ref file=codeupipe/cli.py hash=e3b0c44 -->
+<!-- cup:ref file=codeupipe/cli.py hash=bb70d9e -->
 The CLI supports `cup new`, `cup lint`, and `cup doc-check`...
 <!-- /cup:ref -->
 ```

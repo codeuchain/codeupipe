@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "codeupipe-google-ai"
+version = "0.1.0"
+description = "Google AI (Gemini) connector for codeupipe — multimodal generation, embeddings, and vision"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+    "codeupipe>=0.8.0",
+    "google-genai>=1.0.0",
+]
+
+[project.entry-points."codeupipe.connectors"]
+google-ai = "codeupipe_google_ai:register"

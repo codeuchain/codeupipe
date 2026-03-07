@@ -13,6 +13,9 @@ Usage:
     cup deploy [target] [config] [--dry-run] [--mode MODE] [--port PORT] [--output-dir DIR]
     cup recipe [name] [--list] [--dry-run] [--var KEY=VALUE ...]
     cup init [template] [name] [--list] [--deploy TARGET] [--auth PROVIDER] ...
+    cup marketplace search <query> [--category CAT] [--provider PROV]
+    cup marketplace info <package>
+    cup marketplace install <package>
 
 Components:
     filter          Filter (sync def call) — Pipeline handles awaiting
@@ -1449,6 +1452,30 @@ def main(argv=None):
         help="Path to a pipeline config file (.json)",
     )
 
+    # cup marketplace search|info|install
+    marketplace_parser = sub.add_parser(
+        "marketplace",
+        help="Discover and install community connectors",
+    )
+    marketplace_sub = marketplace_parser.add_subparsers(dest="marketplace_cmd")
+
+    mp_search = marketplace_sub.add_parser("search", help="Search for connectors")
+    mp_search.add_argument("query", nargs="?", default="", help="Keyword to search for")
+    mp_search.add_argument(
+        "--category", default=None, help="Filter by category (e.g. payments, ai)"
+    )
+    mp_search.add_argument(
+        "--provider", default=None, help="Filter by provider (e.g. stripe, google-ai)"
+    )
+
+    mp_info = marketplace_sub.add_parser("info", help="Show details for a connector package")
+    mp_info.add_argument("package", help="Package name (e.g. codeupipe-stripe or stripe)")
+
+    mp_install = marketplace_sub.add_parser(
+        "install", help="Install a connector package via pip"
+    )
+    mp_install.add_argument("package", help="Package name to install")
+
     args = parser.parse_args(argv)
 
     if args.command == "list":
@@ -2007,6 +2034,107 @@ def main(argv=None):
             return 1
         except json.JSONDecodeError as e:
             print(f"Error: invalid JSON in {args.config}: {e}", file=sys.stderr)
+            return 1
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "marketplace":
+        try:
+            from .marketplace import fetch_index, search as mp_search_fn, info as mp_info_fn
+            from .marketplace import MarketplaceError
+
+            use_json = getattr(args, "json_output", False)
+            subcmd = getattr(args, "marketplace_cmd", None)
+
+            if subcmd == "search":
+                try:
+                    index = fetch_index()
+                except MarketplaceError as exc:
+                    print(f"Error: {exc}", file=sys.stderr)
+                    return 1
+                results = mp_search_fn(
+                    index,
+                    args.query or "",
+                    category=getattr(args, "category", None),
+                    provider=getattr(args, "provider", None),
+                )
+                if use_json:
+                    print(json.dumps({"results": results}, indent=2))
+                else:
+                    if not results:
+                        print("No connectors found.")
+                    else:
+                        for r in results:
+                            trust_badge = {"verified": "\u2705", "community": "\U0001f537"}.get(
+                                r.get("trust", ""), ""
+                            )
+                            filters = ", ".join(r.get("filters", []))
+                            print(
+                                f"  {r['name']} {trust_badge} (v{r.get('latest', '?')}) "
+                                f"\u2014 {r.get('description', '')}"
+                            )
+                            cats = ", ".join(r.get("categories", []))
+                            if cats:
+                                print(f"    Categories: {cats}")
+                            if filters:
+                                print(f"    Filters: {filters}")
+                            print(f"    pip install {r.get('pypi', r['name'])}")
+                            print()
+                return 0
+
+            if subcmd == "info":
+                try:
+                    index = fetch_index()
+                except MarketplaceError as exc:
+                    print(f"Error: {exc}", file=sys.stderr)
+                    return 1
+                entry = mp_info_fn(index, args.package)
+                if entry is None:
+                    print(f"Package '{args.package}' not found in marketplace.", file=sys.stderr)
+                    return 1
+                if use_json:
+                    print(json.dumps(entry, indent=2))
+                else:
+                    trust_badge = {"verified": "\u2705", "community": "\U0001f537"}.get(
+                        entry.get("trust", ""), ""
+                    )
+                    print(f"Name:        {entry['name']}")
+                    print(f"Provider:    {entry.get('provider', '?')}")
+                    print(f"Trust:       {trust_badge} {entry.get('trust', 'unknown')}")
+                    print(f"Version:     {entry.get('latest', '?')}")
+                    print(f"Description: {entry.get('description', '')}")
+                    cats = ", ".join(entry.get("categories", []))
+                    print(f"Categories:  {cats}")
+                    filters = ", ".join(entry.get("filters", []))
+                    print(f"Filters:     {filters}")
+                    print(f"Requires:    codeupipe >= {entry.get('min_codeupipe', '?')}")
+                    print(f"Repo:        {entry.get('repo', '?')}")
+                    print(f"Install:     pip install {entry.get('pypi', entry['name'])}")
+                return 0
+
+            if subcmd == "install":
+                try:
+                    index = fetch_index()
+                except MarketplaceError:
+                    pass  # allow install even without index
+                    index = None
+                pkg = args.package
+                # Resolve provider shorthand to pypi name
+                if index is not None:
+                    entry = mp_info_fn(index, pkg)
+                    if entry:
+                        pkg = entry.get("pypi", pkg)
+                import subprocess
+                print(f"Installing {pkg}...")
+                ret = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", pkg],
+                    check=False,
+                )
+                return ret.returncode
+
+            # No subcommand — show usage
+            print("Usage: cup marketplace search|info|install")
             return 1
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)

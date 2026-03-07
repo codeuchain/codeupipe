@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "updated": "2026-03-07T00:00:00Z",
+  "connectors": [
+    {
+      "name": "codeupipe-google-ai",
+      "provider": "google-ai",
+      "pypi": "codeupipe-google-ai",
+      "repo": "https://github.com/codeuchain/codeupipe-google-ai",
+      "description": "Google AI (Gemini) — multimodal generation, embeddings, and vision",
+      "categories": ["ai", "llm", "multimodal", "vision", "embeddings"],
+      "filters": ["GeminiGenerate", "GeminiGenerateStream", "GeminiEmbed", "GeminiVision"],
+      "trust": "verified",
+      "min_codeupipe": "0.8.0",
+      "latest": "0.1.0"
+    },
+    {
+      "name": "codeupipe-stripe",
+      "provider": "stripe",
+      "pypi": "codeupipe-stripe",
+      "repo": "https://github.com/codeuchain/codeupipe-stripe",
+      "description": "Stripe checkout, subscriptions, and webhooks",
+      "categories": ["payments", "billing"],
+      "filters": ["StripeCheckout", "StripeSubscription", "StripeWebhook", "StripeCustomer"],
+      "trust": "verified",
+      "min_codeupipe": "0.8.0",
+      "latest": "0.1.0"
+    },
+    {
+      "name": "codeupipe-postgres",
+      "provider": "postgres",
+      "pypi": "codeupipe-postgres",
+      "repo": "https://github.com/codeuchain/codeupipe-postgres",
+      "description": "PostgreSQL queries, transactions, and bulk insert",
+      "categories": ["database", "sql"],
+      "filters": ["PostgresQuery", "PostgresExecute", "PostgresTransaction", "PostgresBulkInsert"],
+      "trust": "verified",
+      "min_codeupipe": "0.8.0",
+      "latest": "0.1.0"
+    },
+    {
+      "name": "codeupipe-resend",
+      "provider": "resend",
+      "pypi": "codeupipe-resend",
+      "repo": "https://github.com/codeuchain/codeupipe-resend",
+      "description": "Resend transactional email and template rendering",
+      "categories": ["email", "notifications"],
+      "filters": ["ResendEmail", "ResendTemplate"],
+      "trust": "verified",
+      "min_codeupipe": "0.8.0",
+      "latest": "0.1.0"
+    }
+  ]
+}

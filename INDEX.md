@@ -200,6 +200,21 @@ codeupipe/
 
 ---
 
+## Marketplace (Ring 9)
+
+<!-- cup:ref file=codeupipe/marketplace/__init__.py hash=4dc7675 -->
+<!-- cup:ref file=codeupipe/marketplace/index.py symbols=fetch_index,search,info,MarketplaceError hash=57b4f59 -->
+| Type | Source | Role |
+|------|--------|------|
+| `fetch_index` | marketplace/index.py | Fetch & cache marketplace JSON index |
+| `search` | marketplace/index.py | Keyword + category/provider search |
+| `info` | marketplace/index.py | Package detail lookup by name or provider |
+| `MarketplaceError` | marketplace/index.py | Marketplace-specific error |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Utils
 
 <!-- cup:ref file=codeupipe/utils/__init__.py hash=9c3f862 -->
@@ -266,7 +281,7 @@ codeupipe/
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=3acb165 -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=bb70d9e -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |

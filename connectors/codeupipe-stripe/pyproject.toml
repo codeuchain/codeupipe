@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "codeupipe-stripe"
+version = "0.1.0"
+description = "Stripe connector for codeupipe — checkout, subscriptions, webhooks, customers"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+    "codeupipe>=0.8.0",
+    "stripe>=5.0.0",
+]
+
+[project.entry-points."codeupipe.connectors"]
+stripe = "codeupipe_stripe:register"

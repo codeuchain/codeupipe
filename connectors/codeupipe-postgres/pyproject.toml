@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "codeupipe-postgres"
+version = "0.1.0"
+description = "PostgreSQL connector for codeupipe — queries, transactions, and bulk insert"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+    "codeupipe>=0.8.0",
+    "psycopg[binary]>=3.1.0",
+]
+
+[project.entry-points."codeupipe.connectors"]
+postgres = "codeupipe_postgres:register"
