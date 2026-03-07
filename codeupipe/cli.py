@@ -1053,7 +1053,7 @@ def lint(directory: str) -> list:
 
     Internally delegates to the CUP linter pipeline (dogfooding).
     """
-    import asynci
+    import asyncio
     from .linter import build_lint_pipeline
 
     pipeline = build_lint_pipeline()

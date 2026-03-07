@@ -10,6 +10,7 @@ import asyncio
 import inspect
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, List, Optional, Set, Tuple, TypeVar, Generic, Union
 from .payload import Payload
@@ -18,6 +19,7 @@ from .stream_filter import StreamFilter
 from .tap import Tap
 from .hook import Hook
 from .state import State
+from .event import PipelineEvent, EventEmitter
 
 __all__ = ["Pipeline", "CircuitOpenError"]
 
@@ -43,6 +45,9 @@ class Pipeline(Generic[TInput, TOutput]):
         self._steps: List[Tuple[str, Union[Filter, Tap], str]] = []  # (name, step, type)
         self._hooks: List[Hook] = []
         self._state: State = State()
+        self._emitter: EventEmitter = EventEmitter()
+        self._observe_timing: bool = False
+        self._observe_lineage: bool = False
 
     @property
     def state(self) -> State:
@@ -73,6 +78,19 @@ class Pipeline(Generic[TInput, TOutput]):
         """Nest a Pipeline as a single step inside this Pipeline."""
         self._steps.append((name, pipeline, "pipeline"))
 
+    def observe(self, *, timing: bool = True, lineage: bool = False) -> None:
+        """Enable observation features (timing, lineage tracking)."""
+        self._observe_timing = timing
+        self._observe_lineage = lineage
+
+    def on(self, event_kind: str, callback) -> None:
+        """Subscribe to pipeline events. Use '*' for all events."""
+        self._emitter.on(event_kind, callback)
+
+    def off(self, event_kind: str, callback) -> None:
+        """Unsubscribe from pipeline events."""
+        self._emitter.off(event_kind, callback)
+
     async def call(self, payload: Payload[TInput]) -> Payload[TOutput]:
         """Filter protocol — allows a Pipeline to be used as a step in another Pipeline."""
         return await self.run(payload)
@@ -95,9 +113,16 @@ class Pipeline(Generic[TInput, TOutput]):
                     f"Use pipeline.stream(source) with an async generator instead. "
                     f"Example: async for result in pipeline.stream(async_generator_of_payloads): ..."
                 )
-        
+
         self._state = State()
         payload = initial_payload
+        _step_name: Optional[str] = None
+        _step_t0: Optional[float] = None
+
+        # Emit pipeline.start
+        await self._emitter.emit(PipelineEvent(
+            kind="pipeline.start", trace_id=getattr(payload, 'trace_id', None),
+        ))
 
         # Hook: pipeline start
         for hook in self._hooks:
@@ -105,11 +130,18 @@ class Pipeline(Generic[TInput, TOutput]):
 
         try:
             for name, step, step_type in self._steps:
+                _step_name = name
+                _step_t0 = None
 
                 if step_type == "tap":
                     await self._invoke(step.observe, payload)  # type: ignore
                     self._state.mark_executed(name)
                     continue
+
+                _step_t0 = time.monotonic()
+                await self._emitter.emit(PipelineEvent(
+                    kind="step.start", step_name=name, trace_id=getattr(payload, 'trace_id', None),
+                ))
 
                 if step_type == "parallel":
                     filters_list, _names = step
@@ -119,33 +151,50 @@ class Pipeline(Generic[TInput, TOutput]):
                     for result in results:
                         payload = payload.merge(result)
                     self._state.mark_executed(name)
-                    continue
 
-                if step_type == "pipeline":
+                elif step_type == "pipeline":
                     for hook in self._hooks:
                         await self._invoke(hook.before, step, payload)
                     payload = await step.run(payload)
                     self._state.mark_executed(name)
                     for hook in self._hooks:
                         await self._invoke(hook.after, step, payload)
-                    continue
 
-                # It's a filter (or valve — valves conform to Filter protocol)
-                for hook in self._hooks:
-                    await self._invoke(hook.before, step, payload)
-
-                payload = await self._invoke(step.call, payload)  # type: ignore
-
-                # Track valve skips via Valve's own tracking
-                if hasattr(step, '_last_skipped') and step._last_skipped:
-                    self._state.mark_skipped(name)
                 else:
-                    self._state.mark_executed(name)
+                    # filter or valve
+                    for hook in self._hooks:
+                        await self._invoke(hook.before, step, payload)
 
-                for hook in self._hooks:
-                    await self._invoke(hook.after, step, payload)
+                    payload = await self._invoke(step.call, payload)  # type: ignore
+
+                    if hasattr(step, '_last_skipped') and step._last_skipped:
+                        self._state.mark_skipped(name)
+                    else:
+                        self._state.mark_executed(name)
+
+                    for hook in self._hooks:
+                        await self._invoke(hook.after, step, payload)
+
+                # Post-step instrumentation
+                duration = time.monotonic() - _step_t0
+                if self._observe_timing:
+                    self._state.record_timing(name, duration)
+                if self._observe_lineage:
+                    payload = payload._stamp(name)
+                await self._emitter.emit(PipelineEvent(
+                    kind="step.end", step_name=name, duration=duration,
+                    trace_id=getattr(payload, 'trace_id', None),
+                ))
 
         except Exception as e:
+            if _step_t0 is not None and _step_name is not None:
+                duration = time.monotonic() - _step_t0
+                if self._observe_timing:
+                    self._state.record_timing(_step_name, duration)
+                await self._emitter.emit(PipelineEvent(
+                    kind="step.error", step_name=_step_name, duration=duration,
+                    error=e, trace_id=getattr(payload, 'trace_id', None),
+                ))
             for hook in self._hooks:
                 await self._invoke(hook.on_error, None, e, payload)
             raise
@@ -154,11 +203,58 @@ class Pipeline(Generic[TInput, TOutput]):
         for hook in self._hooks:
             await self._invoke(hook.after, None, payload)
 
+        # Emit pipeline.end
+        await self._emitter.emit(PipelineEvent(
+            kind="pipeline.end", trace_id=getattr(payload, 'trace_id', None),
+        ))
+
         return payload  # type: ignore
 
     def run_sync(self, initial_payload: Payload[TInput]) -> Payload[TOutput]:
         """Synchronous convenience wrapper — no manual asyncio.run() needed."""
         return asyncio.run(self.run(initial_payload))
+
+    # ------------------------------------------------------------------
+    # Introspection
+    # ------------------------------------------------------------------
+
+    def describe(self) -> Dict[str, Any]:
+        """Return a machine-readable tree of the pipeline structure.
+
+        Useful for tooling, debugging, and visualizing pipeline topology.
+        """
+        steps = []
+        for name, step, step_type in self._steps:
+            if step_type == "parallel":
+                filters_list, names_list = step
+                par_names = names_list or [None] * len(filters_list)
+                step_desc: Dict[str, Any] = {
+                    "name": name,
+                    "type": "parallel",
+                    "filters": [
+                        {"name": n or f.__class__.__name__, "type": "filter"}
+                        for f, n in zip(filters_list, par_names)
+                    ],
+                }
+            elif step_type == "pipeline":
+                step_desc = {
+                    "name": name,
+                    "type": "pipeline",
+                    "children": step.describe()["steps"],
+                }
+            else:
+                step_desc = {
+                    "name": name,
+                    "type": step_type,
+                    "class": step.__class__.__name__,
+                }
+            steps.append(step_desc)
+
+        return {
+            "steps": steps,
+            "hooks": [h.__class__.__name__ for h in self._hooks],
+            "step_count": len(steps),
+        }
 
     # ------------------------------------------------------------------
     # Streaming
@@ -343,6 +439,14 @@ class Pipeline(Generic[TInput, TOutput]):
 
         pipe = cls._build_from_steps(pipeline_cfg["steps"], registry=registry)
 
+        # Apply observe config
+        if "observe" in pipeline_cfg:
+            obs = pipeline_cfg["observe"]
+            pipe.observe(
+                timing=obs.get("timing", False),
+                lineage=obs.get("lineage", False),
+            )
+
         # Wrap with resilience if configured
         # Both wrappers reference the base pipeline; retry wraps circuit breaker
         if "circuit_breaker" in pipeline_cfg and "retry" in pipeline_cfg:
@@ -444,6 +548,14 @@ class _RetryPipeline:
                 return await self._pipeline.run(payload)
             except Exception as e:
                 last_error = e
+                # Emit retry event if the inner pipeline has an emitter
+                if hasattr(self._pipeline, '_emitter'):
+                    await self._pipeline._emitter.emit(PipelineEvent(
+                        kind="pipeline.retry",
+                        metadata={"attempt": _attempt + 1, "max_retries": self._max_retries},
+                        error=e,
+                        trace_id=getattr(payload, 'trace_id', None),
+                    ))
         raise last_error  # type: ignore[misc]
 
     def run_sync(self, payload: Payload) -> Payload:
@@ -460,6 +572,12 @@ class _CircuitBreakerPipeline:
 
     async def run(self, payload: Payload) -> Payload:
         if self._consecutive_failures >= self._failure_threshold:
+            # Emit circuit.open event if the inner pipeline has an emitter
+            if hasattr(self._pipeline, '_emitter'):
+                await self._pipeline._emitter.emit(PipelineEvent(
+                    kind="circuit.open",
+                    trace_id=getattr(payload, 'trace_id', None),
+                ))
             raise CircuitOpenError(
                 f"Circuit breaker open after {self._failure_threshold} consecutive failures"
             )

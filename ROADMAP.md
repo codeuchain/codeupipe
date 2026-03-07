@@ -36,42 +36,31 @@ Execution modes, parallelism, nesting, and resilience.
 - `with_retry()` / `with_circuit_breaker()` — pipeline-level resilience
 - Full config support for parallel, nesting, retry, and circuit breaker
 
+### Ring 4 — Observe ✅ (v0.4.0)
+
+Know what your pipeline is doing without instrumenting every filter by hand.
+
+- **Timing middleware** — automatic per-step duration tracking in `State.timings`
+- **Payload lineage** — trace ID and step lineage propagate through Payload operations
+- **Structured event emitter** — `PipelineEvent` / `EventEmitter` with `pipeline.on()` / `pipeline.off()`
+- Events: `pipeline.start`, `pipeline.end`, `step.start`, `step.end`, `step.error`, `pipeline.retry`, `circuit.open`
+- **`pipeline.describe()`** — machine-readable tree of pipeline structure
+- **State diffing** — `state.diff(other)` compares two pipeline runs
+- Config-driven: `"pipeline": { "observe": { "timing": true, "lineage": true } }`
+
+### Ring 5 — Distribute ✅ (v0.4.0)
+
+Cross-process and network boundaries without changing pipeline logic.
+
+- **Payload serialization** — `payload.serialize()` / `Payload.deserialize()` (JSON)
+- **RemoteFilter** — HTTP-based filter that sends payloads to remote services (stdlib urllib)
+- **Checkpoint + CheckpointHook** — persist payload state for crash recovery
+- **Source adapters** — `IterableSource`, `FileSource` for `pipeline.stream()`
+- **WorkerPool** — thread/process pool for CPU-bound work inside filters
+
 ---
 
 ## Next Rings
-
-### Ring 4 — Observe
-
-**Goal:** Know what your pipeline is doing in production without instrumenting every filter by hand.
-
-| Feature | Description |
-|---|---|
-| **Timing middleware** | Automatic per-step duration tracking in State. Pipeline measures each `_invoke` call. No filter changes needed. |
-| **Payload lineage** | Optional trace ID on Payload that propagates through nesting, parallel, retry. Answers "where did this data come from?" |
-| **Structured event emitter** | Pipeline emits events (`step.start`, `step.end`, `step.error`, `pipeline.retry`) that external systems subscribe to. OpenTelemetry-shaped, zero-dep. |
-| **`pipeline.describe()`** | Returns a tree/DAG of the pipeline structure — steps, parallel groups, nested pipelines, valves. Machine-readable for tooling, human-readable for debugging. |
-| **State diffing** | Compare two pipeline runs' State objects — what changed, what regressed. Useful for canary deploys. |
-| **OpenTelemetry adapter** | Optional `codeupipe[otel]` extra that bridges the event emitter to real OTel spans/traces. |
-
-**Config-driven:** `"pipeline": { "observe": { "timing": true, "lineage": true } }`
-
----
-
-### Ring 5 — Distribute
-
-**Goal:** Cross process and network boundaries without changing your pipeline logic.
-
-| Feature | Description |
-|---|---|
-| **Payload serialization** | `payload.serialize()` / `Payload.deserialize()` — JSON by default, MessagePack optional. For payloads crossing network boundaries. |
-| **Remote Filter protocol** | A Filter whose `.call()` sends the Payload over HTTP/gRPC to a remote service. Same interface — pipelines don't know the difference. |
-| **Worker pool executor** | Optional backend for `add_parallel()` — dispatch to `ProcessPoolExecutor` or distributed queue for CPU-bound work. |
-| **Pipeline checkpointing** | Save pipeline state mid-execution for resume after crash. Critical for long-running data pipelines. |
-| **Queue-backed streaming** | `Pipeline.stream()` reads from SQS/Redis/Kafka via a source adapter. Filters don't know where chunks come from. |
-
-**Extras:** `codeupipe[remote]`, `codeupipe[distributed]`, `codeupipe[queue]`
-
----
 
 ### Ring 6 — Govern
 
@@ -272,8 +261,8 @@ Equally important — the boundaries that keep the core sharp:
 | Phase | Rings | Version | Focus |
 |---|---|---|---|
 | **Foundation** | 1–3 | v0.1–v0.3 | Core framework, CLI, composability, execution modes |
-| **Production** | 4–5 | v0.4–v0.5 | Observability, distribution, serialization |
-| **Enterprise** | 6–7 | v0.6–v1.0 | Governance, deployment adapters, service connectors |
+| **Production** | 4–5 | v0.4 | Observability, distribution, serialization |
+| **Enterprise** | 6–7 | v0.5–v1.0 | Governance, deployment adapters, service connectors |
 | **Community** | 8 | v1.x | Contrib, plugins, hub, visual tooling |
 | **Platform** | 9 | v2.x | Multi-language runtimes, cross-runtime orchestration |
 

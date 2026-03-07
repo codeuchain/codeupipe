@@ -16,22 +16,25 @@ Core concepts:
 - Hook: Lifecycle hooks — before / after / on_error (sync or async)
 """
 
-from .core import Payload, MutablePayload, Filter, StreamFilter, Pipeline, CircuitOpenError, Valve, Tap, State, Hook
+from .core import Payload, MutablePayload, Filter, StreamFilter, Pipeline, CircuitOpenError, Valve, Tap, State, Hook, PipelineEvent, EventEmitter
 from .utils import ErrorHandlingMixin, RetryFilter
 from .converter import load_config, DEFAULT_CONFIG, PATTERN_DEFAULTS
 from .converter.pipelines import build_export_pipeline, build_import_pipeline
 from .registry import Registry, cup_component, default_registry
+from .distribute import RemoteFilter, Checkpoint, CheckpointHook, IterableSource, FileSource, WorkerPool
 
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
 try:
     __version__ = _pkg_version("codeupipe")
 except PackageNotFoundError:
-    __version__ = "0.3.0"  # fallback for editable / non-installed usage
+    __version__ = "0.4.0"  # fallback for editable / non-installed usage
 __all__ = [
     # Core
     "Payload", "MutablePayload",
     "Filter", "StreamFilter", "Pipeline", "CircuitOpenError", "Valve", "Tap",
     "State", "Hook",
+    # Observe
+    "PipelineEvent", "EventEmitter",
     # Utils
     "ErrorHandlingMixin", "RetryFilter",
     # Converter
@@ -39,4 +42,7 @@ __all__ = [
     "build_export_pipeline", "build_import_pipeline",
     # Registry
     "Registry", "cup_component", "default_registry",
+    # Distribute
+    "RemoteFilter", "Checkpoint", "CheckpointHook",
+    "IterableSource", "FileSource", "WorkerPool",
 ]

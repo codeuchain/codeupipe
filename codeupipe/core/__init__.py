@@ -12,9 +12,11 @@ from .valve import Valve
 from .tap import Tap
 from .state import State
 from .hook import Hook
+from .event import PipelineEvent, EventEmitter
 
 __all__ = [
     "Payload", "MutablePayload",
     "Filter", "StreamFilter", "Pipeline", "CircuitOpenError", "Valve", "Tap",
     "State", "Hook",
+    "PipelineEvent", "EventEmitter",
 ]
