@@ -50,6 +50,7 @@ Examples:
 
 import argparse
 import ast
+import json
 import os
 import re
 import sys
@@ -1136,6 +1137,12 @@ def main(argv=None):
         prog="cup",
         description="codeupipe CLI — scaffold pipeline components instantly.",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Output results as JSON (machine-readable)",
+    )
     sub = parser.add_subparsers(dest="command")
 
     # cup new <component> <name> [path]
@@ -1405,6 +1412,41 @@ def main(argv=None):
         "--frontend",
         choices=["react", "next", "vite", "remix", "static"],
         help="Frontend framework to scaffold",
+    )
+
+    # cup connect
+    connect_parser = sub.add_parser(
+        "connect",
+        help="Manage service connectors",
+    )
+    connect_parser.add_argument(
+        "--list",
+        action="store_true",
+        dest="list_connectors",
+        help="List connectors configured in cup.toml",
+    )
+    connect_parser.add_argument(
+        "--health",
+        nargs="?",
+        const="__all__",
+        default=None,
+        dest="health_check",
+        help="Run health checks on connectors (optionally specify one)",
+    )
+    connect_parser.add_argument(
+        "--manifest",
+        default="cup.toml",
+        help="Path to cup.toml manifest (default: cup.toml)",
+    )
+
+    # cup describe <pipeline.json>
+    describe_parser = sub.add_parser(
+        "describe",
+        help="Inspect a pipeline config — inputs, outputs, steps, connectors",
+    )
+    describe_parser.add_argument(
+        "config",
+        help="Path to a pipeline config file (.json)",
     )
 
     args = parser.parse_args(argv)
@@ -1846,6 +1888,126 @@ def main(argv=None):
             for f in result["files"]:
                 print(f"  {f}")
             return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "connect":
+        try:
+            from .connect import load_connector_configs, check_health as _check_health
+            from .connect import discover_connectors, HttpConnector
+            from .deploy.manifest import load_manifest
+
+            use_json = getattr(args, "json_output", False)
+            manifest_path = getattr(args, "manifest", "cup.toml")
+
+            if getattr(args, "list_connectors", False):
+                try:
+                    manifest = load_manifest(manifest_path)
+                except FileNotFoundError:
+                    if use_json:
+                        print(json.dumps({"connectors": [], "note": "No cup.toml found"}))
+                    else:
+                        print("No cup.toml found. Create one with 'cup init'.")
+                    return 0
+
+                configs = load_connector_configs(manifest)
+                if use_json:
+                    items = [
+                        {"name": c.name, "provider": c.provider}
+                        for c in configs
+                    ]
+                    print(json.dumps({"connectors": items}, indent=2))
+                else:
+                    if not configs:
+                        print("No connectors configured in cup.toml.")
+                    else:
+                        print("Connectors:")
+                        for c in configs:
+                            print(f"  {c.name:20s} provider={c.provider}")
+                return 0
+
+            if getattr(args, "health_check", None) is not None:
+                try:
+                    manifest = load_manifest(manifest_path)
+                except FileNotFoundError:
+                    print("Error: No cup.toml found", file=sys.stderr)
+                    return 1
+
+                from .registry import Registry
+                reg = Registry()
+                configs = load_connector_configs(manifest)
+                discover_connectors(configs, reg)
+
+                target = args.health_check
+                names = None if target == "__all__" else [target]
+                results = _check_health(reg, names)
+
+                if use_json:
+                    print(json.dumps({"health": results}, indent=2))
+                else:
+                    if not results:
+                        print("No connectors to check.")
+                    else:
+                        for name, healthy in results.items():
+                            status = "OK" if healthy else "FAIL"
+                            print(f"  {name:20s} {status}")
+                all_ok = all(results.values()) if results else True
+                return 0 if all_ok else 2
+
+            # No flag given — show help
+            print("Usage: cup connect --list | cup connect --health [name]")
+            return 1
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "describe":
+        try:
+            use_json = getattr(args, "json_output", False)
+            config_path = args.config
+
+            with open(config_path) as f:
+                pipeline_config = json.load(f)
+
+            pipeline = pipeline_config.get("pipeline", {})
+            name = pipeline.get("name", "unknown")
+            steps = pipeline.get("steps", [])
+            require_input = pipeline.get("require_input", [])
+            guarantee_output = pipeline.get("guarantee_output", [])
+
+            # Identify connector steps (convention: step name contains provider hint)
+            connectors_needed: list = []
+            step_list = []
+            for s in steps:
+                step_name = s.get("name", "?")
+                step_type = s.get("type", "filter")
+                step_list.append({"name": step_name, "kind": step_type})
+
+            if use_json:
+                result = {
+                    "name": name,
+                    "steps": step_list,
+                    "require_input": require_input,
+                    "guarantee_output": guarantee_output,
+                }
+                print(json.dumps(result, indent=2))
+            else:
+                print(f"Pipeline: {name}")
+                print("  Steps:")
+                for i, s in enumerate(step_list, 1):
+                    print(f"    {i}. {s['name']:24s} ({s['kind']})")
+                if require_input:
+                    print(f"  Requires input:  {', '.join(require_input)}")
+                if guarantee_output:
+                    print(f"  Guarantees output: {', '.join(guarantee_output)}")
+            return 0
+        except FileNotFoundError:
+            print(f"Error: file not found: {args.config}", file=sys.stderr)
+            return 1
+        except json.JSONDecodeError as e:
+            print(f"Error: invalid JSON in {args.config}: {e}", file=sys.stderr)
+            return 1
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1

@@ -35,12 +35,16 @@ from .deploy import (
     init_project, list_templates, InitError,
     render_vercel_handler, render_netlify_handler, render_lambda_handler,
 )
+from .connect import (
+    ConnectorConfig, load_connector_configs, ConfigError,
+    discover_connectors, check_health, HttpConnector,
+)
 
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
 try:
     __version__ = _pkg_version("codeupipe")
 except PackageNotFoundError:
-    __version__ = "0.7.0"  # fallback for editable / non-installed usage
+    __version__ = "0.8.0"  # fallback for editable / non-installed usage
 __all__ = [
     # Core
     "Payload", "MutablePayload",
@@ -69,4 +73,7 @@ __all__ = [
     "resolve_recipe", "list_recipes", "RecipeError",
     "init_project", "list_templates", "InitError",
     "render_vercel_handler", "render_netlify_handler", "render_lambda_handler",
+    # Connect
+    "ConnectorConfig", "load_connector_configs", "ConfigError",
+    "discover_connectors", "check_health", "HttpConnector",
 ]

@@ -94,3 +94,18 @@ def _validate(data: dict, path: str) -> None:
                 f"{path}: [deploy] unsupported target '{deploy['target']}'. "
                 f"Valid: {', '.join(valid_targets)}"
             )
+
+    # Validate [connectors] section if present
+    connectors = data.get("connectors")
+    if connectors:
+        if not isinstance(connectors, dict):
+            raise ManifestError(f"{path}: [connectors] must be a table")
+        for cname, cblock in connectors.items():
+            if not isinstance(cblock, dict):
+                raise ManifestError(
+                    f"{path}: [connectors.{cname}] must be a table"
+                )
+            if "provider" not in cblock:
+                raise ManifestError(
+                    f"{path}: [connectors.{cname}] missing required 'provider' key"
+                )
