@@ -292,7 +292,7 @@ class Pipeline(Generic[TInput, TOutput]):
     # Config-driven assembly
     # ------------------------------------------------------------------
 
-    _VALID_STEP_TYPES = {"filter", "tap", "hook", "stream-filter", "valve"}
+    _VALID_STEP_TYPES = {"filter", "tap", "hook", "stream-filter", "valve", "parallel", "pipeline"}
 
     @classmethod
     def from_config(cls, path: str, *, registry: Any) -> "Pipeline":
@@ -307,12 +307,18 @@ class Pipeline(Generic[TInput, TOutput]):
             [pipeline.steps.config]
             amount = 42
 
+        Supports Ring 3 features:
+            - type = "parallel" with "filters" array for fan-out/fan-in
+            - type = "pipeline" with nested "steps" for pipeline-as-step
+            - pipeline.retry = {max_retries = 3} for pipeline-level retry
+            - pipeline.circuit_breaker = {failure_threshold = 5} for circuit breaker
+
         Args:
             path: Path to a .toml or .json config file.
             registry: A Registry instance for name → component resolution.
 
         Returns:
-            A fully-assembled Pipeline ready to .run().
+            A fully-assembled Pipeline (or resilience wrapper) ready to .run().
         """
         config_path = Path(path)
         if not config_path.exists():
@@ -335,8 +341,31 @@ class Pipeline(Generic[TInput, TOutput]):
         if "steps" not in pipeline_cfg:
             raise ValueError("Config 'pipeline' must contain 'steps'")
 
+        pipe = cls._build_from_steps(pipeline_cfg["steps"], registry=registry)
+
+        # Wrap with resilience if configured
+        # Both wrappers reference the base pipeline; retry wraps circuit breaker
+        if "circuit_breaker" in pipeline_cfg and "retry" in pipeline_cfg:
+            threshold = pipeline_cfg["circuit_breaker"].get("failure_threshold", 5)
+            max_retries = pipeline_cfg["retry"].get("max_retries", 3)
+            cb = _CircuitBreakerPipeline(pipe, threshold)
+            return _RetryPipeline(cb, max_retries)  # type: ignore[return-value]
+
+        if "circuit_breaker" in pipeline_cfg:
+            threshold = pipeline_cfg["circuit_breaker"].get("failure_threshold", 5)
+            return _CircuitBreakerPipeline(pipe, threshold)  # type: ignore[return-value]
+
+        if "retry" in pipeline_cfg:
+            max_retries = pipeline_cfg["retry"].get("max_retries", 3)
+            return _RetryPipeline(pipe, max_retries)  # type: ignore[return-value]
+
+        return pipe
+
+    @classmethod
+    def _build_from_steps(cls, steps_cfg: List[Dict], *, registry: Any) -> "Pipeline":
+        """Build a Pipeline from a list of step config dicts (recursive)."""
         pipe = cls()
-        for step_cfg in pipeline_cfg["steps"]:
+        for step_cfg in steps_cfg:
             step_name = step_cfg["name"]
             step_type = step_cfg.get("type", "filter")
             step_kwargs = step_cfg.get("config", {})
@@ -346,6 +375,29 @@ class Pipeline(Generic[TInput, TOutput]):
                     f"Unknown step type '{step_type}'. "
                     f"Valid types: {', '.join(sorted(cls._VALID_STEP_TYPES))}"
                 )
+
+            if step_type == "parallel":
+                if "filters" not in step_cfg:
+                    raise ValueError(
+                        f"Parallel step '{step_name}' requires a 'filters' key "
+                        f"with an array of filter references"
+                    )
+                filters = []
+                for f_cfg in step_cfg["filters"]:
+                    f_kwargs = f_cfg.get("config", {})
+                    filters.append(registry.get(f_cfg["name"], **f_kwargs))
+                pipe.add_parallel(filters, name=step_name)
+                continue
+
+            if step_type == "pipeline":
+                if "steps" not in step_cfg:
+                    raise ValueError(
+                        f"Pipeline step '{step_name}' requires a 'steps' key "
+                        f"with an array of nested step definitions"
+                    )
+                inner = cls._build_from_steps(step_cfg["steps"], registry=registry)
+                pipe.add_pipeline(inner, name=step_name)
+                continue
 
             instance = registry.get(step_name, **step_kwargs)
 

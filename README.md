@@ -1,6 +1,6 @@
 # codeupipe
 
-<!-- cup:ref file=codeupipe/__init__.py hash=791f774 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=9b0673d -->
 
 Python pipeline framework — composable **Payload → Filter → Pipeline** pattern with streaming support. Zero external dependencies.
 
@@ -247,7 +247,7 @@ def test_with_mock():
 ## Test
 
 ```bash
-pytest  # 1006 tests
+pytest  # 1024 tests
 ```
 
 ## License

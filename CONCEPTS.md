@@ -184,7 +184,7 @@ class NormalizeFilter:
 
 ## Pipeline
 
-<!-- cup:ref file=codeupipe/core/pipeline.py symbols=Pipeline hash=e6dacf1 -->
+<!-- cup:ref file=codeupipe/core/pipeline.py symbols=Pipeline hash=439c046 -->
 
 **The orchestrator — sequences filters, taps, and valves.**
 
@@ -227,6 +227,37 @@ asyncio.run(main())
 | `pipeline.with_circuit_breaker(failure_threshold=5)` | Return a wrapper that opens after N consecutive failures |
 | `pipeline.state` | Access execution metadata after `run()` or `stream()` |
 | `Pipeline.from_config(path, registry=)` | Build a pipeline from a `.toml` or `.json` config file |
+
+**Config-driven assembly** — all step types and resilience wrappers are expressible in JSON/TOML:
+
+```json
+{
+  "pipeline": {
+    "name": "example",
+    "retry": { "max_retries": 3 },
+    "circuit_breaker": { "failure_threshold": 5 },
+    "steps": [
+      { "name": "CleanInput", "type": "filter" },
+      {
+        "name": "fan-out",
+        "type": "parallel",
+        "filters": [
+          { "name": "FetchA" },
+          { "name": "FetchB", "config": { "timeout": 30 } }
+        ]
+      },
+      {
+        "name": "validation-sub",
+        "type": "pipeline",
+        "steps": [
+          { "name": "Validate", "type": "filter" },
+          { "name": "AuditTap", "type": "tap" }
+        ]
+      }
+    ]
+  }
+}
+```
 
 <!-- /cup:ref -->
 
@@ -745,7 +776,7 @@ asyncio.run(main())
 
 ## Quick Reference
 
-<!-- cup:ref file=codeupipe/__init__.py hash=791f774 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=9b0673d -->
 ```python
 from codeupipe import (
     Payload,           # immutable data container

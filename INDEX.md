@@ -18,7 +18,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=791f774 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=9b0673d -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
