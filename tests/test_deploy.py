@@ -906,6 +906,219 @@ class TestInitFrontend:
         assert (Path(out) / "netlify.toml").exists()
 
 
+# ── CI Provider Tests ───────────────────────────────────────────────
+
+
+class TestCIProviders:
+    """Tests for multi-platform CI scaffolding."""
+
+    # ── Registry ────────────────────────────────────────────────────
+
+    def test_ci_providers_list(self):
+        from codeupipe.deploy.init import CI_PROVIDERS
+        assert "github" in CI_PROVIDERS
+        assert "gitlab" in CI_PROVIDERS
+        assert "azure-devops" in CI_PROVIDERS
+        assert "bitbucket" in CI_PROVIDERS
+        assert "circleci" in CI_PROVIDERS
+
+    def test_ci_providers_export(self):
+        from codeupipe.deploy import CI_PROVIDERS
+        assert len(CI_PROVIDERS) == 5
+
+    # ── Default (GitHub) unchanged ──────────────────────────────────
+
+    def test_default_is_github(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "default-ci", str(tmp_path / "default-ci"))
+        ci = tmp_path / "default-ci" / ".github" / "workflows" / "ci.yml"
+        assert ci.exists()
+        text = ci.read_text()
+        assert "actions/checkout" in text
+        assert "pytest" in text
+
+    # ── GitHub ──────────────────────────────────────────────────────
+
+    def test_github_ci_content(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gh-proj", str(tmp_path / "gh-proj"), ci_provider="github")
+        ci = tmp_path / "gh-proj" / ".github" / "workflows" / "ci.yml"
+        assert ci.exists()
+        text = ci.read_text()
+        assert "actions/checkout@v4" in text
+        assert "actions/setup-python@v5" in text
+        assert "3.9" in text
+        assert "3.13" in text
+
+    def test_github_ci_with_frontend(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gh-fe", str(tmp_path / "gh-fe"), ci_provider="github", frontend="react")
+        ci = (tmp_path / "gh-fe" / ".github" / "workflows" / "ci.yml").read_text()
+        assert "setup-node" in ci
+        assert "npm ci" in ci
+
+    # ── GitLab ──────────────────────────────────────────────────────
+
+    def test_gitlab_ci_file_location(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gl-proj", str(tmp_path / "gl-proj"), ci_provider="gitlab")
+        ci = tmp_path / "gl-proj" / ".gitlab-ci.yml"
+        assert ci.exists()
+
+    def test_gitlab_ci_content(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gl-proj2", str(tmp_path / "gl-proj2"), ci_provider="gitlab")
+        text = (tmp_path / "gl-proj2" / ".gitlab-ci.yml").read_text()
+        assert "stages:" in text
+        assert "pytest" in text
+        assert "3.9" in text
+        assert "3.13" in text
+
+    def test_gitlab_ci_with_frontend(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gl-fe", str(tmp_path / "gl-fe"), ci_provider="gitlab", frontend="react")
+        text = (tmp_path / "gl-fe" / ".gitlab-ci.yml").read_text()
+        assert "npm ci" in text
+
+    def test_gitlab_no_github_dir(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "gl-no-gh", str(tmp_path / "gl-no-gh"), ci_provider="gitlab")
+        assert not (tmp_path / "gl-no-gh" / ".github").exists()
+
+    # ── Azure DevOps ────────────────────────────────────────────────
+
+    def test_azure_pipelines_file_location(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "ado-proj", str(tmp_path / "ado-proj"), ci_provider="azure-devops")
+        ci = tmp_path / "ado-proj" / "azure-pipelines.yml"
+        assert ci.exists()
+
+    def test_azure_pipelines_content(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "ado-proj2", str(tmp_path / "ado-proj2"), ci_provider="azure-devops")
+        text = (tmp_path / "ado-proj2" / "azure-pipelines.yml").read_text()
+        assert "vmImage: ubuntu-latest" in text
+        assert "UsePythonVersion@0" in text
+        assert "pytest" in text
+        assert "3.9" in text
+        assert "3.13" in text
+
+    def test_azure_pipelines_with_frontend(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "ado-fe", str(tmp_path / "ado-fe"), ci_provider="azure-devops", frontend="react")
+        text = (tmp_path / "ado-fe" / "azure-pipelines.yml").read_text()
+        assert "UseNode@1" in text
+        assert "npm ci" in text
+
+    def test_azure_no_github_dir(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "ado-no-gh", str(tmp_path / "ado-no-gh"), ci_provider="azure-devops")
+        assert not (tmp_path / "ado-no-gh" / ".github").exists()
+
+    # ── Bitbucket ───────────────────────────────────────────────────
+
+    def test_bitbucket_file_location(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "bb-proj", str(tmp_path / "bb-proj"), ci_provider="bitbucket")
+        ci = tmp_path / "bb-proj" / "bitbucket-pipelines.yml"
+        assert ci.exists()
+
+    def test_bitbucket_content(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "bb-proj2", str(tmp_path / "bb-proj2"), ci_provider="bitbucket")
+        text = (tmp_path / "bb-proj2" / "bitbucket-pipelines.yml").read_text()
+        assert "pipelines:" in text
+        assert "parallel:" in text
+        assert "pytest" in text
+        assert "3.9" in text
+        assert "3.13" in text
+
+    def test_bitbucket_with_frontend(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "bb-fe", str(tmp_path / "bb-fe"), ci_provider="bitbucket", frontend="react")
+        text = (tmp_path / "bb-fe" / "bitbucket-pipelines.yml").read_text()
+        assert "npm ci" in text
+
+    def test_bitbucket_no_github_dir(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "bb-no-gh", str(tmp_path / "bb-no-gh"), ci_provider="bitbucket")
+        assert not (tmp_path / "bb-no-gh" / ".github").exists()
+
+    # ── CircleCI ────────────────────────────────────────────────────
+
+    def test_circleci_file_location(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "cci-proj", str(tmp_path / "cci-proj"), ci_provider="circleci")
+        ci = tmp_path / "cci-proj" / ".circleci" / "config.yml"
+        assert ci.exists()
+
+    def test_circleci_content(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "cci-proj2", str(tmp_path / "cci-proj2"), ci_provider="circleci")
+        text = (tmp_path / "cci-proj2" / ".circleci" / "config.yml").read_text()
+        assert "version: 2.1" in text
+        assert "workflows:" in text
+        assert "cimg/python" in text
+        assert "pytest" in text
+        assert "3.9" in text
+        assert "3.13" in text
+
+    def test_circleci_with_frontend(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "cci-fe", str(tmp_path / "cci-fe"), ci_provider="circleci", frontend="react")
+        text = (tmp_path / "cci-fe" / ".circleci" / "config.yml").read_text()
+        assert "npm ci" in text
+
+    def test_circleci_no_github_dir(self, tmp_path):
+        from codeupipe.deploy.init import init_project
+        init_project("api", "cci-no-gh", str(tmp_path / "cci-no-gh"), ci_provider="circleci")
+        assert not (tmp_path / "cci-no-gh" / ".github").exists()
+
+    # ── Error cases ─────────────────────────────────────────────────
+
+    def test_invalid_ci_provider(self, tmp_path):
+        from codeupipe.deploy.init import init_project, InitError
+        with pytest.raises(InitError, match="Unknown CI provider"):
+            init_project("api", "bad-ci", str(tmp_path / "bad-ci"), ci_provider="jenkins")
+
+    # ── CLI --ci flag ───────────────────────────────────────────────
+
+    def test_cli_init_with_gitlab(self, tmp_path, monkeypatch):
+        from codeupipe.cli import main
+        monkeypatch.chdir(tmp_path)
+        result = main(["init", "api", "cli-gl", "--ci", "gitlab"])
+        assert result == 0
+        assert (tmp_path / "cli-gl" / ".gitlab-ci.yml").exists()
+
+    def test_cli_init_with_azure_devops(self, tmp_path, monkeypatch):
+        from codeupipe.cli import main
+        monkeypatch.chdir(tmp_path)
+        result = main(["init", "api", "cli-ado", "--ci", "azure-devops"])
+        assert result == 0
+        assert (tmp_path / "cli-ado" / "azure-pipelines.yml").exists()
+
+    def test_cli_init_with_bitbucket(self, tmp_path, monkeypatch):
+        from codeupipe.cli import main
+        monkeypatch.chdir(tmp_path)
+        result = main(["init", "api", "cli-bb", "--ci", "bitbucket"])
+        assert result == 0
+        assert (tmp_path / "cli-bb" / "bitbucket-pipelines.yml").exists()
+
+    def test_cli_init_with_circleci(self, tmp_path, monkeypatch):
+        from codeupipe.cli import main
+        monkeypatch.chdir(tmp_path)
+        result = main(["init", "api", "cli-cci", "--ci", "circleci"])
+        assert result == 0
+        assert (tmp_path / "cli-cci" / ".circleci" / "config.yml").exists()
+
+    def test_cli_default_ci_is_github(self, tmp_path, monkeypatch):
+        from codeupipe.cli import main
+        monkeypatch.chdir(tmp_path)
+        result = main(["init", "api", "cli-default"])
+        assert result == 0
+        assert (tmp_path / "cli-default" / ".github" / "workflows" / "ci.yml").exists()
+
+
 # ── Exports Ring 7b ─────────────────────────────────────────────────
 
 class TestExportsRing7b:

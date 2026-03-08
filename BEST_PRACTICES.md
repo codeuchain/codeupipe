@@ -338,7 +338,7 @@ pytest tests/ -v
 
 ### Available Commands
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=bb70d9e -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=a6cbc7b -->
 
 | Command | Purpose |
 |---|---|

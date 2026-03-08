@@ -22,7 +22,7 @@ from .azure_container_apps import AzureContainerAppsAdapter
 from .huggingface import HuggingFaceAdapter
 from .manifest import load_manifest, ManifestError
 from .recipe import resolve_recipe, list_recipes, RecipeError
-from .init import init_project, list_templates, InitError
+from .init import init_project, list_templates, InitError, CI_PROVIDERS
 from .handlers import render_vercel_handler, render_netlify_handler, render_lambda_handler
 
 __all__ = [
@@ -49,6 +49,7 @@ __all__ = [
     "init_project",
     "list_templates",
     "InitError",
+    "CI_PROVIDERS",
     "render_vercel_handler",
     "render_netlify_handler",
     "render_lambda_handler",

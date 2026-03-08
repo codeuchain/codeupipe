@@ -12,7 +12,7 @@ Usage:
     cup run <config> [--discover DIR] [--input JSON] [--json]
     cup deploy [target] [config] [--dry-run] [--mode MODE] [--port PORT] [--output-dir DIR]
     cup recipe [name] [--list] [--dry-run] [--var KEY=VALUE ...]
-    cup init [template] [name] [--list] [--deploy TARGET] [--auth PROVIDER] ...
+    cup init [template] [name] [--list] [--deploy TARGET] [--ci PROVIDER] [--auth PROVIDER] ...
     cup marketplace search <query> [--category CAT] [--provider PROV]
     cup marketplace info <package>
     cup marketplace install <package>
@@ -1416,6 +1416,12 @@ def main(argv=None):
         choices=["react", "next", "vite", "remix", "static"],
         help="Frontend framework to scaffold",
     )
+    init_parser.add_argument(
+        "--ci",
+        default="github",
+        choices=["github", "gitlab", "azure-devops", "bitbucket", "circleci"],
+        help="CI platform (default: github)",
+    )
 
     # cup connect
     connect_parser = sub.add_parser(
@@ -1907,6 +1913,7 @@ def main(argv=None):
                 args.template,
                 args.name,
                 deploy_target=getattr(args, "deploy", "docker"),
+                ci_provider=getattr(args, "ci", "github"),
                 frontend=getattr(args, "frontend", None),
                 options=options,
             )

@@ -210,7 +210,7 @@ print(pipeline.state.chunks_processed)   # {'upper': 3}  (streaming mode)
 
 ## CLI (`cup`)
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=bb70d9e -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=a6cbc7b -->
 The `cup` command-line tool scaffolds, lints, and analyzes CUP projects:
 
 ```bash

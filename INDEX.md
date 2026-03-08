@@ -124,12 +124,12 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=2266a9b -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=5fb1e47 -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
 <!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
-<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=d55f1d0 -->
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=dd0ea2c -->
 <!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=717235e -->
 <!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
 <!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
@@ -307,7 +307,7 @@ codeupipe/
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=bb70d9e -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=a6cbc7b -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |

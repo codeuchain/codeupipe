@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-__all__ = ["init_project", "list_templates", "InitError"]
+__all__ = ["init_project", "list_templates", "InitError", "CI_PROVIDERS"]
 
 
 class InitError(Exception):
@@ -51,6 +51,7 @@ def init_project(
     output_dir: Optional[str] = None,
     *,
     deploy_target: str = "docker",
+    ci_provider: str = "github",
     frontend: Optional[str] = None,
     options: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
@@ -61,6 +62,8 @@ def init_project(
         name: Project name.
         output_dir: Directory to create project in (default: ./{name}).
         deploy_target: Deployment target (default: 'docker').
+        ci_provider: CI platform ('github', 'gitlab', 'azure-devops',
+            'bitbucket', 'circleci').  Default: 'github'.
         frontend: Frontend framework ('react', 'next', 'vite', None).
         options: Additional options (auth, db, payments, ai providers).
 
@@ -73,6 +76,12 @@ def init_project(
     if template not in _TEMPLATES:
         available = ", ".join(_TEMPLATES.keys())
         raise InitError(f"Unknown template '{template}'. Available: {available}")
+
+    if ci_provider not in _CI_PROVIDERS:
+        available = ", ".join(_CI_PROVIDERS.keys())
+        raise InitError(
+            f"Unknown CI provider '{ci_provider}'. Available: {available}"
+        )
 
     opts = options or {}
     project_dir = Path(output_dir) if output_dir else Path(name)
@@ -111,10 +120,11 @@ def init_project(
     _write(tests_dir / "__init__.py", "", created_files)
     _write(tests_dir / f"test_{name.replace('-', '_')}.py", _render_test_scaffold(name), created_files)
 
-    # 6. .github/workflows/ci.yml
-    gh_dir = project_dir / ".github" / "workflows"
-    gh_dir.mkdir(parents=True)
-    _write(gh_dir / "ci.yml", _render_ci_workflow(name, frontend), created_files)
+    # 6. CI config (provider-specific path and content)
+    renderer, ci_rel_dir, ci_filename = _CI_PROVIDERS[ci_provider]
+    ci_dir = project_dir / ci_rel_dir
+    ci_dir.mkdir(parents=True, exist_ok=True)
+    _write(ci_dir / ci_filename, renderer(name, frontend), created_files)
 
     # 7. README.md
     _write(project_dir / "README.md", _render_readme(name, template, frontend, deploy_target), created_files)
@@ -252,7 +262,15 @@ def _render_test_scaffold(name: str) -> str:
     )
 
 
-def _render_ci_workflow(name: str, frontend: Optional[str] = None) -> str:
+# ── CI Provider Registry ────────────────────────────────────────────
+
+# Maps ci_provider key → (renderer_func, relative_dir, filename)
+# The dispatcher is populated after the renderer functions are defined.
+
+_CI_PROVIDERS: Dict[str, tuple] = {}  # filled at module bottom
+
+
+def _render_github_ci(name: str, frontend: Optional[str] = None) -> str:
     lines = [
         f"name: CI — {name}",
         "",
@@ -289,6 +307,191 @@ def _render_ci_workflow(name: str, frontend: Optional[str] = None) -> str:
         "      - run: python -m pytest -q",
     ])
     return "\n".join(lines) + "\n"
+
+
+# Keep the old name as an alias for backward compatibility
+_render_ci_workflow = _render_github_ci
+
+
+def _render_gitlab_ci(name: str, frontend: Optional[str] = None) -> str:
+    lines = [
+        f"# CI — {name}",
+        "",
+        "stages:",
+        "  - test",
+        "",
+        "test:",
+        "  stage: test",
+        "  image: python:3.12",
+        "  parallel:",
+        "    matrix:",
+        "      - PYTHON_VERSION:",
+        '          - "3.9"',
+        '          - "3.12"',
+        '          - "3.13"',
+        "  image: python:$PYTHON_VERSION",
+    ]
+
+    if frontend:
+        lines.extend([
+            "  before_script:",
+            "    - apt-get update && apt-get install -y nodejs npm",
+            "    - cd frontend && npm ci && npm run build && cd ..",
+        ])
+
+    lines.extend([
+        "  script:",
+        "    - pip install -e '.[dev]'",
+        "    - python -m pytest -q",
+    ])
+    return "\n".join(lines) + "\n"
+
+
+def _render_azure_pipelines(name: str, frontend: Optional[str] = None) -> str:
+    lines = [
+        f"# CI — {name}",
+        "",
+        "trigger:",
+        "  branches:",
+        "    include:",
+        "      - main",
+        "",
+        "pr:",
+        "  branches:",
+        "    include:",
+        "      - main",
+        "",
+        "pool:",
+        "  vmImage: ubuntu-latest",
+        "",
+        "strategy:",
+        "  matrix:",
+        "    Python39:",
+        "      python.version: '3.9'",
+        "    Python312:",
+        "      python.version: '3.12'",
+        "    Python313:",
+        "      python.version: '3.13'",
+        "",
+        "steps:",
+        "  - task: UsePythonVersion@0",
+        "    inputs:",
+        "      versionSpec: $(python.version)",
+    ]
+
+    if frontend:
+        lines.extend([
+            "  - task: UseNode@1",
+            "    inputs:",
+            "      version: '20.x'",
+            "  - script: cd frontend && npm ci && npm run build",
+            "    displayName: Build frontend",
+        ])
+
+    lines.extend([
+        "  - script: pip install -e '.[dev]'",
+        "    displayName: Install dependencies",
+        "  - script: python -m pytest -q",
+        "    displayName: Run tests",
+    ])
+    return "\n".join(lines) + "\n"
+
+
+def _render_bitbucket_pipelines(name: str, frontend: Optional[str] = None) -> str:
+    lines = [
+        f"# CI — {name}",
+        "",
+        "image: python:3.12",
+        "",
+        "pipelines:",
+        "  default:",
+        "    - parallel:",
+    ]
+
+    for ver in ("3.9", "3.12", "3.13"):
+        lines.append(f"        - step:")
+        lines.append(f"            name: Python {ver}")
+        lines.append(f"            image: python:{ver}")
+
+        if frontend:
+            lines.extend([
+                "            script:",
+                "              - apt-get update && apt-get install -y nodejs npm",
+                "              - cd frontend && npm ci && npm run build && cd ..",
+                "              - pip install -e '.[dev]'",
+                "              - python -m pytest -q",
+            ])
+        else:
+            lines.extend([
+                "            script:",
+                "              - pip install -e '.[dev]'",
+                "              - python -m pytest -q",
+            ])
+
+    return "\n".join(lines) + "\n"
+
+
+def _render_circleci_config(name: str, frontend: Optional[str] = None) -> str:
+    lines = [
+        f"# CI — {name}",
+        "",
+        "version: 2.1",
+        "",
+        "jobs:",
+        "  test:",
+        "    parameters:",
+        "      python-version:",
+        "        type: string",
+        "    docker:",
+        "      - image: cimg/python:<< parameters.python-version >>",
+        "    steps:",
+        "      - checkout",
+    ]
+
+    if frontend:
+        lines.extend([
+            "      - run:",
+            "          name: Install Node.js",
+            "          command: |",
+            "            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -",
+            "            sudo apt-get install -y nodejs",
+            "      - run:",
+            "          name: Build frontend",
+            "          command: cd frontend && npm ci && npm run build",
+        ])
+
+    lines.extend([
+        "      - run:",
+        "          name: Install dependencies",
+        "          command: pip install -e '.[dev]'",
+        "      - run:",
+        "          name: Run tests",
+        "          command: python -m pytest -q",
+        "",
+        "workflows:",
+        f"  ci-{name}:",
+        "    jobs:",
+        "      - test:",
+        "          matrix:",
+        "            parameters:",
+        "              python-version:",
+        '                - "3.9"',
+        '                - "3.12"',
+        '                - "3.13"',
+    ])
+    return "\n".join(lines) + "\n"
+
+
+# Dispatcher: provider → (renderer, relative_dir, filename)
+_CI_PROVIDERS = {
+    "github": (_render_github_ci, ".github/workflows", "ci.yml"),
+    "gitlab": (_render_gitlab_ci, ".", ".gitlab-ci.yml"),
+    "azure-devops": (_render_azure_pipelines, ".", "azure-pipelines.yml"),
+    "bitbucket": (_render_bitbucket_pipelines, ".", "bitbucket-pipelines.yml"),
+    "circleci": (_render_circleci_config, ".circleci", "config.yml"),
+}
+
+CI_PROVIDERS = list(_CI_PROVIDERS.keys())
 
 
 def _render_readme(
