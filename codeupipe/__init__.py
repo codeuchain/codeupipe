@@ -41,6 +41,8 @@ from .connect import (
     ConnectorConfig, load_connector_configs, ConfigError,
     discover_connectors, check_health, HttpConnector,
 )
+from .observe import CaptureTap, MetricsTap, RunRecord
+from .graph import pipeline_to_mermaid
 
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
 try:
@@ -80,4 +82,8 @@ __all__ = [
     # Connect
     "ConnectorConfig", "load_connector_configs", "ConfigError",
     "discover_connectors", "check_health", "HttpConnector",
+    # Observe
+    "CaptureTap", "MetricsTap", "RunRecord",
+    # Graph
+    "pipeline_to_mermaid",
 ]

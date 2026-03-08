@@ -1,0 +1,17 @@
+{
+  "recipe": {
+    "name": "scheduled-job",
+    "description": "Scheduled job — fetch data, process, store results, notify",
+    "variables": []
+  },
+  "pipeline": {
+    "name": "scheduled-job",
+    "steps": [
+      {"name": "FetchData", "type": "filter"},
+      {"name": "TransformData", "type": "filter"},
+      {"name": "StoreResults", "type": "filter"},
+      {"name": "SendNotification", "type": "filter"}
+    ],
+    "require_input": ["schedule_trigger"]
+  }
+}

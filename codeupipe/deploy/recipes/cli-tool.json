@@ -1,0 +1,17 @@
+{
+  "recipe": {
+    "name": "cli-tool",
+    "description": "CLI tool — parse arguments, validate input, execute command",
+    "variables": []
+  },
+  "pipeline": {
+    "name": "cli-tool",
+    "steps": [
+      {"name": "ParseArgs", "type": "filter"},
+      {"name": "ValidateInput", "type": "filter"},
+      {"name": "ExecuteCommand", "type": "filter"},
+      {"name": "FormatOutput", "type": "filter"}
+    ],
+    "require_input": ["args"]
+  }
+}

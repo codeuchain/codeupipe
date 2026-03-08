@@ -18,7 +18,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=4c8b6a7 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=da3d295 -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -124,12 +124,12 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=5fb1e47 -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=0cf43d2 -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
 <!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
-<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=f57ec64 -->
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=381c944 -->
 <!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=717235e -->
 <!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
 <!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
@@ -307,7 +307,7 @@ codeupipe/
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=06e39dd -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=d968d73 -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |
@@ -318,9 +318,63 @@ codeupipe/
 | `cup report <path>` | Health report |
 | `cup doc-check [path]` | Doc freshness check |
 | `cup run <config>` | Execute a pipeline from config (TOML/JSON) |
+| `cup run --record <config>` | Execute + persist run record |
 | `cup connect --list/--health` | List connectors / run health checks |
 | `cup describe <config>` | Inspect pipeline inputs, outputs, steps |
+| `cup test [path]` | Smart test runner (markers, coverage) |
+| `cup doctor [path]` | Project health diagnostics |
+| `cup runs` | Show recent pipeline run history |
+| `cup upgrade [path]` | Regenerate scaffolded files to latest templates |
+| `cup publish <dir>` | Validate & build for publishing |
+| `cup graph <config>` | Mermaid pipeline visualization |
+| `cup version [--bump]` | Show/bump semver from pyproject.toml |
 | `--json` (global) | Machine-readable JSON output |
+<!-- /cup:ref -->
+
+---
+
+## Observability
+
+<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=6d340cf -->
+| Export | Role |
+|--------|------|
+| `CaptureTap` | Tap that records payload snapshots for replay |
+| `MetricsTap` | Tap that counts invocations and timestamps |
+| `RunRecord` | Serializable pipeline run summary |
+| `save_run_record` | Persist run record to `.cup/runs/` |
+| `load_run_records` | Load recent run records |
+| `export_captures_for_testing` | Generate pytest fixtures from captures |
+<!-- /cup:ref -->
+
+---
+
+## Doctor
+
+<!-- cup:ref file=codeupipe/doctor.py symbols=diagnose hash=d159197 -->
+| Export | Role |
+|--------|------|
+| `diagnose` | Run 6 project health checks (manifest, CI, tests, lint, connectors, docs) |
+<!-- /cup:ref -->
+
+---
+
+## Upgrade
+
+<!-- cup:ref file=codeupipe/upgrade.py symbols=upgrade_project hash=681ba08 -->
+| Export | Role |
+|--------|------|
+| `upgrade_project` | Regenerate CI/README to latest templates |
+<!-- /cup:ref -->
+
+---
+
+## Graph
+
+<!-- cup:ref file=codeupipe/graph.py symbols=pipeline_to_mermaid,render_graph hash=0b11399 -->
+| Export | Role |
+|--------|------|
+| `pipeline_to_mermaid` | Convert pipeline config to Mermaid flowchart |
+| `render_graph` | Load config file and generate diagram |
 <!-- /cup:ref -->
 
 ---

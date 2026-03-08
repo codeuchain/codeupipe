@@ -1,0 +1,18 @@
+{
+  "recipe": {
+    "name": "webhook-receiver",
+    "description": "Webhook receiver — verify signature, parse payload, dispatch handler",
+    "variables": []
+  },
+  "pipeline": {
+    "name": "webhook-receiver",
+    "steps": [
+      {"name": "VerifySignature", "type": "filter"},
+      {"name": "ParsePayload", "type": "filter"},
+      {"name": "RouteEvent", "type": "filter"},
+      {"name": "ExecuteHandler", "type": "filter"},
+      {"name": "AckResponse", "type": "filter"}
+    ],
+    "require_input": ["headers", "body"]
+  }
+}

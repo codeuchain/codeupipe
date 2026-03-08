@@ -1,0 +1,19 @@
+{
+  "recipe": {
+    "name": "ml-pipeline",
+    "description": "ML pipeline — load data, preprocess, train, evaluate, export model",
+    "variables": []
+  },
+  "pipeline": {
+    "name": "ml-pipeline",
+    "steps": [
+      {"name": "LoadDataset", "type": "filter"},
+      {"name": "PreprocessData", "type": "filter"},
+      {"name": "SplitTrainTest", "type": "filter"},
+      {"name": "TrainModel", "type": "filter"},
+      {"name": "EvaluateModel", "type": "filter"},
+      {"name": "ExportModel", "type": "filter"}
+    ],
+    "require_input": ["dataset_path"]
+  }
+}

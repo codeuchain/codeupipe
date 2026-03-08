@@ -58,7 +58,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from codeupipe import Payload
 
@@ -1291,6 +1291,11 @@ def main(argv=None):
         dest="json_output",
         help="Output result payload as JSON",
     )
+    run_parser.add_argument(
+        "--record",
+        action="store_true",
+        help="Save run results to .cup/runs/ for history",
+    )
 
     # cup deploy <target> <config> [--dry-run] [--mode MODE] [--port PORT] [--output-dir DIR]
     deploy_parser = sub.add_parser(
@@ -1419,12 +1424,41 @@ def main(argv=None):
     init_parser.add_argument(
         "--ci",
         default="github",
-        choices=[
-            "github", "gitlab", "azure-devops", "bitbucket", "circleci",
-            "jenkins", "forgejo", "gitea", "buildkite", "drone",
-            "woodpecker", "travis", "aws-codebuild", "cloud-build",
-        ],
-        help="CI platform (default: github)",
+        help=(
+            "CI platform (default: github). Comma-separated for multiple: "
+            "github,gitlab. Options: github, gitlab, azure-devops, bitbucket, "
+            "circleci, jenkins, forgejo, gitea, buildkite, drone, woodpecker, "
+            "travis, aws-codebuild, cloud-build"
+        ),
+    )
+
+    # cup ci
+    ci_parser = sub.add_parser(
+        "ci",
+        help="Detect, regenerate, or switch CI platform",
+    )
+    ci_parser.add_argument(
+        "--detect",
+        action="store_true",
+        help="Show detected CI configs in the project",
+    )
+    ci_parser.add_argument(
+        "--regenerate",
+        action="store_true",
+        help="Regenerate the current CI config",
+    )
+    ci_parser.add_argument(
+        "--provider",
+        help="Switch to a different CI provider",
+    )
+    ci_parser.add_argument(
+        "--deploy",
+        default="docker",
+        help="Deploy target for CD steps (default: docker)",
+    )
+    ci_parser.add_argument(
+        "--frontend",
+        help="Frontend framework",
     )
 
     # cup connect
@@ -1485,6 +1519,122 @@ def main(argv=None):
         "install", help="Install a connector package via pip"
     )
     mp_install.add_argument("package", help="Package name to install")
+
+    # cup test [path] [--markers MARKERS] [--coverage]
+    test_parser = sub.add_parser(
+        "test",
+        help="Smart test runner — discover and run project tests",
+    )
+    test_parser.add_argument(
+        "path",
+        nargs="?",
+        default="tests",
+        help="Test directory or file (default: tests/)",
+    )
+    test_parser.add_argument(
+        "--markers", "-m",
+        help="Pytest markers to select (e.g. 'unit', 'integration')",
+    )
+    test_parser.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Run with coverage report",
+    )
+    test_parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Verbose test output",
+    )
+
+    # cup doctor
+    doctor_parser = sub.add_parser(
+        "doctor",
+        help="Project health check — manifest, CI, tests, lint, connectors",
+    )
+    doctor_parser.add_argument(
+        "path",
+        nargs="?",
+        default=".",
+        help="Project directory (default: current dir)",
+    )
+
+    # cup runs [--pipeline NAME] [--limit N]
+    runs_parser = sub.add_parser(
+        "runs",
+        help="Show pipeline run history",
+    )
+    runs_parser.add_argument(
+        "--pipeline",
+        help="Filter by pipeline name",
+    )
+    runs_parser.add_argument(
+        "--limit", "-n",
+        type=int,
+        default=20,
+        help="Max records to show (default: 20)",
+    )
+
+    # cup upgrade [--dry-run]
+    upgrade_parser = sub.add_parser(
+        "upgrade",
+        help="Regenerate scaffolded files to latest codeupipe templates",
+    )
+    upgrade_parser.add_argument(
+        "path",
+        nargs="?",
+        default=".",
+        help="Project directory (default: current dir)",
+    )
+    upgrade_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would change without writing",
+    )
+
+    # cup publish <directory>
+    publish_parser = sub.add_parser(
+        "publish",
+        help="Validate and prepare a connector for marketplace publishing",
+    )
+    publish_parser.add_argument(
+        "directory",
+        help="Path to connector package directory",
+    )
+    publish_parser.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Validate only, don't build",
+    )
+
+    # cup graph <config>
+    graph_parser = sub.add_parser(
+        "graph",
+        help="Visualize a pipeline as a Mermaid diagram",
+    )
+    graph_parser.add_argument(
+        "config",
+        help="Path to pipeline config (.json)",
+    )
+    graph_parser.add_argument(
+        "--output", "-o",
+        help="Write diagram to file instead of stdout",
+    )
+
+    # cup version [--bump LEVEL] [--tag]
+    version_parser = sub.add_parser(
+        "version",
+        help="Show or bump project version",
+    )
+    version_parser.add_argument(
+        "--bump",
+        choices=["patch", "minor", "major"],
+        help="Bump version level",
+    )
+    version_parser.add_argument(
+        "--tag",
+        action="store_true",
+        help="Create a git tag after bumping",
+    )
 
     args = parser.parse_args(argv)
 
@@ -1752,18 +1902,39 @@ def main(argv=None):
             if input_json:
                 input_data = json_mod.loads(input_json)
 
+            import time as _time
+            _t0 = _time.monotonic()
+
             result = asyncio.run(pipe.run(Payload(input_data)))
+
+            _duration = _time.monotonic() - _t0
+
+            # Read pipeline name from config for display
+            config_text = Path(config_path).read_text()
+            if config_path.endswith(".json"):
+                cfg = json_mod.loads(config_text)
+            else:
+                cfg = {}
+            pipe_name = cfg.get("pipeline", {}).get("name", config_path)
+
+            # Record run if requested
+            if getattr(args, "record", False):
+                from codeupipe.observe import RunRecord, save_run_record
+                record = RunRecord(
+                    pipe_name,
+                    pipe.state,
+                    input_keys=list(input_data.keys()),
+                    output_keys=list(result._data.keys()),
+                    duration=_duration,
+                    success=not pipe.state.has_errors,
+                    error=str(pipe.state.last_error) if pipe.state.has_errors else None,
+                )
+                rpath = save_run_record(record)
+                print(f"Run recorded: {rpath}", file=sys.stderr)
 
             if getattr(args, "json_output", False):
                 print(json_mod.dumps(dict(result._data)))
             else:
-                # Read pipeline name from config for display
-                config_text = Path(config_path).read_text()
-                if config_path.endswith(".json"):
-                    cfg = json_mod.loads(config_text)
-                else:
-                    cfg = {}
-                pipe_name = cfg.get("pipeline", {}).get("name", config_path)
                 print(f"Pipeline '{pipe_name}' complete")
                 for key, val in result._data.items():
                     print(f"  {key}: {val}")
@@ -1925,6 +2096,53 @@ def main(argv=None):
             print(f"Created project '{args.name}' ({args.template}):")
             for f in result["files"]:
                 print(f"  {f}")
+            for w in result.get("warnings", []):
+                print(f"  Warning: {w}", file=sys.stderr)
+            return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "ci":
+        try:
+            from codeupipe.deploy.init import detect_ci, regenerate_ci
+
+            if getattr(args, "detect", False):
+                found = detect_ci(".")
+                if not found:
+                    print("No CI configs detected.")
+                else:
+                    print("Detected CI configs:")
+                    for entry in found:
+                        print(f"  {entry['provider']:20s} {entry['path']}")
+                return 0
+
+            provider = getattr(args, "provider", None)
+            regenerate = getattr(args, "regenerate", False)
+
+            if regenerate or provider:
+                result = regenerate_ci(
+                    ".",
+                    ci_provider=provider,
+                    deploy_target=getattr(args, "deploy", "docker"),
+                    frontend=getattr(args, "frontend", None),
+                )
+                action = "Switched to" if provider else "Regenerated"
+                print(f"{action} {result['provider']} CI config: {result['file']}")
+                for removed in result.get("removed", []):
+                    print(f"  Removed old config: {removed}")
+                for w in result.get("warnings", []):
+                    print(f"  Warning: {w}", file=sys.stderr)
+                return 0
+
+            # No flags — show current CI
+            found = detect_ci(".")
+            if not found:
+                print("No CI configs detected. Use --provider to add one.")
+            else:
+                print("Current CI configs:")
+                for entry in found:
+                    print(f"  {entry['provider']:20s} {entry['path']}")
             return 0
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
@@ -2147,6 +2365,245 @@ def main(argv=None):
             # No subcommand — show usage
             print("Usage: cup marketplace search|info|install")
             return 1
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "test":
+        try:
+            import subprocess
+            test_path = getattr(args, "path", "tests")
+            cmd = [sys.executable, "-m", "pytest", test_path, "-q"]
+
+            markers = getattr(args, "markers", None)
+            if markers:
+                cmd.extend(["-m", markers])
+
+            if getattr(args, "verbose", False):
+                cmd.append("-v")
+
+            if getattr(args, "coverage", False):
+                cmd.extend(["--cov=.", "--cov-report=term-missing"])
+
+            ret = subprocess.run(cmd, check=False)
+            return ret.returncode
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "doctor":
+        try:
+            from codeupipe.doctor import diagnose
+            project_path = getattr(args, "path", ".")
+            results = diagnose(project_path)
+            summary = results.pop("_summary", {})
+
+            for check_name, result in results.items():
+                ok = result.get("ok", False)
+                icon = "\u2705" if ok else "\u274c"
+                msg = result.get("message", "")
+                print(f"  {icon} {check_name:14s} {msg}")
+
+            print()
+            total = summary.get("total", 0)
+            passing = summary.get("passing", 0)
+            if summary.get("healthy"):
+                print(f"\u2705 Project healthy ({passing}/{total} checks passed)")
+            else:
+                failing = summary.get("failing", 0)
+                print(f"\u274c {failing} issue(s) found ({passing}/{total} checks passed)")
+            return 0 if summary.get("healthy") else 1
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "runs":
+        try:
+            from codeupipe.observe import load_run_records
+            pipeline_filter = getattr(args, "pipeline", None)
+            limit = getattr(args, "limit", 20)
+            records = load_run_records(pipeline=pipeline_filter, limit=limit)
+
+            if not records:
+                print("No run records found. Use 'cup run --record <config>' to start recording.")
+                return 0
+
+            print(f"{'Pipeline':<25} {'Status':<8} {'Duration':<10} {'Steps':<6} {'Timestamp'}")
+            print("-" * 80)
+            for r in records:
+                status = "\u2705" if r.get("success") else "\u274c"
+                dur = f"{r.get('duration', 0):.2f}s" if r.get("duration") else "?"
+                steps = str(len(r.get("executed", [])))
+                ts = r.get("timestamp", "?")[:19]
+                print(f"{r.get('pipeline', '?'):<25} {status:<8} {dur:<10} {steps:<6} {ts}")
+            return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "upgrade":
+        try:
+            from codeupipe.upgrade import upgrade_project
+            project_path = getattr(args, "path", ".")
+            dry_run = getattr(args, "dry_run", False)
+            result = upgrade_project(project_path, dry_run=dry_run)
+
+            prefix = "[DRY RUN] " if dry_run else ""
+
+            for f in result.get("updated", []):
+                print(f"  {prefix}Updated: {f}")
+            for f in result.get("skipped", []):
+                print(f"  Unchanged: {f}")
+            for w in result.get("warnings", []):
+                print(f"  Warning: {w}", file=sys.stderr)
+
+            updated = len(result.get("updated", []))
+            skipped = len(result.get("skipped", []))
+            if updated:
+                print(f"\n{prefix}{updated} file(s) updated, {skipped} unchanged")
+            else:
+                print("Everything up to date.")
+            return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "publish":
+        try:
+            pkg_dir = Path(args.directory)
+            check_only = getattr(args, "check_only", False)
+            issues: List[str] = []
+
+            # Validate package structure
+            if not pkg_dir.is_dir():
+                print(f"Error: '{pkg_dir}' is not a directory", file=sys.stderr)
+                return 1
+
+            pyproject = pkg_dir / "pyproject.toml"
+            setup_py = pkg_dir / "setup.py"
+            if not pyproject.exists() and not setup_py.exists():
+                issues.append("No pyproject.toml or setup.py found")
+
+            # Check for __init__.py
+            has_init = any(pkg_dir.rglob("__init__.py"))
+            if not has_init:
+                issues.append("No __init__.py found — not a valid Python package")
+
+            # Check for tests
+            has_tests = any(pkg_dir.rglob("test_*.py"))
+            if not has_tests:
+                issues.append("No test files found")
+
+            # Check for README
+            has_readme = (pkg_dir / "README.md").exists()
+            if not has_readme:
+                issues.append("No README.md found")
+
+            if issues:
+                print("Publish validation failed:")
+                for issue in issues:
+                    print(f"  \u274c {issue}")
+                return 1
+
+            print("\u2705 Package structure valid")
+            if check_only:
+                print("(check-only mode — skipping build)")
+                return 0
+
+            # Build the package
+            import subprocess
+            print("Building package...")
+            ret = subprocess.run(
+                [sys.executable, "-m", "build", str(pkg_dir)],
+                check=False,
+            )
+            if ret.returncode == 0:
+                print("\u2705 Package built. Upload with: twine upload dist/*")
+            return ret.returncode
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "graph":
+        try:
+            from codeupipe.graph import render_graph
+            config_path = args.config
+            diagram = render_graph(config_path)
+
+            output = getattr(args, "output", None)
+            if output:
+                Path(output).write_text(diagram)
+                print(f"Diagram written to {output}")
+            else:
+                print(diagram)
+            return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.command == "version":
+        try:
+            bump_level = getattr(args, "bump", None)
+            do_tag = getattr(args, "tag", False)
+
+            # Find pyproject.toml
+            pyproject_path = Path("pyproject.toml")
+            if not pyproject_path.exists():
+                print("Error: No pyproject.toml found", file=sys.stderr)
+                return 1
+
+            text = pyproject_path.read_text()
+            # Extract current version
+            current = None
+            for line in text.splitlines():
+                if line.strip().startswith("version"):
+                    parts = line.split("=", 1)
+                    if len(parts) == 2:
+                        current = parts[1].strip().strip('"').strip("'")
+                        break
+
+            if current is None:
+                print("Error: Could not find version in pyproject.toml", file=sys.stderr)
+                return 1
+
+            if bump_level is None:
+                print(current)
+                return 0
+
+            # Parse semver
+            parts = current.split(".")
+            if len(parts) != 3:
+                print(f"Error: Version '{current}' is not semver", file=sys.stderr)
+                return 1
+
+            major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
+            if bump_level == "patch":
+                patch += 1
+            elif bump_level == "minor":
+                minor += 1
+                patch = 0
+            elif bump_level == "major":
+                major += 1
+                minor = 0
+                patch = 0
+
+            new_version = f"{major}.{minor}.{patch}"
+
+            # Write back
+            new_text = text.replace(f'version = "{current}"', f'version = "{new_version}"')
+            if new_text == text:
+                # Try single quotes
+                new_text = text.replace(f"version = '{current}'", f'version = "{new_version}"')
+            pyproject_path.write_text(new_text)
+            print(f"{current} → {new_version}")
+
+            if do_tag:
+                import subprocess
+                tag = f"v{new_version}"
+                subprocess.run(["git", "tag", tag], check=True)
+                print(f"Tagged: {tag}")
+
+            return 0
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1
