@@ -18,7 +18,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=de21af3 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=4c8b6a7 -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -124,17 +124,25 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=a042eab -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=2266a9b -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
-<!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=cfaa8e1 -->
+<!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
 <!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
 <!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=d55f1d0 -->
-<!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=42f644d -->
+<!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=717235e -->
 <!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
 <!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
 <!-- cup:ref file=codeupipe/deploy/recipe.py symbols=RecipeError,list_recipes,resolve_recipe hash=6e84b7a -->
 <!-- cup:ref file=codeupipe/deploy/vercel.py symbols=VercelAdapter hash=33ddeb5 -->
+<!-- cup:ref file=codeupipe/deploy/fly.py symbols=FlyAdapter -->
+<!-- cup:ref file=codeupipe/deploy/railway.py symbols=RailwayAdapter -->
+<!-- cup:ref file=codeupipe/deploy/cloudrun.py symbols=CloudRunAdapter -->
+<!-- cup:ref file=codeupipe/deploy/koyeb.py symbols=KoyebAdapter -->
+<!-- cup:ref file=codeupipe/deploy/apprunner.py symbols=AppRunnerAdapter -->
+<!-- cup:ref file=codeupipe/deploy/oracle.py symbols=OracleAdapter -->
+<!-- cup:ref file=codeupipe/deploy/azure_container_apps.py symbols=AzureContainerAppsAdapter -->
+<!-- cup:ref file=codeupipe/deploy/huggingface.py symbols=HuggingFaceAdapter -->
 | Type | Source | Role |
 |------|--------|------|
 | `DeployTarget` | deploy/adapter.py | Enum — docker, vercel, netlify, lambda |
@@ -144,10 +152,26 @@ codeupipe/
 | `VercelAdapter` | deploy/vercel.py | Vercel deployment |
 | `NetlifyAdapter` | deploy/netlify.py | Netlify deployment |
 | `RenderAdapter` | deploy/render.py | Render free-tier deployment |
+| `FlyAdapter` | deploy/fly.py | Fly.io edge deployment |
+| `RailwayAdapter` | deploy/railway.py | Railway deployment |
+| `CloudRunAdapter` | deploy/cloudrun.py | Google Cloud Run |
+| `KoyebAdapter` | deploy/koyeb.py | Koyeb free-tier deployment |
+| `AppRunnerAdapter` | deploy/apprunner.py | AWS App Runner |
+| `OracleAdapter` | deploy/oracle.py | Oracle Cloud Always Free VM |
+| `AzureContainerAppsAdapter` | deploy/azure_container_apps.py | Azure Container Apps |
+| `HuggingFaceAdapter` | deploy/huggingface.py | Hugging Face Spaces |
 | `render_*_handler` | deploy/handlers.py | Serverless entry-point renderers |
 | `init_project` | deploy/init.py | `cup init` scaffolding |
 | `load_manifest` | deploy/manifest.py | Parse & validate cup.toml |
 | `list_recipes` / `resolve_recipe` | deploy/recipe.py | Recipe system |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->

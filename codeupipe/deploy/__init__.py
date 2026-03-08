@@ -12,6 +12,14 @@ from .docker import DockerAdapter
 from .vercel import VercelAdapter
 from .netlify import NetlifyAdapter
 from .render import RenderAdapter
+from .fly import FlyAdapter
+from .railway import RailwayAdapter
+from .cloudrun import CloudRunAdapter
+from .koyeb import KoyebAdapter
+from .apprunner import AppRunnerAdapter
+from .oracle import OracleAdapter
+from .azure_container_apps import AzureContainerAppsAdapter
+from .huggingface import HuggingFaceAdapter
 from .manifest import load_manifest, ManifestError
 from .recipe import resolve_recipe, list_recipes, RecipeError
 from .init import init_project, list_templates, InitError
@@ -24,6 +32,14 @@ __all__ = [
     "VercelAdapter",
     "NetlifyAdapter",
     "RenderAdapter",
+    "FlyAdapter",
+    "RailwayAdapter",
+    "CloudRunAdapter",
+    "KoyebAdapter",
+    "AppRunnerAdapter",
+    "OracleAdapter",
+    "AzureContainerAppsAdapter",
+    "HuggingFaceAdapter",
     "find_adapters",
     "load_manifest",
     "ManifestError",

@@ -30,6 +30,8 @@ from .registry import Registry, cup_component, default_registry
 from .distribute import RemoteFilter, Checkpoint, CheckpointHook, IterableSource, FileSource, WorkerPool
 from .deploy import (
     DeployTarget, DeployAdapter, DockerAdapter, VercelAdapter, NetlifyAdapter, RenderAdapter,
+    FlyAdapter, RailwayAdapter, CloudRunAdapter, KoyebAdapter,
+    AppRunnerAdapter, OracleAdapter, AzureContainerAppsAdapter, HuggingFaceAdapter,
     find_adapters, load_manifest, ManifestError,
     resolve_recipe, list_recipes, RecipeError,
     init_project, list_templates, InitError,
@@ -69,6 +71,8 @@ __all__ = [
     # Deploy
     "DeployTarget", "DeployAdapter", "DockerAdapter",
     "VercelAdapter", "NetlifyAdapter", "RenderAdapter",
+    "FlyAdapter", "RailwayAdapter", "CloudRunAdapter", "KoyebAdapter",
+    "AppRunnerAdapter", "OracleAdapter", "AzureContainerAppsAdapter", "HuggingFaceAdapter",
     "find_adapters", "load_manifest", "ManifestError",
     "resolve_recipe", "list_recipes", "RecipeError",
     "init_project", "list_templates", "InitError",

@@ -1194,3 +1194,628 @@ class TestRenderDiscovery:
     def test_render_export_from_deploy(self):
         from codeupipe.deploy import RenderAdapter
         assert RenderAdapter is not None
+
+
+# ── FlyAdapter ───────────────────────────────────────────────────────
+
+class TestFlyAdapter:
+    """Tests for the FlyAdapter — Fly.io edge deployment."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.fly import FlyAdapter
+        return FlyAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "fly"
+        assert "fly.io" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_validate_missing_pipeline(self, adapter):
+        assert len(adapter.validate({"not_pipeline": {}})) == 1
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "fly.toml" in names
+        assert "Dockerfile" in names
+        assert "pipeline.json" in names
+
+    def test_fly_toml_has_http_service(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "fly.toml").read_text()
+        assert "[http_service]" in content
+        assert "internal_port" in content
+
+    def test_fly_toml_has_app_name(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "fly.toml").read_text()
+        assert 'app = "test-app"' in content
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "fly" in result.lower()
+
+    def test_entrypoint_reads_port(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        ep = (out / "entrypoint.py").read_text()
+        assert "PORT" in ep
+
+    def test_postgres_comment_in_fly_toml(self, adapter, tmp_path):
+        config = {
+            "project": {"name": "x"},
+            "pipeline": {"name": "test", "steps": [{"name": "S1", "type": "filter"}]},
+            "connectors": {"db": {"provider": "postgres"}},
+        }
+        out = tmp_path / "out"
+        adapter.generate(config, out)
+        content = (out / "fly.toml").read_text()
+        assert "postgres" in content.lower()
+
+
+class TestFlyDiscovery:
+    """Verify Fly adapter is discovered and manifest accepts 'fly' target."""
+
+    def test_fly_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "fly" in find_adapters()
+
+    def test_manifest_accepts_fly_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "fly"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "fly"
+
+    def test_fly_export_top_level(self):
+        from codeupipe import FlyAdapter
+        assert FlyAdapter is not None
+
+    def test_fly_export_deploy(self):
+        from codeupipe.deploy import FlyAdapter
+        assert FlyAdapter is not None
+
+
+# ── RailwayAdapter ───────────────────────────────────────────────────
+
+class TestRailwayAdapter:
+    """Tests for the RailwayAdapter — Railway deployment."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.railway import RailwayAdapter
+        return RailwayAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "railway"
+        assert "railway" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_validate_missing_pipeline(self, adapter):
+        assert len(adapter.validate({"not_pipeline": {}})) == 1
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "railway.json" in names
+        assert "Dockerfile" in names
+
+    def test_railway_json_has_builder(self, adapter, valid_config, tmp_path):
+        import json
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        data = json.loads((out / "railway.json").read_text())
+        assert data["build"]["builder"] == "DOCKERFILE"
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "railway" in result.lower()
+
+    def test_entrypoint_reads_port(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        assert "PORT" in (out / "entrypoint.py").read_text()
+
+
+class TestRailwayDiscovery:
+
+    def test_railway_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "railway" in find_adapters()
+
+    def test_manifest_accepts_railway_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "railway"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "railway"
+
+    def test_railway_export_top_level(self):
+        from codeupipe import RailwayAdapter
+        assert RailwayAdapter is not None
+
+
+# ── CloudRunAdapter ──────────────────────────────────────────────────
+
+class TestCloudRunAdapter:
+    """Tests for the CloudRunAdapter — Google Cloud Run."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.cloudrun import CloudRunAdapter
+        return CloudRunAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "cloudrun"
+        assert "cloud run" in target.description.lower()
+
+    def test_validate_warns_missing_project(self, adapter, valid_config):
+        issues = adapter.validate(valid_config)
+        assert any("gcp_project" in i for i in issues)
+
+    def test_validate_with_project_option(self, adapter, valid_config):
+        issues = adapter.validate(valid_config, gcp_project="my-proj")
+        assert issues == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out, gcp_project="proj")
+        assert len(files) == 6  # deploy.sh + Dockerfile + pipeline.json + entrypoint + req + .dockerignore
+        names = [f.name for f in files]
+        assert "deploy.sh" in names
+        assert "Dockerfile" in names
+
+    def test_deploy_script_has_gcloud(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out, gcp_project="test-proj")
+        script = (out / "deploy.sh").read_text()
+        assert "gcloud run deploy" in script
+        assert "test-proj" in script
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "cloud run" in result.lower()
+
+
+class TestCloudRunDiscovery:
+
+    def test_cloudrun_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "cloudrun" in find_adapters()
+
+    def test_manifest_accepts_cloudrun_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "cloudrun"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "cloudrun"
+
+    def test_cloudrun_export_top_level(self):
+        from codeupipe import CloudRunAdapter
+        assert CloudRunAdapter is not None
+
+
+# ── KoyebAdapter ─────────────────────────────────────────────────────
+
+class TestKoyebAdapter:
+    """Tests for the KoyebAdapter — free nano instance."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.koyeb import KoyebAdapter
+        return KoyebAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "koyeb"
+        assert "koyeb" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "koyeb.yaml" in names
+        assert "Dockerfile" in names
+
+    def test_koyeb_yaml_has_free_instance(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "koyeb.yaml").read_text()
+        assert "instance_type: free" in content
+
+    def test_koyeb_yaml_has_health_check(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "koyeb.yaml").read_text()
+        assert "health_checks:" in content
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "koyeb" in result.lower()
+
+
+class TestKoyebDiscovery:
+
+    def test_koyeb_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "koyeb" in find_adapters()
+
+    def test_manifest_accepts_koyeb_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "koyeb"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "koyeb"
+
+    def test_koyeb_export_top_level(self):
+        from codeupipe import KoyebAdapter
+        assert KoyebAdapter is not None
+
+
+# ── AppRunnerAdapter ─────────────────────────────────────────────────
+
+class TestAppRunnerAdapter:
+    """Tests for the AppRunnerAdapter — AWS App Runner."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.apprunner import AppRunnerAdapter
+        return AppRunnerAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "apprunner"
+        assert "app runner" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "apprunner.yaml" in names
+        assert "Dockerfile" in names
+
+    def test_apprunner_yaml_has_scaling(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "apprunner.yaml").read_text()
+        assert "scaling:" in content
+        assert "min_size:" in content
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "app runner" in result.lower()
+
+
+class TestAppRunnerDiscovery:
+
+    def test_apprunner_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "apprunner" in find_adapters()
+
+    def test_manifest_accepts_apprunner_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "apprunner"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "apprunner"
+
+    def test_apprunner_export_top_level(self):
+        from codeupipe import AppRunnerAdapter
+        assert AppRunnerAdapter is not None
+
+
+# ── OracleAdapter ────────────────────────────────────────────────────
+
+class TestOracleAdapter:
+    """Tests for the OracleAdapter — Oracle Cloud Always Free VM."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.oracle import OracleAdapter
+        return OracleAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "oracle"
+        assert "oracle" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 6  # compose + deploy.sh + Dockerfile + pipeline.json + entrypoint + reqs
+        names = [f.name for f in files]
+        assert "docker-compose.yml" in names
+        assert "deploy.sh" in names
+        assert "Dockerfile" in names
+
+    def test_compose_has_service(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        content = (out / "docker-compose.yml").read_text()
+        assert "services:" in content
+        assert "test-app:" in content
+
+    def test_compose_has_postgres_when_connector(self, adapter, tmp_path):
+        config = {
+            "project": {"name": "x"},
+            "pipeline": {"name": "test", "steps": [{"name": "S1", "type": "filter"}]},
+            "connectors": {"db": {"provider": "postgres"}},
+        }
+        out = tmp_path / "out"
+        adapter.generate(config, out)
+        content = (out / "docker-compose.yml").read_text()
+        assert "postgres:" in content
+        assert "pgdata:" in content
+
+    def test_deploy_script_has_ssh(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        script = (out / "deploy.sh").read_text()
+        assert "ssh" in script.lower()
+        assert "docker compose" in script
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "oracle" in result.lower()
+
+
+class TestOracleDiscovery:
+
+    def test_oracle_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "oracle" in find_adapters()
+
+    def test_manifest_accepts_oracle_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "oracle"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "oracle"
+
+    def test_oracle_export_top_level(self):
+        from codeupipe import OracleAdapter
+        assert OracleAdapter is not None
+
+
+# ── AzureContainerAppsAdapter ────────────────────────────────────────
+
+class TestAzureContainerAppsAdapter:
+    """Tests for the AzureContainerAppsAdapter — Azure Container Apps."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.azure_container_apps import AzureContainerAppsAdapter
+        return AzureContainerAppsAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "azure-container-apps"
+        assert "azure" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "deploy.sh" in names
+        assert "Dockerfile" in names
+
+    def test_deploy_script_has_az_commands(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        script = (out / "deploy.sh").read_text()
+        assert "az containerapp" in script
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "azure" in result.lower()
+
+
+class TestAzureContainerAppsDiscovery:
+
+    def test_azure_container_apps_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "azure-container-apps" in find_adapters()
+
+    def test_manifest_accepts_azure_container_apps_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "azure-container-apps"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "azure-container-apps"
+
+    def test_azure_container_apps_export_top_level(self):
+        from codeupipe import AzureContainerAppsAdapter
+        assert AzureContainerAppsAdapter is not None
+
+
+# ── HuggingFaceAdapter ──────────────────────────────────────────────
+
+class TestHuggingFaceAdapter:
+    """Tests for the HuggingFaceAdapter — HF Spaces deployment."""
+
+    @pytest.fixture
+    def adapter(self):
+        from codeupipe.deploy.huggingface import HuggingFaceAdapter
+        return HuggingFaceAdapter()
+
+    @pytest.fixture
+    def valid_config(self):
+        return {
+            "project": {"name": "test-app"},
+            "pipeline": {
+                "name": "test",
+                "steps": [{"name": "S1", "type": "filter"}],
+            },
+            "connectors": {},
+        }
+
+    def test_target_metadata(self, adapter):
+        target = adapter.target()
+        assert target.name == "hf-spaces"
+        assert "hugging face" in target.description.lower()
+
+    def test_validate_valid_config(self, adapter, valid_config):
+        assert adapter.validate(valid_config) == []
+
+    def test_generate_creates_artifacts(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        files = adapter.generate(valid_config, out)
+        assert len(files) == 5
+        names = [f.name for f in files]
+        assert "README.md" in names
+        assert "Dockerfile" in names
+
+    def test_readme_has_hf_metadata(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        readme = (out / "README.md").read_text()
+        assert "sdk: docker" in readme
+        assert "title: test-app" in readme
+
+    def test_dockerfile_uses_port_7860(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        dockerfile = (out / "Dockerfile").read_text()
+        assert "EXPOSE 7860" in dockerfile
+
+    def test_dockerfile_has_non_root_user(self, adapter, valid_config, tmp_path):
+        out = tmp_path / "out"
+        adapter.generate(valid_config, out)
+        dockerfile = (out / "Dockerfile").read_text()
+        assert "USER user" in dockerfile
+
+    def test_deploy_dry_run(self, adapter, tmp_path):
+        result = adapter.deploy(tmp_path, dry_run=True)
+        assert "dry-run" in result.lower()
+        assert "hugging face" in result.lower()
+
+
+class TestHuggingFaceDiscovery:
+
+    def test_hf_spaces_in_find_adapters(self):
+        from codeupipe.deploy import find_adapters
+        assert "hf-spaces" in find_adapters()
+
+    def test_manifest_accepts_hf_spaces_target(self, tmp_path):
+        from codeupipe.deploy.manifest import load_manifest
+        toml = '[project]\nname = "t"\n\n[deploy]\ntarget = "hf-spaces"\n'
+        f = tmp_path / "cup.toml"
+        f.write_text(toml)
+        assert load_manifest(str(f))["deploy"]["target"] == "hf-spaces"
+
+    def test_hf_export_top_level(self):
+        from codeupipe import HuggingFaceAdapter
+        assert HuggingFaceAdapter is not None

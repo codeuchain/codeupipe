@@ -25,11 +25,24 @@ def find_adapters() -> Dict[str, DeployAdapter]:
     from .vercel import VercelAdapter
     from .netlify import NetlifyAdapter
     from .render import RenderAdapter
+    from .fly import FlyAdapter
+    from .railway import RailwayAdapter
+    from .cloudrun import CloudRunAdapter
+    from .koyeb import KoyebAdapter
+    from .apprunner import AppRunnerAdapter
+    from .oracle import OracleAdapter
+    from .azure_container_apps import AzureContainerAppsAdapter
+    from .huggingface import HuggingFaceAdapter
 
     adapters: Dict[str, DeployAdapter] = {}
 
     # Built-in adapters — always available
-    for cls in (DockerAdapter, VercelAdapter, NetlifyAdapter, RenderAdapter):
+    for cls in (
+        DockerAdapter, VercelAdapter, NetlifyAdapter, RenderAdapter,
+        FlyAdapter, RailwayAdapter, CloudRunAdapter, KoyebAdapter,
+        AppRunnerAdapter, OracleAdapter, AzureContainerAppsAdapter,
+        HuggingFaceAdapter,
+    ):
         adapter = cls()
         adapters[adapter.target().name] = adapter
 

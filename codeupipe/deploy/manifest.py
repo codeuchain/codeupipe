@@ -88,7 +88,11 @@ def _validate(data: dict, path: str) -> None:
     # Validate [deploy] section if present
     deploy = data.get("deploy")
     if deploy and "target" in deploy:
-        valid_targets = ("docker", "vercel", "netlify", "render", "aws", "aws-lambda", "aws-s3")
+        valid_targets = (
+            "docker", "vercel", "netlify", "render", "aws", "aws-lambda", "aws-s3",
+            "fly", "railway", "cloudrun", "koyeb", "apprunner",
+            "oracle", "azure-container-apps", "hf-spaces",
+        )
         if deploy["target"] not in valid_targets:
             raise ManifestError(
                 f"{path}: [deploy] unsupported target '{deploy['target']}'. "
