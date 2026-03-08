@@ -43,6 +43,8 @@ from .connect import (
 )
 from .observe import CaptureTap, MetricsTap, RunRecord
 from .graph import pipeline_to_mermaid
+from .runtime import TapSwitch, HotSwap
+from .auth import Credential, CredentialStore, AuthProvider, GoogleOAuth, GitHubOAuth, AuthHook
 
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
 try:
@@ -86,4 +88,9 @@ __all__ = [
     "CaptureTap", "MetricsTap", "RunRecord",
     # Graph
     "pipeline_to_mermaid",
+    # Runtime
+    "TapSwitch", "HotSwap",
+    # Auth
+    "Credential", "CredentialStore", "AuthProvider",
+    "GoogleOAuth", "GitHubOAuth", "AuthHook",
 ]

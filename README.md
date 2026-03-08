@@ -1,6 +1,6 @@
 # codeupipe
 
-<!-- cup:ref file=codeupipe/__init__.py hash=da3d295 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=e123aee -->
 
 Python pipeline framework — composable **Payload → Filter → Pipeline** pattern with streaming support. Zero external dependencies.
 
@@ -210,7 +210,7 @@ print(pipeline.state.chunks_processed)   # {'upper': 3}  (streaming mode)
 
 ## CLI (`cup`)
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=d968d73 -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=45440df -->
 The `cup` command-line tool scaffolds, lints, and analyzes CUP projects:
 
 ```bash
@@ -227,6 +227,12 @@ cup connect --list                         # Show configured connectors
 cup connect --health                       # Run connector health checks
 cup describe pipeline.json                 # Inspect pipeline inputs, outputs, steps
 cup describe pipeline.json --json          # Machine-readable output (--json works globally)
+cup distribute checkpoint cp.json --status # Manage payload checkpoints
+cup distribute remote https://api.example  # Test a remote filter endpoint
+cup test                                   # Smart test runner with markers
+cup doctor                                 # Project health diagnostics
+cup graph pipeline.json                    # Mermaid pipeline visualization
+cup version --bump patch                   # Show/bump semver
 ```
 <!-- /cup:ref -->
 
@@ -252,7 +258,7 @@ def test_with_mock():
 ## Test
 
 ```bash
-pytest  # 1024 tests
+pytest  # 1676 tests
 ```
 
 ## License

@@ -1133,6 +1133,20 @@ def doc_check(directory: str) -> dict:
     return result.get("doc_report", {})
 
 
+def _print_credential_status(cred):
+    """Print formatted credential status for the auth CLI."""
+    import datetime
+    status = "✓ valid" if cred.valid else "✗ expired"
+    print(f"  {cred.provider}: {status}")
+    print(f"    token_type: {cred.token_type}")
+    print(f"    scopes: {', '.join(cred.scopes)}")
+    if cred.expiry:
+        exp = datetime.datetime.fromtimestamp(cred.expiry)
+        print(f"    expires: {exp.isoformat()}")
+    if cred.refresh_token:
+        print(f"    refresh_token: {'present' if cred.refresh_token else 'none'}")
+
+
 # ── CLI Entry Point ─────────────────────────────────────────────────
 
 def main(argv=None):
@@ -1635,6 +1649,64 @@ def main(argv=None):
         action="store_true",
         help="Create a git tag after bumping",
     )
+
+    # cup distribute <subcommand>
+    dist_parser = sub.add_parser(
+        "distribute",
+        help="Manage distributed pipeline components",
+    )
+    dist_sub = dist_parser.add_subparsers(dest="dist_cmd")
+
+    # cup distribute checkpoint --save/--load/--clear/--status <path>
+    cp_parser = dist_sub.add_parser("checkpoint", help="Manage payload checkpoints")
+    cp_parser.add_argument("path", help="Checkpoint file path")
+    cp_group = cp_parser.add_mutually_exclusive_group(required=True)
+    cp_group.add_argument("--save", metavar="JSON", help="Save a payload (JSON string) to checkpoint")
+    cp_group.add_argument("--load", action="store_true", help="Load and print the checkpoint")
+    cp_group.add_argument("--clear", action="store_true", help="Clear the checkpoint")
+    cp_group.add_argument("--status", action="store_true", help="Show checkpoint status")
+
+    # cup distribute remote --test <url>
+    remote_parser = dist_sub.add_parser("remote", help="Test a remote filter endpoint")
+    remote_parser.add_argument("url", help="Remote endpoint URL")
+    remote_parser.add_argument("--timeout", type=int, default=10, help="Request timeout in seconds")
+
+    # cup distribute worker --info
+    worker_parser = dist_sub.add_parser("worker", help="Show worker pool information")
+    worker_parser.add_argument("--kind", choices=["thread", "process"], default="thread",
+                               help="Pool type (default: thread)")
+    worker_parser.add_argument("--max-workers", type=int, default=None,
+                               help="Number of workers (default: CPU count)")
+
+    # cup auth <subcommand>
+    auth_parser = sub.add_parser(
+        "auth",
+        help="Manage OAuth2 credentials for pipeline connectors",
+    )
+    auth_sub = auth_parser.add_subparsers(dest="auth_cmd")
+
+    # cup auth login <provider> [--client-id ID] [--client-secret SECRET] [--scopes S1 S2]
+    auth_login_parser = auth_sub.add_parser("login", help="Authenticate with an OAuth2 provider")
+    auth_login_parser.add_argument("provider", help="Provider name: google, github")
+    auth_login_parser.add_argument("--client-id", help="OAuth client ID (or set CUP_AUTH_CLIENT_ID env)")
+    auth_login_parser.add_argument("--client-secret", help="OAuth client secret (or set CUP_AUTH_CLIENT_SECRET env)")
+    auth_login_parser.add_argument("--scopes", nargs="+", help="OAuth scopes to request")
+    auth_login_parser.add_argument("--port", type=int, default=0, help="Local callback port (default: auto)")
+    auth_login_parser.add_argument("--no-browser", action="store_true", help="Print URL instead of opening browser")
+    auth_login_parser.add_argument("--store", default=None, help="Credentials file path (default: ~/.codeupipe/credentials.json)")
+
+    # cup auth status [provider]
+    auth_status_parser = auth_sub.add_parser("status", help="Show credential status")
+    auth_status_parser.add_argument("provider", nargs="?", help="Show status for specific provider (default: all)")
+    auth_status_parser.add_argument("--store", default=None, help="Credentials file path")
+
+    # cup auth revoke <provider>
+    auth_revoke_parser = auth_sub.add_parser("revoke", help="Remove stored credentials")
+    auth_revoke_parser.add_argument("provider", help="Provider to revoke")
+    auth_revoke_parser.add_argument("--store", default=None, help="Credentials file path")
+
+    # cup auth list
+    auth_sub.add_parser("list", help="List all stored providers")
 
     args = parser.parse_args(argv)
 
@@ -2607,6 +2679,223 @@ def main(argv=None):
         except Exception as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1
+
+    if args.command == "distribute":
+        dist_cmd = getattr(args, "dist_cmd", None)
+        if not dist_cmd:
+            dist_parser.print_help()
+            return 1
+
+        if dist_cmd == "checkpoint":
+            try:
+                from codeupipe.distribute import Checkpoint
+                cp = Checkpoint(args.path)
+
+                if getattr(args, "save", None):
+                    import json as json_mod
+                    import codeupipe.core.payload as _payload_mod
+                    data = json_mod.loads(args.save)
+                    payload = _payload_mod.Payload(data)
+                    cp.save(payload)
+                    print(f"Saved checkpoint → {args.path}")
+                    return 0
+
+                if getattr(args, "load", False):
+                    if not cp.exists:
+                        print("No checkpoint found", file=sys.stderr)
+                        return 1
+                    import json as json_mod
+                    payload = cp.load()
+                    print(json_mod.dumps(payload.to_dict(), indent=2, default=str))
+                    return 0
+
+                if getattr(args, "clear", False):
+                    cp.clear()
+                    print(f"Cleared checkpoint: {args.path}")
+                    return 0
+
+                if getattr(args, "status", False):
+                    if not cp.exists:
+                        print("No checkpoint at this path")
+                        return 0
+                    meta = cp.metadata
+                    ts = cp.timestamp
+                    print(f"Checkpoint: {args.path}")
+                    print(f"  exists: True")
+                    print(f"  timestamp: {ts}")
+                    if meta:
+                        for k, v in meta.items():
+                            print(f"  {k}: {v}")
+                    return 0
+
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+        if dist_cmd == "remote":
+            try:
+                import urllib.request
+                import urllib.error
+                url = args.url
+                timeout = getattr(args, "timeout", 10)
+                req = urllib.request.Request(
+                    url, method="HEAD",
+                    headers={"User-Agent": "codeupipe-cli"},
+                )
+                try:
+                    resp = urllib.request.urlopen(req, timeout=timeout)
+                    print(f"✓ {url} — {resp.status} {resp.reason}")
+                    return 0
+                except urllib.error.HTTPError as he:
+                    print(f"✗ {url} — HTTP {he.code} {he.reason}")
+                    return 1
+                except urllib.error.URLError as ue:
+                    print(f"✗ {url} — {ue.reason}")
+                    return 1
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+        if dist_cmd == "worker":
+            try:
+                import os
+                kind = getattr(args, "kind", "thread")
+                max_w = getattr(args, "max_workers", None) or os.cpu_count() or 4
+                print(f"Worker Pool Configuration:")
+                print(f"  kind: {kind}")
+                print(f"  max_workers: {max_w}")
+                print(f"  cpu_count: {os.cpu_count()}")
+                return 0
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+    if args.command == "auth":
+        auth_cmd = getattr(args, "auth_cmd", None)
+        if not auth_cmd:
+            auth_parser.print_help()
+            return 1
+
+        if auth_cmd == "login":
+            try:
+                import os
+                from codeupipe.auth import CredentialStore, GoogleOAuth, GitHubOAuth
+                from codeupipe.auth._server import run_oauth_flow
+
+                provider_name = args.provider.lower()
+                store = CredentialStore(args.store)
+
+                client_id = getattr(args, "client_id", None) or os.environ.get("CUP_AUTH_CLIENT_ID")
+                client_secret = getattr(args, "client_secret", None) or os.environ.get("CUP_AUTH_CLIENT_SECRET")
+
+                if not client_id or not client_secret:
+                    print(
+                        f"Error: --client-id and --client-secret are required\n"
+                        f"  (or set CUP_AUTH_CLIENT_ID and CUP_AUTH_CLIENT_SECRET env vars)",
+                        file=sys.stderr,
+                    )
+                    return 1
+
+                scopes = getattr(args, "scopes", None)
+
+                if provider_name == "google":
+                    provider = GoogleOAuth(client_id, client_secret, scopes=scopes)
+                elif provider_name == "github":
+                    provider = GitHubOAuth(client_id, client_secret, scopes=scopes)
+                else:
+                    print(f"Error: Unknown provider '{provider_name}'. Supported: google, github", file=sys.stderr)
+                    return 1
+
+                port = getattr(args, "port", 0) or 0
+                no_browser = getattr(args, "no_browser", False)
+
+                code, redirect_uri = run_oauth_flow(
+                    provider,
+                    port=port,
+                    open_browser=not no_browser,
+                )
+
+                cred = provider.exchange_code(code, redirect_uri)
+                store.save(cred)
+                store.register_provider(provider_name, provider)
+
+                print(f"\n✓ Authenticated with {provider_name}")
+                print(f"  scopes: {', '.join(cred.scopes)}")
+                print(f"  stored: {store.path}")
+                if cred.expiry:
+                    import datetime
+                    exp = datetime.datetime.fromtimestamp(cred.expiry)
+                    print(f"  expires: {exp.isoformat()}")
+                return 0
+
+            except TimeoutError as e:
+                print(f"✗ {e}", file=sys.stderr)
+                return 1
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+        if auth_cmd == "status":
+            try:
+                from codeupipe.auth import CredentialStore, Credential
+
+                store = CredentialStore(getattr(args, "store", None))
+                provider_name = getattr(args, "provider", None)
+
+                if provider_name:
+                    cred = store.get(provider_name, auto_refresh=False)
+                    if cred is None:
+                        print(f"No credentials stored for '{provider_name}'")
+                        return 0
+                    _print_credential_status(cred)
+                else:
+                    providers = store.list_providers()
+                    if not providers:
+                        print("No stored credentials")
+                        return 0
+                    for name in providers:
+                        cred = store.get(name, auto_refresh=False)
+                        if cred:
+                            _print_credential_status(cred)
+                            print()
+                return 0
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+        if auth_cmd == "revoke":
+            try:
+                from codeupipe.auth import CredentialStore
+
+                store = CredentialStore(getattr(args, "store", None))
+                removed = store.remove(args.provider)
+                if removed:
+                    print(f"✓ Revoked credentials for '{args.provider}'")
+                else:
+                    print(f"No credentials stored for '{args.provider}'")
+                return 0
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
+
+        if auth_cmd == "list":
+            try:
+                from codeupipe.auth import CredentialStore
+
+                store = CredentialStore()
+                providers = store.list_providers()
+                if not providers:
+                    print("No stored credentials")
+                else:
+                    print("Stored providers:")
+                    for name in providers:
+                        cred = store.get(name, auto_refresh=False)
+                        status = "valid" if cred and cred.valid else "expired"
+                        print(f"  {name} ({status})")
+                return 0
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 1
 
     parser.print_help()
     return 1

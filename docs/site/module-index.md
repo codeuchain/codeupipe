@@ -17,7 +17,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=da3d295 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=e123aee -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -57,6 +57,14 @@ codeupipe/
 │   ├── source.py            # IterableSource, FileSource
 │   └── worker.py            # WorkerPool
 │
+├── runtime.py               # TapSwitch, HotSwap — zero-downtime production control
+│
+├── auth/                    # OAuth2 integration (browser-based login, credential persistence)
+│   ├── credential.py        # Credential, CredentialStore
+│   ├── provider.py          # AuthProvider, GoogleOAuth, GitHubOAuth
+│   ├── hook.py              # AuthHook
+│   └── _server.py           # Local OAuth callback server
+│
 ├── registry.py              # Registry, cup_component, default_registry
 │
 ├── utils/
@@ -76,7 +84,7 @@ codeupipe/
 │   └── (18 filter files)    # ScanDirectory, CheckNaming, etc.
 │
 ├── testing.py               # Test helpers — run_filter, assert_payload, etc.
-└── cli.py                   # cup new/list/bundle/lint/coverage/report/doc-check/run/connect/describe
+└── cli.py                   # cup new/list/bundle/lint/coverage/report/doc-check/run/connect/describe/distribute/test/doctor/runs/upgrade/publish/graph/version
 ```
 <!-- /cup:ref -->
 
@@ -298,7 +306,7 @@ codeupipe/
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=d968d73 -->
+<!-- cup:ref file=codeupipe/cli.py symbols=main,scaffold,bundle,lint,coverage,report,doc_check hash=45440df -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |
@@ -319,6 +327,13 @@ codeupipe/
 | `cup publish <dir>` | Validate & build for publishing |
 | `cup graph <config>` | Mermaid pipeline visualization |
 | `cup version [--bump]` | Show/bump semver from pyproject.toml |
+| `cup distribute checkpoint <path>` | Manage payload checkpoints (save/load/clear/status) |
+| `cup distribute remote <url>` | Test a remote filter endpoint |
+| `cup distribute worker` | Show worker pool configuration |
+| `cup auth login <provider>` | Browser-based OAuth2 login |
+| `cup auth status <provider>` | Show credential status |
+| `cup auth revoke <provider>` | Remove stored credentials |
+| `cup auth list` | List all stored providers |
 | `--json` (global) | Machine-readable JSON output |
 <!-- /cup:ref -->
 
@@ -370,6 +385,41 @@ codeupipe/
 
 ---
 
+## Runtime (Zero-Downtime Control)
+
+<!-- cup:ref file=codeupipe/runtime.py symbols=TapSwitch,HotSwap -->
+| Export | Role |
+|--------|------|
+| `TapSwitch` | Toggle observation taps on/off at runtime without restarting |
+| `HotSwap` | Atomically replace the active Pipeline from a new config file |
+<!-- /cup:ref -->
+
+---
+
+## Auth (OAuth2 Integration)
+
+<!-- cup:ref file=codeupipe/auth/__init__.py hash=9c1e619 -->
+<!-- cup:ref file=codeupipe/auth/credential.py symbols=Credential,CredentialStore hash=c430594 -->
+<!-- cup:ref file=codeupipe/auth/provider.py symbols=AuthProvider,GoogleOAuth,GitHubOAuth hash=88a42c5 -->
+<!-- cup:ref file=codeupipe/auth/hook.py symbols=AuthHook hash=f2144d0 -->
+<!-- cup:ref file=codeupipe/auth/_server.py symbols=run_oauth_flow hash=ae07f5c -->
+| Export | Role |
+|--------|------|
+| `Credential` | Token container with expiry tracking and serialization |
+| `CredentialStore` | File-backed JSON persistence with auto-refresh |
+| `AuthProvider` | ABC for OAuth2 flows (authorize, exchange, refresh) |
+| `GoogleOAuth` | Google OAuth2 provider (all Google API scopes) |
+| `GitHubOAuth` | GitHub OAuth2 provider |
+| `AuthHook` | Pipeline hook that injects credentials before execution |
+| `run_oauth_flow` | Browser-based OAuth2 callback server |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Registry (Composability Layer)
 
 <!-- cup:ref file=codeupipe/registry.py symbols=Registry,cup_component,default_registry hash=5af5cbd -->
@@ -385,7 +435,7 @@ codeupipe/
 
 ## Tests
 
-1285 tests across 53+ files. Full suite: `pytest`
+1729 tests across 60+ files. Full suite: `pytest`
 
 ---
 
