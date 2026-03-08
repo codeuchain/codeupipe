@@ -321,7 +321,7 @@ def test_with_mock():
 ## Test
 
 ```bash
-pytest  # 1831 tests
+pytest  # 1844 tests
 ```
 
 ## License

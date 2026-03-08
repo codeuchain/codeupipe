@@ -505,7 +505,7 @@ codeupipe/
 
 ## Tests
 
-1831 tests across 60+ files. Full suite: `pytest`
+1844 tests across 60+ files. Full suite: `pytest`
 
 ---
 
