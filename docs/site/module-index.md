@@ -446,6 +446,10 @@ codeupipe/
 <!-- cup:ref file=codeupipe/auth/provider.py symbols=AuthProvider,GoogleOAuth,GitHubOAuth hash=88a42c5 -->
 <!-- cup:ref file=codeupipe/auth/hook.py symbols=AuthHook hash=f2144d0 -->
 <!-- cup:ref file=codeupipe/auth/_server.py symbols=run_oauth_flow hash=ae07f5c -->
+<!-- cup:ref file=codeupipe/auth/proxy_token.py symbols=ProxyToken hash=686c997 -->
+<!-- cup:ref file=codeupipe/auth/token_ledger.py symbols=LedgerEvent,TokenLedger hash=f6cd6dd -->
+<!-- cup:ref file=codeupipe/auth/token_vault.py symbols=TokenVault hash=dfd347f -->
+<!-- cup:ref file=codeupipe/auth/vault_hook.py symbols=VaultHook hash=899f08a -->
 | Export | Role |
 |--------|------|
 | `Credential` | Token container with expiry tracking and serialization |
@@ -455,6 +459,15 @@ codeupipe/
 | `GitHubOAuth` | GitHub OAuth2 provider |
 | `AuthHook` | Pipeline hook that injects credentials before execution |
 | `run_oauth_flow` | Browser-based OAuth2 callback server |
+| `ProxyToken` | Opaque `cup_tok_*` reference — never exposes real credentials |
+| `LedgerEvent` | Audit event (issued / resolved / revoked) with timestamp |
+| `TokenLedger` | Append-only audit trail for proxy token lifecycle |
+| `TokenVault` | Central authority — issues, resolves, and revokes proxy tokens |
+| `VaultHook` | Pipeline hook that injects proxy tokens instead of raw credentials |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -478,7 +491,7 @@ codeupipe/
 
 ## Tests
 
-1729 tests across 60+ files. Full suite: `pytest`
+1831 tests across 60+ files. Full suite: `pytest`
 
 ---
 

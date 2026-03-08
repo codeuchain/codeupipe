@@ -244,6 +244,61 @@ cup version --bump patch                   # Show/bump semver
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 
+## Auth & Vault
+
+<!-- cup:ref file=codeupipe/auth/__init__.py hash=85c76a2 -->
+<!-- cup:ref file=codeupipe/auth/proxy_token.py symbols=ProxyToken hash=686c997 -->
+<!-- cup:ref file=codeupipe/auth/token_vault.py symbols=TokenVault hash=dfd347f -->
+<!-- cup:ref file=codeupipe/auth/vault_hook.py symbols=VaultHook hash=899f08a -->
+<!-- cup:ref file=codeupipe/cli/commands/vault_cmds.py symbols=setup hash=d2fb81a -->
+
+codeupipe ships a **proxy token vault** that decouples pipelines from real
+credentials.  Instead of passing raw access tokens through Payload, the vault
+issues opaque `cup_tok_*` references.  Filters only ever see the proxy —
+resolution to the real credential happens at the trust boundary via `VaultHook`.
+
+```
+┌──────────┐      cup_tok_abc123      ┌───────────┐
+│ Pipeline │ ───────────────────────► │ VaultHook │
+│ (filters │                          │  resolve   │
+│  see tok)│ ◄─────────────────────── │  ↕ Vault   │
+└──────────┘    real access_token     └───────────┘
+```
+
+### Quick usage
+
+```python
+from codeupipe.auth import (
+    TokenVault, VaultHook, CredentialStore, GoogleOAuth,
+)
+
+store = CredentialStore("tokens.json")
+vault = TokenVault(store)
+
+# Inject proxy tokens automatically
+pipeline.use_hook(VaultHook(vault, GoogleOAuth(...), scope="calendar"))
+result = await pipeline.run(Payload({"user": "alice"}))
+# Filters receive payload["credential"] as a cup_tok_* proxy
+```
+
+### Vault CLI
+
+```bash
+cup vault issue google calendar          # Issue a scoped proxy token
+cup vault resolve cup_tok_abc123         # Resolve to real credential (admin only)
+cup vault revoke cup_tok_abc123          # Revoke a single token
+cup vault revoke-all                     # Revoke every active token
+cup vault list                           # Show active proxy tokens
+cup vault status                         # Vault summary + ledger stats
+```
+
+Every vault action is recorded in the **TokenLedger** audit trail.
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
 ## Testing Utilities
 
 <!-- cup:ref file=codeupipe/testing.py symbols=run_filter,assert_payload,mock_filter hash=65f0296 -->
@@ -266,7 +321,7 @@ def test_with_mock():
 ## Test
 
 ```bash
-pytest  # 1676 tests
+pytest  # 1831 tests
 ```
 
 ## License

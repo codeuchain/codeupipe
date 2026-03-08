@@ -362,6 +362,84 @@ pytest tests/ -v
 
 ---
 
+## Vault & Credential Security
+
+<!-- cup:ref file=codeupipe/auth/proxy_token.py symbols=ProxyToken hash=686c997 -->
+<!-- cup:ref file=codeupipe/auth/token_vault.py symbols=TokenVault hash=dfd347f -->
+<!-- cup:ref file=codeupipe/auth/vault_hook.py symbols=VaultHook hash=899f08a -->
+
+### Always Use Proxy Tokens in Pipelines
+
+Never pass raw OAuth access tokens through a pipeline's Payload.  Filters
+should only ever see opaque `cup_tok_*` proxy references:
+
+```python
+# ❌  Bad — real token visible to every filter
+pipeline.use_hook(AuthHook(store, provider, scope="calendar"))
+
+# ✅  Good — proxy token only
+vault = TokenVault(CredentialStore("tokens.json"))
+pipeline.use_hook(VaultHook(vault, provider, scope="calendar"))
+```
+
+### Scope Tokens Narrowly
+
+Issue proxy tokens with the minimum scope and shortest TTL that satisfies the
+pipeline's needs:
+
+```python
+# ❌  Overly broad
+proxy = vault.issue(provider="google", scope="all")
+
+# ✅  Narrow scope, short-lived
+proxy = vault.issue(provider="google", scope="calendar", ttl_seconds=60, max_uses=1)
+```
+
+### Revoke on Completion
+
+`VaultHook` handles this automatically — it revokes the proxy in both
+`after()` (success) and `on_error()` (failure).  If you issue tokens manually,
+revoke them explicitly:
+
+```python
+proxy = vault.issue(provider="google", scope="calendar")
+try:
+    credential = vault.resolve(proxy.token_id)
+    # ... use credential ...
+finally:
+    vault.revoke(proxy.token_id)
+```
+
+### Use the Ledger for Auditing
+
+The `TokenLedger` records every issued / resolved / revoked event.  Review it
+periodically:
+
+```bash
+cup vault status    # Summary: active tokens, ledger size
+cup vault list      # All currently active proxy tokens
+```
+
+### Emergency Revocation
+
+If credentials may be compromised, revoke all active proxy tokens immediately:
+
+```bash
+cup vault revoke-all
+```
+
+Or in code:
+
+```python
+vault.revoke_all()
+```
+
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Linter Rules
 
 <!-- cup:ref file=codeupipe/linter/lint_pipeline.py symbols=build_lint_pipeline hash=ccff493 -->
