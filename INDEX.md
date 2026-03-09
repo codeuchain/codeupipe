@@ -367,7 +367,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
 <!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=de213f2 -->
-<!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=973b453 -->
+<!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
 <!-- cup:ref file=codeupipe/cli/commands/project_cmds.py hash=6bad64b -->
 <!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->
 <!-- cup:ref file=codeupipe/cli/commands/auth_cmds.py hash=a0df015 -->

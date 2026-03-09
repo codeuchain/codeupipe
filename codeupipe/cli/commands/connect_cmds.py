@@ -108,6 +108,12 @@ def _handle_marketplace(args):
         from codeupipe.marketplace import fetch_index, search as mp_search_fn, info as mp_info_fn
         from codeupipe.marketplace import MarketplaceError
 
+        MARKETPLACE_REPO = "https://github.com/codeuchain/codeupipe-marketplace.git"
+
+        def _git_install_url(name):
+            """Build pip-installable git URL targeting a component subdirectory."""
+            return f"git+{MARKETPLACE_REPO}#subdirectory=components/{name}"
+
         use_json = getattr(args, "json_output", False)
         subcmd = getattr(args, "marketplace_cmd", None)
 
@@ -140,7 +146,7 @@ def _handle_marketplace(args):
                         filters = ", ".join(r.get("filters", []))
                         if filters:
                             print(f"    Filters: {filters}")
-                        print(f"    pip install {r.get('pypi', r['name'])}")
+                        print(f"    cup marketplace install {r['name']}")
                         print()
             return 0
 
@@ -167,7 +173,7 @@ def _handle_marketplace(args):
                 print(f"Filters:     {', '.join(entry.get('filters', []))}")
                 print(f"Requires:    codeupipe >= {entry.get('min_codeupipe', '?')}")
                 print(f"Repo:        {entry.get('repo', '?')}")
-                print(f"Install:     pip install {entry.get('pypi', entry['name'])}")
+                print(f"Install:     cup marketplace install {entry['name']}")
             return 0
 
         if subcmd == "install":
@@ -175,14 +181,22 @@ def _handle_marketplace(args):
                 index = fetch_index()
             except MarketplaceError:
                 index = None
-            pkg = args.package
+
+            name = args.package
+            # Verify the component exists in the index
             if index is not None:
-                entry = mp_info_fn(index, pkg)
+                entry = mp_info_fn(index, name)
                 if entry:
-                    pkg = entry.get("pypi", pkg)
+                    name = entry["name"]  # Normalize the name
+
+            install_url = _git_install_url(name)
             import subprocess
-            print(f"Installing {pkg}...")
-            ret = subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
+            print(f"Installing {name} from marketplace...")
+            print(f"  → {install_url}")
+            ret = subprocess.run(
+                [sys.executable, "-m", "pip", "install", install_url],
+                check=False,
+            )
             return ret.returncode
 
         print("Usage: cup marketplace search|info|install")

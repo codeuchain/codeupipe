@@ -390,7 +390,7 @@ class TestCLIMarketplace:
         out = capsys.readouterr().out
         assert "stripe" in out.lower()
         assert "StripeCheckout" in out
-        assert "pip install" in out
+        assert "cup marketplace install" in out
 
     def test_marketplace_info_json(self, capsys):
         from codeupipe.cli import main
@@ -421,6 +421,42 @@ class TestCLIMarketplace:
 
         result = main(["marketplace"])
         assert result == 1
+
+    def test_marketplace_search_shows_cup_install(self, capsys):
+        """Search results should show 'cup marketplace install', not 'pip install'."""
+        from codeupipe.cli import main
+
+        result = main(["marketplace", "search"])
+        assert result == 0
+        out = capsys.readouterr().out
+        assert "cup marketplace install" in out
+        assert "pip install" not in out
+
+    def test_marketplace_install_builds_git_url(self, capsys, monkeypatch):
+        """Install should use git+...#subdirectory=components/<name> URL."""
+        import subprocess
+
+        captured_args = []
+
+        def fake_run(cmd, check=False):
+            captured_args.extend(cmd)
+
+            class _Result:
+                returncode = 0
+            return _Result()
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        from codeupipe.cli import main
+
+        result = main(["marketplace", "install", "codeupipe-stripe"])
+        assert result == 0
+
+        # Verify the pip install URL points at the marketplace repo subdirectory
+        install_url = captured_args[-1]
+        assert "codeupipe-marketplace.git" in install_url
+        assert "#subdirectory=components/codeupipe-stripe" in install_url
+        assert install_url.startswith("git+https://github.com/")
 
 
 # ── Real index.json validation ──────────────────────────────────────
