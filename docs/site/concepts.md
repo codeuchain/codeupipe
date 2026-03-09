@@ -18,7 +18,8 @@ A practical reference for every type in the framework. Each section shows the cl
 10. [RetryFilter](#retryfilter)
 11. [StreamFilter & Streaming](#streamfilter-streaming)
 12. [Complete Workflow](#complete-workflow)
-13. [Quick Reference](#quick-reference)
+13. [Marketplace & Community Connectors](#marketplace--community-connectors)
+14. [Quick Reference](#quick-reference)
 
 ---
 
@@ -915,6 +916,58 @@ asyncio.run(main())
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
+
+---
+
+## Marketplace & Community Connectors
+
+The [**codeupipe Marketplace**](https://github.com/codeuchain/codeupipe-marketplace) is a community-driven index for discovering connectors and components. Packages are hosted on PyPI — the marketplace makes them findable via `cup marketplace search`.
+
+### Using Connectors
+
+```bash
+# Search for connectors by keyword, category, or provider
+cup marketplace search "ai"
+# → codeupipe-google-ai ✅ (v0.1.0) — Multimodal generation, embeddings, vision
+
+# Install (convenience wrapper around pip install)
+cup marketplace install codeupipe-google-ai
+
+# Connectors self-register via Python entry points
+cup connect --list
+# → google-ai: GeminiGenerate, GeminiGenerateStream, GeminiEmbed, GeminiVision
+```
+
+Once installed, use connectors as regular filters in your pipelines — no adapter code needed.
+
+### Available Connectors
+
+| Package | Provider | What it does |
+|---------|----------|-------------|
+| `codeupipe-google-ai` | Google AI (Gemini) | Multimodal generation, embeddings, vision |
+| `codeupipe-stripe` | Stripe | Checkout, subscriptions, webhooks, customers |
+| `codeupipe-postgres` | PostgreSQL | Queries, transactions, bulk insert |
+| `codeupipe-resend` | Resend | Transactional email, template rendering |
+
+### Publishing Your Own
+
+1. Build a Python package with `codeupipe.connectors` entry points
+2. Publish to PyPI
+3. Fork [codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)
+4. Add `components/your-package/manifest.json`
+5. Open a PR — CI validates, merge rebuilds the index
+
+See the [Marketplace Contributing Guide](https://github.com/codeuchain/codeupipe-marketplace/blob/main/CONTRIBUTING.md) for details.
+
+### Trust Tiers
+
+| Tier | Badge | Meaning |
+|------|-------|---------|
+| **verified** | ✅ | Published by codeuchain org, reviewed and tested |
+| **community** | 🔷 | Community-submitted, CI-validated |
+| **unindexed** | — | Works via entry points, not registered in index |
+
+All tiers work identically with `cup connect --list`. The marketplace only affects discoverability — not functionality.
 
 ---
 

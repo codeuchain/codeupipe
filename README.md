@@ -229,6 +229,9 @@ cup doc-check .                            # Verify doc freshness (cup:ref marke
 cup run pipeline.json --discover ./filters # Execute a pipeline from config
 cup connect --list                         # Show configured connectors
 cup connect --health                       # Run connector health checks
+cup marketplace search "payments"          # Search community connectors
+cup marketplace info codeupipe-stripe      # Detailed connector info
+cup marketplace install codeupipe-stripe   # Install from PyPI
 cup describe pipeline.json                 # Inspect pipeline inputs, outputs, steps
 cup describe pipeline.json --json          # Machine-readable output (--json works globally)
 cup distribute checkpoint cp.json --status # Manage payload checkpoints
@@ -243,6 +246,43 @@ cup version --bump patch                   # Show/bump semver
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
+
+## Marketplace & Community Connectors
+
+The [**codeupipe Marketplace**](https://github.com/codeuchain/codeupipe-marketplace) is a community-driven index of connectors and components. Packages live on PyPI — the marketplace makes them discoverable.
+
+```bash
+# Find connectors
+cup marketplace search "ai"
+# → codeupipe-google-ai ✅ (v0.1.0) — Multimodal generation, embeddings, and vision
+
+# Install (wrapper around pip install)
+cup marketplace install codeupipe-google-ai
+
+# Connector self-registers — immediately available
+cup connect --list
+# → google-ai: GeminiGenerate, GeminiGenerateStream, GeminiEmbed, GeminiVision
+```
+
+### Available Connectors
+
+| Package | Provider | Filters |
+|---------|----------|---------|
+| `codeupipe-google-ai` | Google AI (Gemini) | GeminiGenerate, GeminiGenerateStream, GeminiEmbed, GeminiVision |
+| `codeupipe-stripe` | Stripe | StripeCheckout, StripeSubscription, StripeWebhook, StripeCustomer |
+| `codeupipe-postgres` | PostgreSQL | PostgresQuery, PostgresExecute, PostgresTransaction, PostgresBulkInsert |
+| `codeupipe-resend` | Resend | ResendEmail, ResendTemplate |
+
+### Publish Your Own
+
+Built a connector? Share it with the community:
+
+1. Publish your package to PyPI with `codeupipe.connectors` entry points
+2. Fork [codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)
+3. Add a `manifest.json` for your package
+4. Open a PR — CI validates automatically
+
+See the [Marketplace Contributing Guide](https://github.com/codeuchain/codeupipe-marketplace/blob/main/CONTRIBUTING.md) for the full walkthrough.
 
 ## Auth & Vault
 

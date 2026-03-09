@@ -242,6 +242,14 @@ codeupipe/
 
 ## Marketplace (Ring 9)
 
+The marketplace index is community-managed in a standalone repo:
+**[codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)**
+
+Contributors fork that repo, add a `manifest.json` for their component, and open a PR.
+CI validates the manifest; on merge the index is rebuilt automatically.
+
+The CLI client code below fetches the index and provides search/info/install commands:
+
 <!-- cup:ref file=codeupipe/marketplace/__init__.py hash=4dc7675 -->
 <!-- cup:ref file=codeupipe/marketplace/index.py symbols=fetch_index,search,info,MarketplaceError hash=c05c5ff -->
 | Type | Source | Role |
@@ -250,6 +258,23 @@ codeupipe/
 | `search` | marketplace/index.py | Keyword + category/provider search |
 | `info` | marketplace/index.py | Package detail lookup by name or provider |
 | `MarketplaceError` | marketplace/index.py | Marketplace-specific error |
+
+### CLI Commands
+
+```bash
+cup marketplace search "payments"          # Search by keyword
+cup marketplace info codeupipe-stripe      # Detailed package info
+cup marketplace install codeupipe-stripe   # Install from PyPI
+```
+
+### Publish Your Own
+
+1. Publish to PyPI with `codeupipe.connectors` entry points
+2. Fork [codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)
+3. Add a `components/your-package/manifest.json`
+4. Open a PR — CI validates, merge rebuilds the index
+
+See the [Marketplace Contributing Guide](https://github.com/codeuchain/codeupipe-marketplace/blob/main/CONTRIBUTING.md).
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 

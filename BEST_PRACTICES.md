@@ -440,6 +440,41 @@ vault.revoke_all()
 
 ---
 
+## Marketplace & Community Connectors
+
+### Use marketplace connectors before building from scratch
+
+Check the [codeupipe Marketplace](https://github.com/codeuchain/codeupipe-marketplace) before writing a connector. Someone may have already built what you need:
+
+```bash
+cup marketplace search "stripe"
+cup marketplace install codeupipe-stripe
+```
+
+### Connector packaging conventions
+
+When publishing a connector:
+
+1. **Package name**: `codeupipe-{provider}` (e.g., `codeupipe-twilio`)
+2. **Entry point**: Register under `[project.entry-points."codeupipe.connectors"]` in `pyproject.toml`
+3. **One filter per file**: Same as core — `StripeCheckout` → `stripe_checkout.py`
+4. **Declare dependencies**: Connectors can have external deps (core cannot)
+5. **Include tests**: Unit tests with mocked SDK, integration tests with mocked credentials
+6. **Health check**: Implement a `health()` method for `cup connect --health`
+
+### Contributing to the marketplace
+
+The marketplace index is managed via PR:
+
+1. Publish your package to PyPI
+2. Fork [codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)
+3. Add `components/your-package/manifest.json`
+4. Open a PR — CI validates, maintainers review, merge rebuilds the index
+
+Set `trust` to `"community"` in your manifest — only maintainers set `"verified"`.
+
+---
+
 ## Linter Rules
 
 <!-- cup:ref file=codeupipe/linter/lint_pipeline.py symbols=build_lint_pipeline hash=ccff493 -->
