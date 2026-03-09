@@ -27,50 +27,54 @@ SAMPLE_INDEX = {
         {
             "name": "codeupipe-google-ai",
             "provider": "google-ai",
-            "pypi": "codeupipe-google-ai",
-            "repo": "https://github.com/codeuchain/codeupipe/tree/main/connectors/codeupipe-google-ai",
+            "repo": "https://github.com/codeuchain/codeupipe-marketplace",
             "description": "Google AI (Gemini) — multimodal generation, embeddings, and vision",
             "categories": ["ai", "llm", "multimodal", "vision", "embeddings"],
             "filters": ["GeminiGenerate", "GeminiGenerateStream", "GeminiEmbed", "GeminiVision"],
             "trust": "verified",
             "min_codeupipe": "0.8.0",
             "latest": "0.1.0",
+            "author": "codeuchain",
+            "license": "Apache-2.0",
         },
         {
             "name": "codeupipe-stripe",
             "provider": "stripe",
-            "pypi": "codeupipe-stripe",
-            "repo": "https://github.com/codeuchain/codeupipe/tree/main/connectors/codeupipe-stripe",
+            "repo": "https://github.com/codeuchain/codeupipe-marketplace",
             "description": "Stripe checkout, subscriptions, and webhooks",
             "categories": ["payments", "billing"],
             "filters": ["StripeCheckout", "StripeSubscription", "StripeWebhook", "StripeCustomer"],
             "trust": "verified",
             "min_codeupipe": "0.8.0",
             "latest": "0.1.0",
+            "author": "codeuchain",
+            "license": "Apache-2.0",
         },
         {
             "name": "codeupipe-postgres",
             "provider": "postgres",
-            "pypi": "codeupipe-postgres",
-            "repo": "https://github.com/codeuchain/codeupipe/tree/main/connectors/codeupipe-postgres",
+            "repo": "https://github.com/codeuchain/codeupipe-marketplace",
             "description": "PostgreSQL queries, transactions, and bulk insert",
             "categories": ["database", "sql"],
             "filters": ["PostgresQuery", "PostgresExecute", "PostgresTransaction", "PostgresBulkInsert"],
             "trust": "verified",
             "min_codeupipe": "0.8.0",
             "latest": "0.1.0",
+            "author": "codeuchain",
+            "license": "Apache-2.0",
         },
         {
             "name": "codeupipe-resend",
             "provider": "resend",
-            "pypi": "codeupipe-resend",
-            "repo": "https://github.com/codeuchain/codeupipe/tree/main/connectors/codeupipe-resend",
+            "repo": "https://github.com/codeuchain/codeupipe-marketplace",
             "description": "Resend transactional email and template rendering",
             "categories": ["email", "notifications"],
             "filters": ["ResendEmail", "ResendTemplate"],
             "trust": "verified",
             "min_codeupipe": "0.8.0",
             "latest": "0.1.0",
+            "author": "codeuchain",
+            "license": "Apache-2.0",
         },
     ],
 }
@@ -485,8 +489,9 @@ class TestRealIndex:
         assert len(real_index["connectors"]) > 0
 
     def test_each_connector_has_required_fields(self, real_index):
-        required = {"name", "provider", "pypi", "repo", "description",
-                    "categories", "filters", "trust", "min_codeupipe", "latest"}
+        required = {"name", "provider", "repo", "description",
+                    "categories", "filters", "trust", "min_codeupipe",
+                    "latest", "author", "license"}
         for entry in real_index["connectors"]:
             missing = required - set(entry.keys())
             assert not missing, f"{entry.get('name', '?')} missing fields: {missing}"
@@ -507,15 +512,11 @@ class TestRealIndex:
                 f"pyproject.toml missing for {entry['name']}: {pyproject}"
             )
 
-    def test_repo_urls_point_to_monorepo(self, real_index):
+    def test_repo_urls_point_to_marketplace(self, real_index):
+        expected = "https://github.com/codeuchain/codeupipe-marketplace"
         for entry in real_index["connectors"]:
-            expected_prefix = "https://github.com/codeuchain/codeupipe/tree/main/connectors/"
-            assert entry["repo"].startswith(expected_prefix), (
-                f"{entry['name']} repo URL doesn't point to monorepo: {entry['repo']}"
-            )
-            # The URL should end with the connector name
-            assert entry["repo"].endswith(entry["name"]), (
-                f"{entry['name']} repo URL doesn't end with package name: {entry['repo']}"
+            assert entry["repo"] == expected, (
+                f"{entry['name']} repo URL doesn't point to marketplace: {entry['repo']}"
             )
 
     def test_trust_is_valid_tier(self, real_index):
@@ -539,8 +540,8 @@ class TestRealIndex:
 # ── Live GitHub fetch tests ─────────────────────────────────────────
 
 LIVE_INDEX_URL = (
-    "https://raw.githubusercontent.com/codeuchain/codeupipe/"
-    "main/marketplace/index.json"
+    "https://raw.githubusercontent.com/codeuchain/codeupipe-marketplace/"
+    "main/index.json"
 )
 
 
@@ -593,15 +594,16 @@ class TestLiveGitHubIndex:
         )
 
     def test_live_repo_urls_are_valid(self, live_index):
-        """Every repo URL should point to the monorepo."""
+        """Every repo URL should point to the marketplace repo."""
         for entry in live_index["connectors"]:
-            assert "codeuchain/codeupipe/tree/main/connectors/" in entry["repo"], (
+            assert entry["repo"] == "https://github.com/codeuchain/codeupipe-marketplace", (
                 f"{entry['name']} has bad repo URL on GitHub: {entry['repo']}"
             )
 
     def test_live_all_entries_have_required_fields(self, live_index):
-        required = {"name", "provider", "pypi", "repo", "description",
-                    "categories", "filters", "trust", "min_codeupipe", "latest"}
+        required = {"name", "provider", "repo", "description",
+                    "categories", "filters", "trust", "min_codeupipe",
+                    "latest", "author", "license"}
         for entry in live_index["connectors"]:
             missing = required - set(entry.keys())
             assert not missing, f"{entry.get('name', '?')} missing on GitHub: {missing}"
