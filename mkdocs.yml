@@ -4,7 +4,7 @@ site_url: https://codeuchain.github.io/codeupipe/
 repo_url: https://github.com/codeuchain/codeupipe
 repo_name: codeuchain/codeupipe
 
-docs_dir: docs/site
+docs_dir: docs
 
 theme:
   name: material
@@ -76,6 +76,7 @@ plugins:
   - search
 
 hooks:
+  - hooks/sync_docs.py
   - hooks/copy_raw.py
 
 extra:

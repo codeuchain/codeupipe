@@ -16,9 +16,11 @@ A practical reference for every type in the framework. Each section shows the cl
 8. [State](#state)
 9. [Hook](#hook)
 10. [RetryFilter](#retryfilter)
-11. [StreamFilter & Streaming](#streamfilter--streaming)
+11. [StreamFilter & Streaming](#streamfilter-streaming)
 12. [Complete Workflow](#complete-workflow)
-13. [Quick Reference](#quick-reference)
+13. [Auth & Vault](#auth-vault-proxy-token-indirection)
+14. [Marketplace & Community Connectors](#marketplace-community-connectors)
+15. [Quick Reference](#quick-reference)
 
 ---
 
@@ -771,6 +773,202 @@ async def main():
 
 asyncio.run(main())
 ```
+
+---
+
+## Auth & Vault (Proxy Token Indirection)
+
+<!-- cup:ref file=codeupipe/auth/proxy_token.py symbols=ProxyToken hash=686c997 -->
+<!-- cup:ref file=codeupipe/auth/token_ledger.py symbols=LedgerEvent,TokenLedger hash=f6cd6dd -->
+<!-- cup:ref file=codeupipe/auth/token_vault.py symbols=TokenVault hash=dfd347f -->
+<!-- cup:ref file=codeupipe/auth/vault_hook.py symbols=VaultHook hash=899f08a -->
+
+Pipelines that talk to external APIs need credentials, but passing raw
+access tokens through every filter is a security risk.  The **vault** layer
+solves this with proxy token indirection:
+
+### The Problem
+
+```python
+# ❌  Real token leaks into every filter's payload
+pipeline.use_hook(AuthHook(store, provider, scope="calendar"))
+# payload["credential"] = "ya29.A0ARrdaM..."  — any filter can log it
+```
+
+### The Solution: Proxy Tokens
+
+```python
+from codeupipe.auth import TokenVault, VaultHook, CredentialStore, GoogleOAuth
+
+store = CredentialStore("tokens.json")
+vault = TokenVault(store)
+
+# ✅  Filters only see an opaque reference
+pipeline.use_hook(VaultHook(vault, GoogleOAuth(...), scope="calendar"))
+# payload["credential"] = "cup_tok_a1b2c3..."  — meaningless without vault
+```
+
+### How It Works
+
+1. **`VaultHook.before()`** — issues a `ProxyToken` via the `TokenVault` and
+   injects the opaque `cup_tok_*` string into the payload.
+2. **Filters** — read `payload.get("credential")` but only see the proxy.
+   They pass it to external services or downstream steps.
+3. **Trust boundary** — only the component that holds a `TokenVault` reference
+   can call `vault.resolve(proxy_id)` to get the real access token.
+4. **`VaultHook.after()`** — automatically revokes the proxy token when the
+   pipeline finishes, limiting the window of exposure.
+5. **`VaultHook.on_error()`** — revokes on failure too, so leaked proxy tokens
+   become useless.
+
+### ProxyToken Lifecycle
+
+```python
+from codeupipe.auth import ProxyToken
+
+# Issued by the vault (you rarely create these manually)
+token = ProxyToken.issue(scope="calendar", ttl_seconds=300, max_uses=1)
+
+token.token_id    # "cup_tok_..."
+token.valid        # True
+token.expired      # False (within TTL)
+token.exhausted    # False (uses remaining)
+
+# After resolution
+token.resolve()
+token.exhausted    # True (max_uses=1 reached)
+
+# After revocation
+token.revoke()
+token.valid        # False
+```
+
+### TokenVault (Central Authority)
+
+```python
+from codeupipe.auth import TokenVault, CredentialStore
+
+store = CredentialStore("tokens.json")
+vault = TokenVault(store)
+
+# Issue
+proxy = vault.issue(provider="google", scope="calendar")
+
+# Resolve (returns real credential)
+credential = vault.resolve(proxy.token_id)
+
+# Revoke
+vault.revoke(proxy.token_id)
+
+# Emergency: revoke everything
+vault.revoke_all()
+
+# Inspect
+for tok in vault.active_tokens():
+    print(tok.token_id, tok.scope)
+```
+
+### TokenLedger (Audit Trail)
+
+Every vault action is recorded:
+
+```python
+from codeupipe.auth import TokenLedger
+
+ledger = TokenLedger()
+for event in ledger.events():
+    print(event.action, event.token_id, event.timestamp)
+    # "issued"   cup_tok_a1b2c3  2025-01-15T10:30:00
+    # "resolved" cup_tok_a1b2c3  2025-01-15T10:30:01
+    # "revoked"  cup_tok_a1b2c3  2025-01-15T10:30:02
+```
+
+### Complete Vault Pipeline
+
+```python
+import asyncio
+from codeupipe import Pipeline, Payload
+from codeupipe.auth import (
+    CredentialStore, GoogleOAuth, TokenVault, VaultHook,
+)
+
+class CallGoogleAPI:
+    async def call(self, payload):
+        token = payload.get("credential")  # ← cup_tok_*, not a real token
+        # Pass to Google SDK, which your trust-boundary adapter resolves
+        return payload.insert("api_result", {"events": 42})
+
+async def main():
+    store = CredentialStore("tokens.json")
+    vault = TokenVault(store)
+
+    pipeline = Pipeline()
+    pipeline.use_hook(VaultHook(vault, GoogleOAuth(
+        client_id="...", client_secret="...",
+    ), scope="calendar"))
+    pipeline.add_filter(CallGoogleAPI(), name="call_api")
+
+    result = await pipeline.run(Payload({"user": "alice"}))
+    print(result.get("api_result"))  # {"events": 42}
+
+asyncio.run(main())
+```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
+## Marketplace & Community Connectors
+
+The [**codeupipe Marketplace**](https://github.com/codeuchain/codeupipe-marketplace) is a community-driven index for discovering connectors and components. Packages are hosted on PyPI — the marketplace makes them findable via `cup marketplace search`.
+
+### Using Connectors
+
+```bash
+# Search for connectors by keyword, category, or provider
+cup marketplace search "ai"
+# → codeupipe-google-ai ✅ (v0.1.0) — Multimodal generation, embeddings, vision
+
+# Install (convenience wrapper around pip install)
+cup marketplace install codeupipe-google-ai
+
+# Connectors self-register via Python entry points
+cup connect --list
+# → google-ai: GeminiGenerate, GeminiGenerateStream, GeminiEmbed, GeminiVision
+```
+
+Once installed, use connectors as regular filters in your pipelines — no adapter code needed.
+
+### Available Connectors
+
+| Package | Provider | What it does |
+|---------|----------|-------------|
+| `codeupipe-google-ai` | Google AI (Gemini) | Multimodal generation, embeddings, vision |
+| `codeupipe-stripe` | Stripe | Checkout, subscriptions, webhooks, customers |
+| `codeupipe-postgres` | PostgreSQL | Queries, transactions, bulk insert |
+| `codeupipe-resend` | Resend | Transactional email, template rendering |
+
+### Publishing Your Own
+
+1. Build a Python package with `codeupipe.connectors` entry points
+2. Publish to PyPI
+3. Fork [codeuchain/codeupipe-marketplace](https://github.com/codeuchain/codeupipe-marketplace)
+4. Add `components/your-package/manifest.json`
+5. Open a PR — CI validates, merge rebuilds the index
+
+See the [Marketplace Contributing Guide](https://github.com/codeuchain/codeupipe-marketplace/blob/main/CONTRIBUTING.md) for details.
+
+### Trust Tiers
+
+| Tier | Badge | Meaning |
+|------|-------|---------|
+| **verified** | ✅ | Published by codeuchain org, reviewed and tested |
+| **community** | 🔷 | Community-submitted, CI-validated |
+| **unindexed** | — | Works via entry points, not registered in index |
+
+All tiers work identically with `cup connect --list`. The marketplace only affects discoverability — not functionality.
 
 ---
 
