@@ -41,9 +41,9 @@ from .connect import (
     ConnectorConfig, load_connector_configs, ConfigError,
     discover_connectors, check_health, HttpConnector,
 )
-from .observe import CaptureTap, MetricsTap, RunRecord
+from .observe import CaptureTap, InsightTap, MetricsTap, RunRecord
 from .graph import pipeline_to_mermaid
-from .runtime import TapSwitch, HotSwap
+from .runtime import TapSwitch, HotSwap, PipelineAccessor
 from .auth import Credential, CredentialStore, AuthProvider, GoogleOAuth, GitHubOAuth, AuthHook
 
 from importlib.metadata import version as _pkg_version, PackageNotFoundError
@@ -85,11 +85,11 @@ __all__ = [
     "ConnectorConfig", "load_connector_configs", "ConfigError",
     "discover_connectors", "check_health", "HttpConnector",
     # Observe
-    "CaptureTap", "MetricsTap", "RunRecord",
+    "CaptureTap", "InsightTap", "MetricsTap", "RunRecord",
     # Graph
     "pipeline_to_mermaid",
     # Runtime
-    "TapSwitch", "HotSwap",
+    "TapSwitch", "HotSwap", "PipelineAccessor",
     # Auth
     "Credential", "CredentialStore", "AuthProvider",
     "GoogleOAuth", "GitHubOAuth", "AuthHook",

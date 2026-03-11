@@ -4,15 +4,16 @@ codeupipe.runtime — Live pipeline control for production.
 Provides zero-downtime capabilities:
 - TapSwitch: Enable/disable taps at runtime without restarting.
 - HotSwap: Atomically replace the active Pipeline from a new config.
+- PipelineAccessor: Apply taps, hooks, or any operation to one or many pipelines.
 
-Both are designed for long-running servers where uptime matters.
+All are designed for long-running servers where uptime matters.
 Zero external dependencies.
 """
 
 import threading
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
-__all__ = ["TapSwitch", "HotSwap"]
+__all__ = ["TapSwitch", "HotSwap", "PipelineAccessor"]
 
 
 # ── TapSwitch — toggle taps at runtime ──────────────────────────────
@@ -184,3 +185,161 @@ class HotSwap:
             "config": path,
             "steps": step_names,
         }
+
+
+# ── PipelineAccessor — apply anything to pipeline(s) ────────────────
+
+
+class PipelineAccessor:
+    """Apply taps, hooks, or any operation to one or many pipelines.
+
+    PipelineAccessor is the "for each pipe, do X" tool.  It doesn't care
+    *what* you apply — InsightTap, CaptureTap, a custom Hook, or an
+    arbitrary callable.  It just iterates the pipelines and does it.
+
+    Usage:
+        # Single pipeline
+        acc = PipelineAccessor(my_pipeline)
+        acc.add_tap(InsightTap(), "insights")
+        acc.use_hook(TimingHook())
+
+        # Multiple pipelines
+        acc = PipelineAccessor(pipe_a, pipe_b, pipe_c)
+        acc.add_tap(shared_tap, "shared")     # same tap on all
+
+        # Arbitrary operation
+        acc.apply(lambda p: p.observe(timing=True))
+
+        # Inspect what's attached
+        acc.status()  # → [{filters: [...], taps: [...], hooks: N}, ...]
+    """
+
+    def __init__(self, *pipelines: Any):
+        self._pipelines: List[Any] = list(pipelines)
+
+    @classmethod
+    def from_registry(cls, registry: Any, *, kinds: Optional[List[str]] = None) -> "PipelineAccessor":
+        """Build an accessor from all Pipeline instances in a Registry.
+
+        Resolves each registered entry and collects those that look like
+        Pipelines (have ``_steps`` and ``run`` attributes).
+
+        Args:
+            registry: A codeupipe Registry instance.
+            kinds: Optional filter for registry entry kinds.
+                   If provided, only entries whose kind is in this list
+                   are checked. Pass None to check everything.
+
+        Returns:
+            A PipelineAccessor wrapping the discovered Pipelines.
+        """
+        pipelines: List[Any] = []
+        for name in registry.list():
+            try:
+                info = registry.info(name)
+                if kinds and info.get("kind") not in kinds:
+                    continue
+                instance = registry.get(name)
+                if hasattr(instance, "_steps") and hasattr(instance, "run"):
+                    pipelines.append(instance)
+            except Exception:
+                continue
+        return cls(*pipelines)
+
+    @property
+    def pipeline_count(self) -> int:
+        """Number of pipelines being managed."""
+        return len(self._pipelines)
+
+    def add_tap(self, tap: Any, name: str) -> None:
+        """Add a tap to every managed pipeline.
+
+        Args:
+            tap: Any object conforming to the Tap protocol (has .observe()).
+            name: Name for the tap on each pipeline.
+        """
+        for pipe in self._pipelines:
+            pipe.add_tap(tap, name=name)
+
+    def remove_tap(self, name: str) -> None:
+        """Remove a tap by name from every managed pipeline.
+
+        Args:
+            name: The tap name to remove.
+
+        Raises:
+            KeyError: If the tap name is not found on ANY pipeline.
+        """
+        found = False
+        for pipe in self._pipelines:
+            before = len(pipe._steps)
+            pipe._steps = [
+                (n, step, stype) for n, step, stype in pipe._steps
+                if not (n == name and stype == "tap")
+            ]
+            if len(pipe._steps) < before:
+                found = True
+        if not found:
+            raise KeyError(f"Tap '{name}' not found on any managed pipeline")
+
+    def use_hook(self, hook: Any) -> None:
+        """Attach a hook to every managed pipeline.
+
+        Args:
+            hook: Any object conforming to the Hook protocol.
+        """
+        for pipe in self._pipelines:
+            pipe.use_hook(hook)
+
+    def remove_hook(self, hook: Any) -> None:
+        """Remove a specific hook instance from every managed pipeline.
+
+        Args:
+            hook: The exact hook instance to remove.
+        """
+        for pipe in self._pipelines:
+            pipe._hooks = [h for h in pipe._hooks if h is not hook]
+
+    def apply(self, fn: Callable) -> None:
+        """Apply an arbitrary callable to every managed pipeline.
+
+        The callable receives one argument: the Pipeline instance.
+        Use this for operations that don't have a dedicated method.
+
+        Args:
+            fn: A callable that takes a Pipeline.
+
+        Example:
+            acc.apply(lambda p: p.observe(timing=True, lineage=True))
+        """
+        for pipe in self._pipelines:
+            fn(pipe)
+
+    def status(self) -> List[Dict[str, Any]]:
+        """Return a summary of each managed pipeline's current configuration.
+
+        Returns:
+            List of dicts, one per pipeline, each containing:
+            - filters: list of filter step names
+            - taps: list of tap step names
+            - hooks: count of attached hooks
+        """
+        result: List[Dict[str, Any]] = []
+        for pipe in self._pipelines:
+            filters = []
+            taps = []
+            for name, _step, stype in pipe._steps:
+                if stype == "tap":
+                    taps.append(name)
+                elif stype == "filter":
+                    filters.append(name)
+                elif stype == "parallel":
+                    filters.append(name)
+                elif stype == "pipeline":
+                    filters.append(name)
+            result.append({
+                "filters": filters,
+                "taps": taps,
+                "hooks": len(pipe._hooks),
+            })
+        return result

@@ -18,7 +18,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=3053319 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=8f9ef0d -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -425,7 +425,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 
 ## Observability
 
-<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=6d340cf -->
+<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,InsightTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=37e8ff6 -->
 | Export | Role |
 |--------|------|
 | `CaptureTap` | Tap that records payload snapshots for replay |
@@ -471,7 +471,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 
 ## Runtime (Zero-Downtime Control)
 
-<!-- cup:ref file=codeupipe/runtime.py symbols=TapSwitch,HotSwap -->
+<!-- cup:ref file=codeupipe/runtime.py symbols=TapSwitch,HotSwap,PipelineAccessor -->
 | Export | Role |
 |--------|------|
 | `TapSwitch` | Toggle observation taps on/off at runtime without restarting |
