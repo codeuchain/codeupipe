@@ -31,6 +31,11 @@ from .contract import (
     load_contract, list_contracts, validate_env,
     ContractError, ValidationResult,
 )
+from .obfuscate import (
+    ObfuscateConfig, build_obfuscate_pipeline,
+    ScanHtmlFiles, ExtractInlineScripts, ObfuscateScripts,
+    ReassembleHtml, MinifyHtml, WriteOutput,
+)
 
 __all__ = [
     "DeployTarget",
@@ -68,4 +73,13 @@ __all__ = [
     "validate_env",
     "ContractError",
     "ValidationResult",
+    # Obfuscate
+    "ObfuscateConfig",
+    "build_obfuscate_pipeline",
+    "ScanHtmlFiles",
+    "ExtractInlineScripts",
+    "ObfuscateScripts",
+    "ReassembleHtml",
+    "MinifyHtml",
+    "WriteOutput",
 ]

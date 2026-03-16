@@ -20,7 +20,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=17ea483 -->
+<!-- cup:ref file=codeupipe/__init__.py hash=2dc77bf -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -58,6 +58,15 @@ codeupipe/
 │   ├── init.py              # cup init scaffolding
 │   ├── manifest.py          # cup.toml manifest — load & validate
 │   ├── netlify.py           # NetlifyAdapter
+│   ├── obfuscate/           # SPA obfuscation build pipeline
+│   │   ├── obfuscate_config.py     # ObfuscateConfig — tool options
+│   │   ├── scan_html_files.py      # ScanHtmlFiles filter
+│   │   ├── extract_inline_scripts.py # ExtractInlineScripts filter
+│   │   ├── obfuscate_scripts.py    # ObfuscateScripts — JS obfuscation
+│   │   ├── reassemble_html.py      # ReassembleHtml — re-inject scripts
+│   │   ├── minify_html.py          # MinifyHtml — HTML+CSS minification
+│   │   ├── write_output.py         # WriteOutput — write files + copy static
+│   │   └── obfuscate_pipeline.py   # build_obfuscate_pipeline() builder
 │   ├── recipe.py            # Recipes — list, resolve, dependencies
 │   └── vercel.py            # VercelAdapter
 │
@@ -105,7 +114,7 @@ codeupipe/
         ├── scaffold_cmds.py # new, list
         ├── analysis_cmds.py # lint, coverage, report, doc-check
         ├── run_cmds.py      # run, describe, graph, runs
-        ├── deploy_cmds.py   # deploy, recipe, init, ci, config
+        ├── deploy_cmds.py   # deploy, recipe, init, ci, config, obfuscate
         ├── connect_cmds.py  # connect, marketplace
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
@@ -156,7 +165,7 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=59d489c -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=cf49531 -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
@@ -335,6 +344,45 @@ cup config --list                        # Show all 23 platforms
 cup config aws-lambda --var MY_KEY=val   # Validate against AWS Lambda contract
 cup config kubernetes --env-file .env    # Validate .env against Kubernetes
 ```
+
+### SPA Obfuscation Pipeline
+
+<!-- cup:ref file=codeupipe/deploy/obfuscate/__init__.py -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_config.py symbols=ObfuscateConfig -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_pipeline.py symbols=build_obfuscate_pipeline -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/scan_html_files.py symbols=ScanHtmlFiles -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/extract_inline_scripts.py symbols=ExtractInlineScripts -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_scripts.py symbols=ObfuscateScripts -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/reassemble_html.py symbols=ReassembleHtml -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/minify_html.py symbols=MinifyHtml -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/write_output.py symbols=WriteOutput -->
+
+Generalized from the ZTDC prototype's `build.js`. A 6-stage CUP pipeline:
+
+| Stage | Filter | Purpose |
+|-------|--------|---------|
+| 1 | `ScanHtmlFiles` | Discover `*.html` in source directory |
+| 2 | `ExtractInlineScripts` | Regex-extract `<script>` blocks, replace with placeholders |
+| 3 | `ObfuscateScripts` | Shell out to `javascript-obfuscator` (graceful fallback) |
+| 4 | `ReassembleHtml` | Inject obfuscated code back into HTML templates |
+| 5 | `MinifyHtml` | Shell out to `html-minifier-terser` (graceful fallback) |
+| 6 | `WriteOutput` | Write files + copy static assets to output directory |
+
+```bash
+cup obfuscate src/ dist/                          # Auto-detect *.html, fallback mode
+cup obfuscate src/ dist/ --strict                 # Fail if Node tools missing
+cup obfuscate src/ dist/ --html index.html --static robots.txt assets/
+cup obfuscate src/ dist/ --json                   # Machine-readable output
+```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 
@@ -416,7 +464,7 @@ cup config kubernetes --env-file .env    # Validate .env against Kubernetes
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
-<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=49b3f8e -->
+<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=d7c3253 -->
 <!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
 <!-- cup:ref file=codeupipe/cli/commands/project_cmds.py hash=6bad64b -->
 <!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->
@@ -455,6 +503,8 @@ cup config kubernetes --env-file .env    # Validate .env against Kubernetes
 | `cup config --list` | List available platform contracts |
 | `cup config <id> --var K=V` | Validate env vars against a platform contract |
 | `cup config <id> --env-file .env` | Validate .env file against a contract |
+| `cup obfuscate <src> <out>` | Build obfuscated SPA — minify HTML, obfuscate JS |
+| `cup obfuscate <src> <out> --strict` | Fail if Node.js tools not installed |
 | `--json` (global) | Machine-readable JSON output |
 | `--auto-fix` (doc-check) | Non-interactive hash fix (AI/CI friendly) |
 <!-- /cup:ref -->
@@ -584,7 +634,7 @@ cup config kubernetes --env-file .env    # Validate .env against Kubernetes
 
 ## Tests
 
-1973 tests across 60+ files. Full suite: `pytest`
+2015 tests across 60+ files. Full suite: `pytest`
 
 ---
 

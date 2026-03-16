@@ -40,6 +40,7 @@ from .deploy import (
     init_project, list_templates, InitError,
     render_vercel_handler, render_netlify_handler, render_lambda_handler,
     load_contract, list_contracts, validate_env, ContractError, ValidationResult,
+    ObfuscateConfig, build_obfuscate_pipeline,
 )
 from .connect import (
     ConnectorConfig, load_connector_configs, ConfigError,
@@ -86,6 +87,7 @@ __all__ = [
     "init_project", "list_templates", "InitError",
     "render_vercel_handler", "render_netlify_handler", "render_lambda_handler",
     "load_contract", "list_contracts", "validate_env", "ContractError", "ValidationResult",
+    "ObfuscateConfig", "build_obfuscate_pipeline",
     # Connect
     "ConnectorConfig", "load_connector_configs", "ConfigError",
     "discover_connectors", "check_health", "HttpConnector",

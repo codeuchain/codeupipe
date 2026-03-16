@@ -22,7 +22,7 @@ Ring 10 Secure Config  ████████████  v0.10.0 ✅  ← YO
 Ring 11 ???            ░░░░░░░░░░░░          next
 ```
 
-**1973 core tests + 31 connector tests = 2004 total. 221 doc refs verified. Zero external dependencies in core.**
+**2015 core tests + 31 connector tests = 2046 total. 230 doc refs verified. Zero external dependencies in core.**
 
 ---
 
@@ -160,7 +160,14 @@ Platform-aware config validation and payload security at pipeline boundaries. Ab
   - Archived completed blueprints (Ring 7–9) to `docs/archive/`
   - `docs/ring10-secure-config-blueprint.md` — design decisions, what was absorbed, what was left out
 
-- 39 new tests (18 contract + 21 secure)
+- **SPA obfuscation pipeline:**
+  - 6-stage CUP pipeline in `deploy/obfuscate/` — scan → extract → obfuscate → reassemble → minify → write
+  - Shells out to `javascript-obfuscator` + `html-minifier-terser` with graceful fallback
+  - `ObfuscateConfig` — configurable tool options, reserved names, static copy
+  - CLI: `cup obfuscate <src> <out> [--strict] [--html FILE...] [--static NAME...] [--json]`
+  - Generalized from ZTDC prototype's `build.js`
+
+- 81 new tests (18 contract + 21 secure + 42 obfuscate)
 
 ---
 

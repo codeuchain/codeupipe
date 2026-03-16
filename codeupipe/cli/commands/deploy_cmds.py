@@ -89,6 +89,35 @@ def setup(sub, reg):
     )
     reg.register("config", _handle_config)
 
+    # cup obfuscate <src> <out> [--html FILE...] [--static NAME...] [--strict] [--json]
+    obf_parser = sub.add_parser(
+        "obfuscate",
+        help="Build an obfuscated SPA — minify HTML, obfuscate inline JS",
+    )
+    obf_parser.add_argument(
+        "src", help="Source directory containing readable HTML/JS",
+    )
+    obf_parser.add_argument(
+        "out", help="Output directory for built artifacts",
+    )
+    obf_parser.add_argument(
+        "--html", nargs="*", metavar="FILE", default=None,
+        help="Explicit HTML files to process (default: auto-detect *.html)",
+    )
+    obf_parser.add_argument(
+        "--static", nargs="*", metavar="NAME", default=[],
+        help="Static files/dirs to copy as-is (e.g. robots.txt, assets/)",
+    )
+    obf_parser.add_argument(
+        "--strict", action="store_true",
+        help="Fail if javascript-obfuscator or html-minifier-terser not installed",
+    )
+    obf_parser.add_argument(
+        "--json", action="store_true", dest="json_output",
+        help="Output as JSON",
+    )
+    reg.register("obfuscate", _handle_obfuscate)
+
 
 # ── Handlers ────────────────────────────────────────────────────────
 
@@ -349,6 +378,73 @@ def _handle_config(args):
         return 0 if result.valid else 1
 
     except ContractError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def _handle_obfuscate(args):
+    """Handler for ``cup obfuscate`` — SPA build pipeline."""
+    import asyncio
+    from codeupipe import Payload
+    from codeupipe.deploy.obfuscate import ObfuscateConfig, build_obfuscate_pipeline
+
+    try:
+        config = ObfuscateConfig(
+            src_dir=args.src,
+            out_dir=args.out,
+            html_files=args.html,
+            static_copy=args.static,
+        )
+
+        pipeline = build_obfuscate_pipeline(strict=args.strict)
+        result = asyncio.run(pipeline.run(Payload({"config": config.to_dict()})))
+
+        build_results = result.get("build_results") or []
+        obf_stats = result.get("obfuscate_stats") or {}
+        min_stats = result.get("minify_stats") or {}
+        static_copied = result.get("static_copied") or []
+
+        if getattr(args, "json_output", False):
+            report = {
+                "files": build_results,
+                "static": static_copied,
+                "obfuscation": obf_stats,
+                "minification": min_stats,
+            }
+            print(json.dumps(report, indent=2))
+        else:
+            print("=" * 50)
+            print(" SPA Obfuscation Build")
+            print(f" {args.src} -> {args.out}")
+            print("=" * 50)
+
+            for f in build_results:
+                print(f"\n  done {f['filename']} -> {f['size']} bytes")
+
+            if obf_stats:
+                print(f"\n  JS: {obf_stats.get('obfuscated', 0)} obfuscated, "
+                      f"{obf_stats.get('skipped', 0)} skipped, "
+                      f"{obf_stats.get('errors', 0)} errors")
+
+            if min_stats and min_stats.get("total_original"):
+                print(f"  HTML: {min_stats['total_original']} -> "
+                      f"{min_stats['total_minified']} bytes "
+                      f"({min_stats['ratio']}%)")
+
+            if static_copied:
+                print(f"\n  Static: {', '.join(static_copied)}")
+
+            print(f"\nBuild complete")
+
+        return 0
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     except Exception as e:
