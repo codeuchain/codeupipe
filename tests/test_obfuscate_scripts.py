@@ -17,7 +17,7 @@ class TestObfuscateScripts:
             },
         })
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
     def test_no_tool_passthrough(self, mock_find):
         """When javascript-obfuscator is not installed, pass through original code."""
         mock_find.return_value = ""
@@ -34,7 +34,7 @@ class TestObfuscateScripts:
         assert stats["skipped"] == 1
         assert stats["obfuscated"] == 0
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
     def test_strict_mode_raises(self, mock_find):
         """When strict=True and no tool, raise RuntimeError."""
         mock_find.return_value = ""
@@ -43,8 +43,8 @@ class TestObfuscateScripts:
         with pytest.raises(RuntimeError, match="javascript-obfuscator not found"):
             f.call(self._make_payload([{"code": "x", "placeholder": "PH"}]))
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._obfuscate_one")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.transform_code._obfuscate_one")
     def test_successful_obfuscation(self, mock_obf, mock_find):
         """When tool is available, obfuscate code."""
         mock_find.return_value = "/usr/bin/javascript-obfuscator"
@@ -58,8 +58,8 @@ class TestObfuscateScripts:
         assert obfuscated[0]["obfuscated_code"] == "var _0x1234=function(){}"
         assert result.get("obfuscate_stats")["obfuscated"] == 1
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._obfuscate_one")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.transform_code._obfuscate_one")
     def test_error_fallback(self, mock_obf, mock_find):
         """When obfuscation fails, fall back to original code."""
         mock_find.return_value = "/usr/bin/javascript-obfuscator"

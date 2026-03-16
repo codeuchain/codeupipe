@@ -89,7 +89,9 @@ def setup(sub, reg):
     )
     reg.register("config", _handle_config)
 
-    # cup obfuscate <src> <out> [--html FILE...] [--static NAME...] [--strict] [--json]
+    # cup obfuscate <src> <out> [--preset LEVEL] [--config-file PATH]
+    #   [--html FILE...] [--static NAME...] [--dead-code DENSITY]
+    #   [--disable-stage NAME...] [--strict] [--json]
     obf_parser = sub.add_parser(
         "obfuscate",
         help="Build an obfuscated SPA — minify HTML, obfuscate inline JS",
@@ -101,12 +103,30 @@ def setup(sub, reg):
         "out", help="Output directory for built artifacts",
     )
     obf_parser.add_argument(
+        "--preset", choices=["light", "medium", "heavy", "paranoid"],
+        default=None, help="Protection level preset (default: medium)",
+    )
+    obf_parser.add_argument(
+        "--config-file", dest="config_file", default=None,
+        help="Load config from JSON or TOML file",
+    )
+    obf_parser.add_argument(
         "--html", nargs="*", metavar="FILE", default=None,
         help="Explicit HTML files to process (default: auto-detect *.html)",
     )
     obf_parser.add_argument(
         "--static", nargs="*", metavar="NAME", default=[],
         help="Static files/dirs to copy as-is (e.g. robots.txt, assets/)",
+    )
+    obf_parser.add_argument(
+        "--dead-code", dest="dead_code", default=None,
+        choices=["low", "medium", "high"],
+        help="Enable dead code injection at specified density",
+    )
+    obf_parser.add_argument(
+        "--disable-stage", dest="disable_stages", nargs="*",
+        metavar="STAGE", default=[],
+        help="Disable pipeline stages (scan, extract, transform, reassemble, minify, write)",
     )
     obf_parser.add_argument(
         "--strict", action="store_true",
@@ -386,20 +406,43 @@ def _handle_config(args):
 
 
 def _handle_obfuscate(args):
-    """Handler for ``cup obfuscate`` — SPA build pipeline."""
+    """Handler for ``cup obfuscate`` — source protection build pipeline."""
     import asyncio
     from codeupipe import Payload
     from codeupipe.deploy.obfuscate import ObfuscateConfig, build_obfuscate_pipeline
 
     try:
-        config = ObfuscateConfig(
-            src_dir=args.src,
-            out_dir=args.out,
-            html_files=args.html,
-            static_copy=args.static,
-        )
+        # Support loading from config file
+        config_file = getattr(args, "config_file", None)
+        if config_file:
+            config = ObfuscateConfig.from_file(config_file)
+            # CLI args override file settings
+            config.src_dir = args.src
+            config.out_dir = args.out
+        else:
+            # Build dead code config from CLI flag
+            dead_code = None
+            dead_code_density = getattr(args, "dead_code", None)
+            if dead_code_density:
+                dead_code = {"enabled": True, "density": dead_code_density}
 
-        pipeline = build_obfuscate_pipeline(strict=args.strict)
+            # Build stages dict from disable flags
+            stages = None
+            disable_stages = getattr(args, "disable_stages", [])
+            if disable_stages:
+                stages = {s: False for s in disable_stages}
+
+            config = ObfuscateConfig(
+                src_dir=args.src,
+                out_dir=args.out,
+                preset=getattr(args, "preset", None),
+                html_files=args.html,
+                static_copy=args.static,
+                dead_code=dead_code,
+                stages=stages,
+            )
+
+        pipeline = build_obfuscate_pipeline(config=config, strict=args.strict)
         result = asyncio.run(pipeline.run(Payload({"config": config.to_dict()})))
 
         build_results = result.get("build_results") or []

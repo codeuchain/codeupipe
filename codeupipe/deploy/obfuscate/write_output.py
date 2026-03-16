@@ -20,7 +20,11 @@ class WriteOutput:
     """
 
     def call(self, payload: Payload) -> Payload:
-        html_list = payload.get("minified_html") or []
+        html_list = (
+            payload.get("minified")
+            or payload.get("minified_html")
+            or []
+        )
         config = payload.get("config") or {}
         src_dir = config.get("src_dir", "")
         out_dir = config.get("out_dir", "")

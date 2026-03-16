@@ -19,8 +19,8 @@ class TestObfuscatePipeline:
         pipeline = build_obfuscate_pipeline()
         assert len(pipeline._steps) == 6
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
-    @patch("codeupipe.deploy.obfuscate.minify_html._find_minifier")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.minify_content._find_minifier")
     def test_end_to_end_no_tools(self, mock_minifier, mock_obfuscator, tmp_path):
         """Full pipeline runs with fallback when no Node.js tools installed."""
         mock_obfuscator.return_value = ""
@@ -71,8 +71,8 @@ class TestObfuscatePipeline:
         output = open(os.path.join(out_dir, "index.html")).read()
         assert "<!-- This comment" not in output
 
-    @patch("codeupipe.deploy.obfuscate.obfuscate_scripts._find_obfuscator")
-    @patch("codeupipe.deploy.obfuscate.minify_html._find_minifier")
+    @patch("codeupipe.deploy.obfuscate.transform_code._find_obfuscator")
+    @patch("codeupipe.deploy.obfuscate.minify_content._find_minifier")
     def test_no_scripts_still_works(self, mock_minifier, mock_obfuscator, tmp_path):
         """Pipeline handles HTML with no inline scripts."""
         mock_obfuscator.return_value = ""

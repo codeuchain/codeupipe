@@ -13,7 +13,7 @@ class TestMinifyHtml:
             "config": {"html_opts": {}},
         })
 
-    @patch("codeupipe.deploy.obfuscate.minify_html._find_minifier")
+    @patch("codeupipe.deploy.obfuscate.minify_content._find_minifier")
     def test_fallback_when_no_tool(self, mock_find):
         """Uses lightweight fallback when html-minifier-terser not installed."""
         mock_find.return_value = ""
@@ -28,7 +28,7 @@ class TestMinifyHtml:
         assert "   " not in minified[0]["content"]
         assert minified[0]["minified_size"] <= minified[0]["original_size"]
 
-    @patch("codeupipe.deploy.obfuscate.minify_html._find_minifier")
+    @patch("codeupipe.deploy.obfuscate.minify_content._find_minifier")
     def test_strict_mode_raises(self, mock_find):
         """When strict=True and no tool, raise RuntimeError."""
         mock_find.return_value = ""
@@ -37,8 +37,8 @@ class TestMinifyHtml:
         with pytest.raises(RuntimeError, match="html-minifier-terser not found"):
             f.call(self._make_payload([{"filename": "x.html", "content": "<p>x</p>"}]))
 
-    @patch("codeupipe.deploy.obfuscate.minify_html._find_minifier")
-    @patch("codeupipe.deploy.obfuscate.minify_html._minify_one")
+    @patch("codeupipe.deploy.obfuscate.minify_content._find_minifier")
+    @patch("codeupipe.deploy.obfuscate.minify_content._minify_one")
     def test_successful_minification(self, mock_minify, mock_find):
         mock_find.return_value = "/usr/bin/html-minifier-terser"
         mock_minify.return_value = "<p>Hello</p><p>World</p>"
@@ -56,7 +56,7 @@ class TestMinifyHtml:
             {"filename": "b.html", "content": "<p>  more  spaces  </p>"},
         ]
 
-        with patch("codeupipe.deploy.obfuscate.minify_html._find_minifier", return_value=""):
+        with patch("codeupipe.deploy.obfuscate.minify_content._find_minifier", return_value=""):
             f = MinifyHtml()
             result = f.call(self._make_payload(html_list))
 

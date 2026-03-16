@@ -165,7 +165,7 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=cf49531 -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=5cd158c -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
@@ -345,35 +345,54 @@ cup config aws-lambda --var MY_KEY=val   # Validate against AWS Lambda contract
 cup config kubernetes --env-file .env    # Validate .env against Kubernetes
 ```
 
-### SPA Obfuscation Pipeline
+### Source Protection Pipeline
 
 <!-- cup:ref file=codeupipe/deploy/obfuscate/__init__.py -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_config.py symbols=ObfuscateConfig -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_pipeline.py symbols=build_obfuscate_pipeline -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/scan_source_files.py symbols=ScanSourceFiles -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/extract_embedded_code.py symbols=ExtractEmbeddedCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/inject_dead_code.py symbols=InjectDeadCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/transform_code.py symbols=TransformCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/reassemble_content.py symbols=ReassembleContent -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/minify_content.py symbols=MinifyContent -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/write_output.py symbols=WriteOutput -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/scan_html_files.py symbols=ScanHtmlFiles -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/extract_inline_scripts.py symbols=ExtractInlineScripts -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_scripts.py symbols=ObfuscateScripts -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/reassemble_html.py symbols=ReassembleHtml -->
 <!-- cup:ref file=codeupipe/deploy/obfuscate/minify_html.py symbols=MinifyHtml -->
-<!-- cup:ref file=codeupipe/deploy/obfuscate/write_output.py symbols=WriteOutput -->
 
-Generalized from the ZTDC prototype's `build.js`. A 6-stage CUP pipeline:
+Configurable source protection pipeline with preset profiles, per-stage toggling,
+dead code injection, and file type extensibility. A dynamic CUP pipeline:
 
-| Stage | Filter | Purpose |
-|-------|--------|---------|
-| 1 | `ScanHtmlFiles` | Discover `*.html` in source directory |
-| 2 | `ExtractInlineScripts` | Regex-extract `<script>` blocks, replace with placeholders |
-| 3 | `ObfuscateScripts` | Shell out to `javascript-obfuscator` (graceful fallback) |
-| 4 | `ReassembleHtml` | Inject obfuscated code back into HTML templates |
-| 5 | `MinifyHtml` | Shell out to `html-minifier-terser` (graceful fallback) |
-| 6 | `WriteOutput` | Write files + copy static assets to output directory |
+| Stage | Filter (New) | Alias (Old) | Purpose |
+|-------|-------------|-------------|---------|
+| 1 | `ScanSourceFiles` | `ScanHtmlFiles` | Discover files by configured extensions |
+| 2 | `ExtractEmbeddedCode` | `ExtractInlineScripts` | Regex-extract inline code, replace with placeholders |
+| 2½ | `InjectDeadCode` | — | Insert non-functional code (optional, density-controlled) |
+| 3 | `TransformCode` | `ObfuscateScripts` | Shell out to tool (graceful fallback) |
+| 4 | `ReassembleContent` | `ReassembleHtml` | Inject processed code back into templates |
+| 5 | `MinifyContent` | `MinifyHtml` | Shell out to minifier (graceful fallback) |
+| 6 | `WriteOutput` | `WriteOutput` | Write files + copy static assets to output directory |
+
+Presets: `light`, `medium` (default), `heavy`, `paranoid`.
 
 ```bash
-cup obfuscate src/ dist/                          # Auto-detect *.html, fallback mode
-cup obfuscate src/ dist/ --strict                 # Fail if Node tools missing
+cup obfuscate src/ dist/                                    # Auto-detect, medium preset
+cup obfuscate src/ dist/ --preset heavy                     # Aggressive protection
+cup obfuscate src/ dist/ --preset paranoid --dead-code high # Max protection + dead code
+cup obfuscate src/ dist/ --config-file obfuscate.toml       # Load from config file
+cup obfuscate src/ dist/ --disable-stage minify             # Skip minification
+cup obfuscate src/ dist/ --strict                           # Fail if Node tools missing
 cup obfuscate src/ dist/ --html index.html --static robots.txt assets/
-cup obfuscate src/ dist/ --json                   # Machine-readable output
+cup obfuscate src/ dist/ --json                             # Machine-readable output
 ```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -464,7 +483,7 @@ cup obfuscate src/ dist/ --json                   # Machine-readable output
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
-<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=d7c3253 -->
+<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=9c59563 -->
 <!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
 <!-- cup:ref file=codeupipe/cli/commands/project_cmds.py hash=6bad64b -->
 <!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->

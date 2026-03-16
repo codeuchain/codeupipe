@@ -1,12 +1,15 @@
-"""ReassembleHtml — inject obfuscated script blocks back into HTML templates."""
-
-from typing import List
+"""ReassembleHtml — backward-compat alias for ReassembleContent."""
 
 from codeupipe import Payload
+from .reassemble_content import ReassembleContent
 
 
 class ReassembleHtml:
     """Replace script placeholders in HTML templates with obfuscated code.
+
+    .. deprecated::
+        Use :class:`ReassembleContent` instead. This class delegates to it
+        and ensures ``reassembled_html`` is always written.
 
     Reads:
         - ``html_templates`` — list of ``{filename, template, block_count}`` dicts.
@@ -14,26 +17,11 @@ class ReassembleHtml:
 
     Writes:
         - ``reassembled_html`` — list of ``{filename, content}`` dicts.
+        - ``reassembled`` — new canonical key (same data).
     """
 
+    def __init__(self) -> None:
+        self._delegate = ReassembleContent()
+
     def call(self, payload: Payload) -> Payload:
-        templates = payload.get("html_templates") or []
-        blocks = payload.get("obfuscated_blocks") or []
-
-        # Build placeholder → code map
-        placeholder_map = {
-            b["placeholder"]: b["obfuscated_code"]
-            for b in blocks
-        }
-
-        results: List[dict] = []
-        for tmpl in templates:
-            content = tmpl["template"]
-            for placeholder, code in placeholder_map.items():
-                content = content.replace(placeholder, code)
-            results.append({
-                "filename": tmpl["filename"],
-                "content": content,
-            })
-
-        return payload.insert("reassembled_html", results)
+        return self._delegate.call(payload)

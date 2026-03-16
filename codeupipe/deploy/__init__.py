@@ -32,9 +32,13 @@ from .contract import (
     ContractError, ValidationResult,
 )
 from .obfuscate import (
-    ObfuscateConfig, build_obfuscate_pipeline,
+    ObfuscateConfig, build_obfuscate_pipeline, PRESETS, DEFAULT_FILE_TYPES, DEFAULT_STAGES,
+    # New generic filters
+    ScanSourceFiles, ExtractEmbeddedCode, InjectDeadCode,
+    TransformCode, ReassembleContent, MinifyContent, WriteOutput,
+    # Backward-compat aliases
     ScanHtmlFiles, ExtractInlineScripts, ObfuscateScripts,
-    ReassembleHtml, MinifyHtml, WriteOutput,
+    ReassembleHtml, MinifyHtml,
 )
 
 __all__ = [
@@ -73,13 +77,24 @@ __all__ = [
     "validate_env",
     "ContractError",
     "ValidationResult",
-    # Obfuscate
+    # Obfuscate / Source Protection
     "ObfuscateConfig",
     "build_obfuscate_pipeline",
+    "PRESETS",
+    "DEFAULT_FILE_TYPES",
+    "DEFAULT_STAGES",
+    # New generic filters
+    "ScanSourceFiles",
+    "ExtractEmbeddedCode",
+    "InjectDeadCode",
+    "TransformCode",
+    "ReassembleContent",
+    "MinifyContent",
+    "WriteOutput",
+    # Backward-compat aliases
     "ScanHtmlFiles",
     "ExtractInlineScripts",
     "ObfuscateScripts",
     "ReassembleHtml",
     "MinifyHtml",
-    "WriteOutput",
 ]
