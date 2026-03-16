@@ -27,6 +27,10 @@ from .init import (
     detect_ci, validate_ci_deploy, regenerate_ci,
 )
 from .handlers import render_vercel_handler, render_netlify_handler, render_lambda_handler
+from .contract import (
+    load_contract, list_contracts, validate_env,
+    ContractError, ValidationResult,
+)
 
 __all__ = [
     "DeployTarget",
@@ -59,4 +63,9 @@ __all__ = [
     "render_vercel_handler",
     "render_netlify_handler",
     "render_lambda_handler",
+    "load_contract",
+    "list_contracts",
+    "validate_env",
+    "ContractError",
+    "ValidationResult",
 ]

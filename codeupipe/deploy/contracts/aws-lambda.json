@@ -1,0 +1,23 @@
+{
+  "id": "aws-lambda",
+  "name": "AWS Lambda",
+  "category": "cloud",
+  "docs_url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html",
+  "required_vars": [],
+  "optional_vars": ["AWS_REGION", "AWS_LAMBDA_FUNCTION_NAME"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. AWS_ prefix vars are reserved by Lambda runtime.",
+    "forbidden_prefixes": ["AWS_"]
+  },
+  "limits": {
+    "key_max_length": 512,
+    "value_max_length": 4096,
+    "max_total_size": 4096,
+    "max_vars": null,
+    "notes": "Total size of ALL env vars (keys + values) must be ≤ 4 KB. This is the hard constraint."
+  },
+  "secret_backends": ["aws-ssm", "aws-secrets-manager"],
+  "export_formats": ["lambda-env-json", "env-file"],
+  "notes": "Lambda env vars are encrypted at rest with KMS. Total 4 KB limit is across ALL vars combined. Use SSM/Secrets Manager for larger configs."
+}

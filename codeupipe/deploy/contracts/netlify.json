@@ -1,0 +1,38 @@
+{
+  "id": "netlify",
+  "name": "Netlify",
+  "category": "paas",
+  "docs_url": "https://docs.netlify.com/environment-variables/overview/",
+  "required_vars": [],
+  "optional_vars": [
+    "NODE_VERSION",
+    "NPM_FLAGS",
+    "NETLIFY_IMAGES_CDN_DOMAIN",
+    "URL",
+    "DEPLOY_URL"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. Some vars are read-only (URL, DEPLOY_URL, etc.).",
+    "forbidden_prefixes": [
+      "NETLIFY_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": 24576,
+    "notes": "Total env var payload \u2264 24 KB. Individual values should stay reasonable. Scoped to deploy contexts (production, deploy-preview, branch-deploy)."
+  },
+  "secret_backends": [
+    "netlify-env",
+    "doppler",
+    "hashicorp-vault"
+  ],
+  "export_formats": [
+    "env-file",
+    "netlify-toml"
+  ],
+  "notes": "Netlify env vars are scoped by deploy context. Sensitive vars can be marked 'secret' to hide from logs. Supports netlify.toml [context.production.environment] blocks."
+}

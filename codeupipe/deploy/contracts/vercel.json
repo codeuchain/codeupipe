@@ -1,0 +1,22 @@
+{
+  "id": "vercel",
+  "name": "Vercel",
+  "category": "cloud",
+  "docs_url": "https://vercel.com/docs/projects/environment-variables",
+  "required_vars": [],
+  "optional_vars": ["VERCEL_URL", "VERCEL_ENV"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. VERCEL_ prefix vars are reserved by platform.",
+    "forbidden_prefixes": ["VERCEL_"]
+  },
+  "limits": {
+    "key_max_length": 256,
+    "value_max_length": 65536,
+    "max_vars": 100,
+    "notes": "100 env vars per project (Hobby). Pro/Enterprise: higher limits. Values max 64 KB."
+  },
+  "secret_backends": ["vercel-secrets", "env-file"],
+  "export_formats": ["vercel-env-json", "env-file"],
+  "notes": "Vercel supports environment scoping: production, preview, development. Sensitive vars are encrypted and not visible after creation."
+}

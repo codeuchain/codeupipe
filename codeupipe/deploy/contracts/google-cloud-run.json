@@ -1,0 +1,37 @@
+{
+  "id": "google-cloud-run",
+  "name": "Google Cloud Run",
+  "category": "cloud",
+  "docs_url": "https://cloud.google.com/run/docs/configuring/environment-variables",
+  "required_vars": [],
+  "optional_vars": [
+    "PORT",
+    "K_SERVICE",
+    "K_REVISION",
+    "K_CONFIGURATION",
+    "CLOUD_SQL_CONNECTION_NAME"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. K_ prefix vars are reserved by Knative/Cloud Run.",
+    "forbidden_prefixes": [
+      "K_"
+    ]
+  },
+  "limits": {
+    "key_max_length": 256,
+    "value_max_length": 32768,
+    "max_vars": 100,
+    "max_total_size": null,
+    "notes": "Max 100 env vars. Keys \u2264 256 chars, values \u2264 32 KB each. PORT is auto-set by Cloud Run."
+  },
+  "secret_backends": [
+    "gcp-secret-manager",
+    "hashicorp-vault"
+  ],
+  "export_formats": [
+    "env-file",
+    "k8s-configmap-yaml"
+  ],
+  "notes": "Cloud Run is built on Knative, so K8s ConfigMap format works. Use Secret Manager for sensitive values \u2014 Cloud Run can mount secrets directly as env vars or volumes."
+}

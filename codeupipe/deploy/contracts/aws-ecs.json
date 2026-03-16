@@ -1,0 +1,21 @@
+{
+  "id": "aws-ecs",
+  "name": "AWS ECS (Fargate / EC2)",
+  "category": "cloud",
+  "docs_url": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/taskdef-envfiles.html",
+  "required_vars": [],
+  "optional_vars": ["AWS_REGION", "AWS_DEFAULT_REGION"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "POSIX env var naming. ECS also supports valueFrom for secrets."
+  },
+  "limits": {
+    "key_max_length": 255,
+    "value_max_length": 8192,
+    "max_vars": 100,
+    "notes": "Task definition environment array limited to ~100 vars. Use S3 env files for more."
+  },
+  "secret_backends": ["aws-ssm", "aws-secrets-manager", "env-file"],
+  "export_formats": ["ecs-task-def-json", "env-file"],
+  "notes": "ECS supports inline env vars and valueFrom (SSM Parameter Store or Secrets Manager ARN). Fargate tasks get IAM role-based access to secrets."
+}

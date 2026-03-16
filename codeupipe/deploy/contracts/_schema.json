@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Platform Contract",
+  "description": "Schema for zero-trust deployment platform contracts. Community submissions must conform to this schema.",
+  "type": "object",
+  "required": ["id", "name", "category", "docs_url", "naming", "limits", "secret_backends", "export_formats"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique kebab-case identifier for the platform"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable platform name"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["container", "cloud", "ci-cd", "serverless", "edge", "paas"],
+      "description": "Platform category"
+    },
+    "docs_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Link to official docs for env var / secret configuration"
+    },
+    "required_vars": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Env vars that MUST be set for this platform"
+    },
+    "optional_vars": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Platform-provided or commonly-used optional vars"
+    },
+    "naming": {
+      "type": "object",
+      "required": ["pattern", "description"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern that all env var keys must match"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable naming rule"
+        },
+        "forbidden_prefixes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Key prefixes reserved by the platform"
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": ["key_max_length"],
+      "properties": {
+        "key_max_length": {
+          "type": ["integer", "null"],
+          "description": "Max characters for a key name"
+        },
+        "value_max_length": {
+          "type": ["integer", "null"],
+          "description": "Max characters for a single value"
+        },
+        "max_total_size": {
+          "type": ["integer", "null"],
+          "description": "Max total bytes for all env vars combined (e.g. Lambda 4 KB)"
+        },
+        "max_vars": {
+          "type": ["integer", "null"],
+          "description": "Max number of env vars"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-text notes about limits"
+        }
+      }
+    },
+    "secret_backends": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Compatible secret storage backends"
+    },
+    "export_formats": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Supported export formats"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional platform-specific notes"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "kubernetes",
+  "name": "Kubernetes (ConfigMap / Secret)",
+  "category": "container",
+  "docs_url": "https://kubernetes.io/docs/concepts/configuration/configmap/",
+  "required_vars": [],
+  "optional_vars": [],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "POSIX env var naming for envFrom. ConfigMap keys can use dots/dashes but env vars cannot."
+  },
+  "limits": {
+    "key_max_length": 253,
+    "value_max_length": 1048576,
+    "max_total_size": 1048576,
+    "max_vars": null,
+    "notes": "ConfigMap + Secret total size ≤ 1 MiB each. No per-key limit beyond that."
+  },
+  "secret_backends": ["k8s-secret", "hashicorp-vault", "aws-secrets-manager", "azure-keyvault"],
+  "export_formats": ["k8s-configmap-yaml", "k8s-secret-yaml", "env-file"],
+  "notes": "Use ConfigMap for non-sensitive, Secret for sensitive. Mount as env vars (envFrom) or volume files."
+}

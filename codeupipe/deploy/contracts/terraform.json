@@ -1,0 +1,39 @@
+{
+  "id": "terraform",
+  "name": "Terraform / OpenTofu",
+  "category": "cloud",
+  "docs_url": "https://developer.hashicorp.com/terraform/language/values/variables#environment-variables",
+  "required_vars": [],
+  "optional_vars": [
+    "TF_VAR_region",
+    "TF_LOG",
+    "TF_INPUT",
+    "TF_CLI_ARGS"
+  ],
+  "naming": {
+    "pattern": "^TF_VAR_[a-zA-Z_][a-zA-Z0-9_]*$|^TF_[A-Z_]+$",
+    "description": "Input variables must use TF_VAR_ prefix. Built-in Terraform vars use TF_ prefix (TF_LOG, TF_INPUT, etc.).",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No Terraform-specific limits. Subject to OS env var limits. Complex types (maps, lists) must be JSON-encoded."
+  },
+  "secret_backends": [
+    "hashicorp-vault",
+    "aws-ssm",
+    "aws-secrets-manager",
+    "gcp-secret-manager",
+    "azure-key-vault",
+    "doppler",
+    "env-file"
+  ],
+  "export_formats": [
+    "env-file",
+    "terraform-tfvars"
+  ],
+  "notes": "TF_VAR_<name> sets input variable <name>. Sensitive vars should use 'sensitive = true' in variable declarations. Consider .tfvars files for non-secret defaults and Vault for secrets."
+}

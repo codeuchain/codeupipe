@@ -22,6 +22,9 @@ from .core import (
     PayloadSchema, SchemaViolation, ContractViolation, PipelineTimeoutError,
     AuditEntry, AuditTrail, AuditHook,
     DeadLetterHandler, LogDeadLetterHandler,
+    SignFilter, VerifyFilter, EncryptFilter, DecryptFilter,
+    seal_payload, verify_payload, encrypt_data, decrypt_data,
+    SecurePayloadError,
 )
 from .utils import ErrorHandlingMixin, RetryFilter
 from .converter import load_config, DEFAULT_CONFIG, PATTERN_DEFAULTS
@@ -36,12 +39,13 @@ from .deploy import (
     resolve_recipe, list_recipes, RecipeError,
     init_project, list_templates, InitError,
     render_vercel_handler, render_netlify_handler, render_lambda_handler,
+    load_contract, list_contracts, validate_env, ContractError, ValidationResult,
 )
 from .connect import (
     ConnectorConfig, load_connector_configs, ConfigError,
     discover_connectors, check_health, HttpConnector,
 )
-from .observe import CaptureTap, InsightTap, MetricsTap, RunRecord
+from .observe import CaptureTap, InsightTap, MetricsTap, PushTap, RunRecord, file_sink, stdout_sink
 from .graph import pipeline_to_mermaid
 from .runtime import TapSwitch, HotSwap, PipelineAccessor
 from .auth import Credential, CredentialStore, AuthProvider, GoogleOAuth, GitHubOAuth, AuthHook
@@ -81,11 +85,13 @@ __all__ = [
     "resolve_recipe", "list_recipes", "RecipeError",
     "init_project", "list_templates", "InitError",
     "render_vercel_handler", "render_netlify_handler", "render_lambda_handler",
+    "load_contract", "list_contracts", "validate_env", "ContractError", "ValidationResult",
     # Connect
     "ConnectorConfig", "load_connector_configs", "ConfigError",
     "discover_connectors", "check_health", "HttpConnector",
     # Observe
-    "CaptureTap", "InsightTap", "MetricsTap", "RunRecord",
+    "CaptureTap", "InsightTap", "MetricsTap", "PushTap", "RunRecord",
+    "file_sink", "stdout_sink",
     # Graph
     "pipeline_to_mermaid",
     # Runtime
@@ -93,4 +99,8 @@ __all__ = [
     # Auth
     "Credential", "CredentialStore", "AuthProvider",
     "GoogleOAuth", "GitHubOAuth", "AuthHook",
+    # Secure
+    "SignFilter", "VerifyFilter", "EncryptFilter", "DecryptFilter",
+    "seal_payload", "verify_payload", "encrypt_data", "decrypt_data",
+    "SecurePayloadError",
 ]

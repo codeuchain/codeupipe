@@ -1,0 +1,37 @@
+{
+  "id": "render",
+  "name": "Render",
+  "category": "paas",
+  "docs_url": "https://docs.render.com/configure-environment-variables",
+  "required_vars": [],
+  "optional_vars": [
+    "PORT",
+    "RENDER_SERVICE_NAME",
+    "RENDER_EXTERNAL_URL",
+    "IS_PULL_REQUEST"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. RENDER_ prefix vars are auto-injected by the platform.",
+    "forbidden_prefixes": [
+      "RENDER_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No documented hard limits. Supports secret files for multi-line values."
+  },
+  "secret_backends": [
+    "render-env",
+    "hashicorp-vault",
+    "doppler"
+  ],
+  "export_formats": [
+    "env-file",
+    "render-yaml"
+  ],
+  "notes": "Render supports Environment Groups for sharing vars across services. Secret files available for certificates and multi-line configs. Vars set via dashboard or render.yaml."
+}

@@ -1,0 +1,21 @@
+{
+  "id": "docker",
+  "name": "Docker (Dockerfile / docker run)",
+  "category": "container",
+  "docs_url": "https://docs.docker.com/reference/cli/docker/container/run/#env",
+  "required_vars": [],
+  "optional_vars": [],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "POSIX env var: letters, digits, underscores; must start with letter or underscore"
+  },
+  "limits": {
+    "key_max_length": 4096,
+    "value_max_length": 131072,
+    "max_vars": null,
+    "notes": "No hard env var count limit. Key/value constrained by kernel ARG_MAX (~2 MB combined)."
+  },
+  "secret_backends": ["env-file", "docker-secret", "hashicorp-vault"],
+  "export_formats": ["env-file", "dockerfile-env", "docker-compose-env"],
+  "notes": "Docker passes env vars via -e flags, --env-file, or compose environment: block."
+}

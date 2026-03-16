@@ -1,6 +1,6 @@
 # codeupipe
 
-<!-- cup:ref file=codeupipe/__init__.py hash=8f9ef0d -->
+<!-- cup:ref file=codeupipe/__init__.py hash=17ea483 -->
 
 Python pipeline framework — composable **Payload → Filter → Pipeline** pattern with streaming support. Zero external dependencies.
 
@@ -10,7 +10,7 @@ Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain)
 
 ## Core Concepts
 
-<!-- cup:ref file=codeupipe/core/__init__.py hash=6ed16dd -->
+<!-- cup:ref file=codeupipe/core/__init__.py hash=af8905e -->
 | Concept | Role |
 |---|---|
 | **Payload** | Immutable data container flowing through the pipeline |

@@ -13,12 +13,14 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 | [BEST_PRACTICES.md](BEST_PRACTICES.md) | Project structure, naming, testing strategy |
 | [SKILL.md](SKILL.md) | Agent skill reference (types, patterns, conversion) |
 | [INDEX.md](INDEX.md) | This file — project map |
+| [ring10-secure-config-blueprint.md](docs/ring10-secure-config-blueprint.md) | Ring 10 — Secure Config design blueprint |
+| [docs/archive/](docs/archive/) | Archived blueprints (rings 7-9, shipping exploration) |
 
 ---
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=8f9ef0d -->
+<!-- cup:ref file=codeupipe/__init__.py hash=17ea483 -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -34,7 +36,12 @@ codeupipe/
 │   ├── state.py             # State — execution metadata
 │   ├── hook.py              # Hook ABC — lifecycle
 │   ├── event.py             # PipelineEvent, EventEmitter
-│   └── govern.py            # Schemas, contracts, audit, dead-letter
+│   ├── govern.py            # Schemas, contracts, audit, dead-letter
+│   ├── secure.py            # Sign, verify, encrypt, decrypt — functional helpers
+│   ├── sign_filter.py       # SignFilter — HMAC-SHA256 signing
+│   ├── verify_filter.py     # VerifyFilter — signature verification
+│   ├── encrypt_filter.py    # EncryptFilter — symmetric encryption
+│   └── decrypt_filter.py    # DecryptFilter — symmetric decryption
 │
 ├── connect/                 # Service connectors (Ring 8)
 │   ├── config.py            # ConnectorConfig, load_connector_configs
@@ -43,6 +50,8 @@ codeupipe/
 │
 ├── deploy/                  # Deployment adapters (Ring 7)
 │   ├── adapter.py           # DeployTarget, DeployAdapter ABC
+│   ├── contract.py          # Platform contracts — load, list, validate
+│   ├── contracts/           # 25 platform constraint JSON schemas
 │   ├── discovery.py         # find_adapters
 │   ├── docker.py            # DockerAdapter
 │   ├── handlers.py          # Serverless handler renderers
@@ -96,7 +105,7 @@ codeupipe/
         ├── scaffold_cmds.py # new, list
         ├── analysis_cmds.py # lint, coverage, report, doc-check
         ├── run_cmds.py      # run, describe, graph, runs
-        ├── deploy_cmds.py   # deploy, recipe, init, ci
+        ├── deploy_cmds.py   # deploy, recipe, init, ci, config
         ├── connect_cmds.py  # connect, marketplace
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
@@ -108,7 +117,7 @@ codeupipe/
 
 ## Core Types
 
-<!-- cup:ref file=codeupipe/core/__init__.py hash=6ed16dd -->
+<!-- cup:ref file=codeupipe/core/__init__.py hash=af8905e -->
 | Type | Source | Role |
 |------|--------|------|
 | `Payload` | core/payload.py | Immutable data container |
@@ -147,7 +156,7 @@ codeupipe/
 
 ## Deploy (Ring 7)
 
-<!-- cup:ref file=codeupipe/deploy/__init__.py hash=0cf43d2 -->
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=59d489c -->
 <!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
@@ -290,6 +299,47 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 
 ---
 
+## Secure Config (Ring 10)
+
+<!-- cup:ref file=codeupipe/core/secure.py symbols=seal_payload,verify_payload,encrypt_data,decrypt_data,SecurePayloadError -->
+<!-- cup:ref file=codeupipe/core/sign_filter.py symbols=SignFilter -->
+<!-- cup:ref file=codeupipe/core/verify_filter.py symbols=VerifyFilter -->
+<!-- cup:ref file=codeupipe/core/encrypt_filter.py symbols=EncryptFilter -->
+<!-- cup:ref file=codeupipe/core/decrypt_filter.py symbols=DecryptFilter -->
+<!-- cup:ref file=codeupipe/deploy/contract.py symbols=load_contract,list_contracts,validate_env,ContractError,ValidationResult -->
+| Type | Source | Role |
+|------|--------|------|
+| `SignFilter` | core/sign_filter.py | HMAC-SHA256 sign payloads at pipeline boundary |
+| `VerifyFilter` | core/verify_filter.py | Verify signature + optional expiry check |
+| `EncryptFilter` | core/encrypt_filter.py | Encrypt payload data (PBKDF2 + authenticated) |
+| `DecryptFilter` | core/decrypt_filter.py | Decrypt payload data |
+| `seal_payload` / `verify_payload` | core/secure.py | Functional sign/verify helpers |
+| `encrypt_data` / `decrypt_data` | core/secure.py | Functional encrypt/decrypt helpers |
+| `SecurePayloadError` | core/secure.py | Tamper, wrong key, or expiry error |
+| `load_contract` | deploy/contract.py | Load a platform contract JSON by ID |
+| `list_contracts` | deploy/contract.py | List all available platform contracts |
+| `validate_env` | deploy/contract.py | Validate env vars against a contract |
+| `ContractError` | deploy/contract.py | Contract not found / malformed |
+| `ValidationResult` | deploy/contract.py | Validation result with `.valid`, `.errors`, `.warnings` |
+
+### Platform Contracts (25 JSON schemas)
+
+Located in `codeupipe/deploy/contracts/`. Each JSON defines:
+- Required / optional env vars
+- Naming rules (regex pattern, forbidden prefixes)
+- Size limits (key, value, total, max vars)
+- Secret backends and export formats
+
+```bash
+cup config --list                        # Show all 23 platforms
+cup config aws-lambda --var MY_KEY=val   # Validate against AWS Lambda contract
+cup config kubernetes --env-file .env    # Validate .env against Kubernetes
+```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Utils
 
 <!-- cup:ref file=codeupipe/utils/__init__.py hash=9c3f862 -->
@@ -366,7 +416,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
-<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=de213f2 -->
+<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=49b3f8e -->
 <!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
 <!-- cup:ref file=codeupipe/cli/commands/project_cmds.py hash=6bad64b -->
 <!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->
@@ -402,6 +452,9 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 | `cup vault revoke-all` | Revoke all active proxy tokens |
 | `cup vault list` | List active proxy tokens |
 | `cup vault status <token>` | Detailed proxy token inspection |
+| `cup config --list` | List available platform contracts |
+| `cup config <id> --var K=V` | Validate env vars against a platform contract |
+| `cup config <id> --env-file .env` | Validate .env file against a contract |
 | `--json` (global) | Machine-readable JSON output |
 | `--auto-fix` (doc-check) | Non-interactive hash fix (AI/CI friendly) |
 <!-- /cup:ref -->
@@ -425,7 +478,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 
 ## Observability
 
-<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,InsightTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=37e8ff6 -->
+<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,InsightTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=cee4130 -->
 | Export | Role |
 |--------|------|
 | `CaptureTap` | Tap that records payload snapshots for replay |
@@ -531,7 +584,7 @@ All tiers work with `cup connect --list`. The marketplace only affects discovera
 
 ## Tests
 
-1844 tests across 60+ files. Full suite: `pytest`
+1973 tests across 60+ files. Full suite: `pytest`
 
 ---
 

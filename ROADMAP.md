@@ -17,11 +17,12 @@ Ring 5  Distribute     ████████████  v0.4.0  ✅
 Ring 6  Govern         ████████████  v0.5.0  ✅  (no tag — bundled into v0.4.0 release)
 Ring 7  Accelerate     ████████████  v0.7.0  ✅
 Ring 8  Connect        ████████████  v0.8.0  ✅
-Ring 9  Marketplace    ████████████  v0.9.0  ✅  ← YOU ARE HERE
-Ring 10 ???            ░░░░░░░░░░░░          next
+Ring 9  Marketplace    ████████████  v0.9.0  ✅
+Ring 10 Secure Config  ████████████  v0.10.0 ✅  ← YOU ARE HERE
+Ring 11 ???            ░░░░░░░░░░░░          next
 ```
 
-**1326 core tests + 31 connector tests = 1357 total. 59 doc refs verified. Zero external dependencies in core.**
+**1973 core tests + 31 connector tests = 2004 total. 221 doc refs verified. Zero external dependencies in core.**
 
 ---
 
@@ -138,6 +139,31 @@ Connector discoverability + first four production connectors.
 
 ---
 
+### Ring 10 — Secure Config ✅ (v0.10.0)
+
+Platform-aware config validation and payload security at pipeline boundaries. Absorbed from the Zero-Trust Deploy Config (ZTDC) prototype.
+
+- **Platform contracts:**
+  - 23 JSON contract files in `deploy/contracts/` — AWS Lambda, Kubernetes, Docker, Vercel, and 19 more
+  - `load_contract()`, `list_contracts()`, `validate_env()` — pure stdlib
+  - `ContractError`, `ValidationResult` — clean error types
+  - CLI: `cup config --list`, `cup config <contract> --var KEY=VALUE --env-file .env --json`
+
+- **Secure payload:**
+  - `seal_payload()` / `verify_payload()` — HMAC-SHA256 signing with timestamp + max_age expiry
+  - `encrypt_data()` / `decrypt_data()` — PBKDF2 + authenticated encryption (stdlib only)
+  - `SignFilter` / `VerifyFilter` — pipeline boundary signing
+  - `EncryptFilter` / `DecryptFilter` — pipeline boundary encryption
+  - `SecurePayloadError` — tamper, wrong key, expiry
+
+- **Documentation:**
+  - Archived completed blueprints (Ring 7–9) to `docs/archive/`
+  - `docs/ring10-secure-config-blueprint.md` — design decisions, what was absorbed, what was left out
+
+- 39 new tests (18 contract + 21 secure)
+
+---
+
 ## What's Next — Open Directions
 
 Everything below is **unscheduled**. These are the natural next moves given what exists, not commitments. Pick what creates the most value and build it.
@@ -207,23 +233,24 @@ Write pipeline configs once, run them in any language. The codeuchain vision.
 
 ---
 
-## Architecture Snapshot (v0.9.0)
+## Architecture Snapshot (v0.10.0)
 
 ```
 codeupipe/
-├── core/           Ring 1-4   Payload, Filter, Tap, Hook, StreamFilter, Valve,
-│                              Pipeline, State, Event, Govern
+├── core/           Ring 1-4,10 Payload, Filter, Tap, Hook, StreamFilter, Valve,
+│                              Pipeline, State, Event, Govern, Secure
 ├── distribute/     Ring 5     RemoteFilter, Checkpoint, Source, WorkerPool
-├── deploy/         Ring 7     Adapters (Docker, Vercel, Netlify), Recipes, Init
+├── deploy/         Ring 7,10  Adapters, Recipes, Init, Contracts (23 platforms)
 ├── connect/        Ring 8     ConnectorConfig, discover_connectors, HttpConnector
 ├── marketplace/    Ring 9     fetch_index, search, info, marketplace CLI
+├── auth/           Ring 8     Credential, AuthProvider, TokenVault, ProxyToken
 ├── linter/         Ring 1     Dogfooded lint/coverage/doc-check pipelines
 ├── converter/      Ring 2     Config pipeline assembly helpers
 ├── registry.py     Ring 2     Registry, cup_component, default_registry
 ├── testing.py      Ring 1     run_filter, run_pipeline, assert_payload, mock_filter
-└── cli.py          Ring 1+    14 commands: new, list, bundle, lint, coverage,
+└── cli/            Ring 1+    15 commands: new, list, bundle, lint, coverage,
                                report, doc-check, run, deploy, recipe, init,
-                               connect, describe, marketplace
+                               connect, describe, marketplace, config
 
 connectors/                    Ring 9 — standalone PyPI packages
 ├── codeupipe-google-ai/       4 filters (generate, stream, embed, vision)

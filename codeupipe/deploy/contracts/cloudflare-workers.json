@@ -1,0 +1,31 @@
+{
+  "id": "cloudflare-workers",
+  "name": "Cloudflare Workers",
+  "category": "edge",
+  "docs_url": "https://developers.cloudflare.com/workers/configuration/environment-variables/",
+  "required_vars": [],
+  "optional_vars": [
+    "ENVIRONMENT"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. Bindings (KV, D1, R2) use separate namespace from env vars.",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": 5120,
+    "max_vars": null,
+    "max_total_size": 131072,
+    "notes": "Individual values \u2264 5 KB. Total script size (including vars) \u2264 128 KB for free tier, 10 MB for paid. Secrets are encrypted at rest."
+  },
+  "secret_backends": [
+    "cloudflare-secrets",
+    "hashicorp-vault"
+  ],
+  "export_formats": [
+    "env-file",
+    "cloudflare-wrangler-toml"
+  ],
+  "notes": "Workers distinguish between 'vars' (plaintext, visible in dashboard) and 'secrets' (encrypted, write-only). Configure in wrangler.toml [vars] block or via 'wrangler secret put'."
+}

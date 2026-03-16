@@ -19,7 +19,7 @@ Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain)
 
 ## Architecture Overview
 
-<!-- cup:ref file=codeupipe/__init__.py hash=8f9ef0d -->
+<!-- cup:ref file=codeupipe/__init__.py hash=17ea483 -->
 ```
 Payload (data)
    │
@@ -53,7 +53,7 @@ Pipeline.run(payload)  ──or──  Pipeline.run_sync(payload)  ──or─�
 
 ## Project Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=8f9ef0d -->
+<!-- cup:ref file=codeupipe/__init__.py hash=17ea483 -->
 
 ```
 codeupipe/
@@ -209,7 +209,7 @@ README.md                    # Quick-start guide
 
 ## Core Types — Quick Reference
 
-<!-- cup:ref file=codeupipe/core/__init__.py hash=6ed16dd -->
+<!-- cup:ref file=codeupipe/core/__init__.py hash=af8905e -->
 | Type | Kind | Purpose |
 |---|---|---|
 | `Payload[T]` | Class | Immutable data container. `.get()`, `.insert()`, `.merge()`, `.to_dict()`, `.with_mutation()` |

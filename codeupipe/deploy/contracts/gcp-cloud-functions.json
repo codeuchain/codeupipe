@@ -1,0 +1,33 @@
+{
+  "id": "gcp-cloud-functions",
+  "name": "Google Cloud Functions",
+  "category": "serverless",
+  "docs_url": "https://cloud.google.com/functions/docs/configuring/env-var",
+  "required_vars": [],
+  "optional_vars": [
+    "FUNCTION_TARGET",
+    "FUNCTION_SIGNATURE_TYPE",
+    "GCP_PROJECT"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. Some FUNCTION_ and GCP_ prefix vars are auto-set.",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": 256,
+    "value_max_length": 32768,
+    "max_vars": 100,
+    "max_total_size": null,
+    "notes": "Max 100 env vars. Keys \u2264 256 chars. Values \u2264 32 KB. Build-time and runtime env vars are separate."
+  },
+  "secret_backends": [
+    "gcp-secret-manager",
+    "hashicorp-vault"
+  ],
+  "export_formats": [
+    "env-file",
+    "lambda-env-json"
+  ],
+  "notes": "Cloud Functions supports build-time env vars (available during build) and runtime env vars. Use Secret Manager for sensitive data \u2014 2nd gen functions support secret volume mounts."
+}

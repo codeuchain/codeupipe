@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "contracts": [
+    "aws-app-runner",
+    "aws-ecs",
+    "aws-lambda",
+    "azure-app-service",
+    "azure-functions",
+    "circleci",
+    "cloudflare-workers",
+    "digitalocean-app-platform",
+    "docker",
+    "docker-compose",
+    "fly-io",
+    "gcp-cloud-functions",
+    "github-actions",
+    "gitlab-ci",
+    "google-cloud-run",
+    "hashicorp-nomad",
+    "heroku",
+    "kubernetes",
+    "netlify",
+    "railway",
+    "render",
+    "terraform",
+    "vercel"
+  ]
+}

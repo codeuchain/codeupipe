@@ -1,0 +1,37 @@
+{
+  "id": "hashicorp-nomad",
+  "name": "HashiCorp Nomad",
+  "category": "orchestration",
+  "docs_url": "https://developer.hashicorp.com/nomad/docs/job-specification/env",
+  "required_vars": [],
+  "optional_vars": [
+    "NOMAD_ALLOC_ID",
+    "NOMAD_JOB_NAME",
+    "NOMAD_TASK_NAME",
+    "NOMAD_REGION",
+    "NOMAD_DC"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. NOMAD_ prefix vars are auto-injected by the scheduler.",
+    "forbidden_prefixes": [
+      "NOMAD_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No hard limits from Nomad itself. Subject to OS-level env var limits. Use Vault integration for secrets."
+  },
+  "secret_backends": [
+    "hashicorp-vault",
+    "nomad-variables"
+  ],
+  "export_formats": [
+    "env-file",
+    "nomad-hcl"
+  ],
+  "notes": "Nomad has first-class Vault integration via 'template' and 'vault' stanzas. Use the 'env' stanza for non-sensitive config. Nomad Variables (1.4+) provide native encrypted storage."
+}

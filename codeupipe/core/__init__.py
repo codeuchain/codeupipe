@@ -18,6 +18,14 @@ from .govern import (
     AuditEntry, AuditTrail, AuditHook,
     DeadLetterHandler, LogDeadLetterHandler,
 )
+from .secure import (
+    seal_payload, verify_payload, encrypt_data, decrypt_data,
+    SecurePayloadError,
+)
+from .sign_filter import SignFilter
+from .verify_filter import VerifyFilter
+from .encrypt_filter import EncryptFilter
+from .decrypt_filter import DecryptFilter
 
 __all__ = [
     "Payload", "MutablePayload",
@@ -28,4 +36,8 @@ __all__ = [
     "PayloadSchema", "SchemaViolation", "ContractViolation", "PipelineTimeoutError",
     "AuditEntry", "AuditTrail", "AuditHook",
     "DeadLetterHandler", "LogDeadLetterHandler",
+    # Secure
+    "SignFilter", "VerifyFilter", "EncryptFilter", "DecryptFilter",
+    "seal_payload", "verify_payload", "encrypt_data", "decrypt_data",
+    "SecurePayloadError",
 ]

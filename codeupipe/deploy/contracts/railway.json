@@ -1,0 +1,37 @@
+{
+  "id": "railway",
+  "name": "Railway",
+  "category": "paas",
+  "docs_url": "https://docs.railway.app/develop/variables",
+  "required_vars": [],
+  "optional_vars": [
+    "PORT",
+    "RAILWAY_ENVIRONMENT",
+    "RAILWAY_SERVICE_NAME",
+    "DATABASE_URL"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. RAILWAY_ prefix vars are auto-injected by the platform.",
+    "forbidden_prefixes": [
+      "RAILWAY_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No documented hard limits. Variables support reference syntax for cross-service sharing."
+  },
+  "secret_backends": [
+    "railway-variables",
+    "doppler",
+    "infisical"
+  ],
+  "export_formats": [
+    "env-file",
+    "railway-json"
+  ],
+  "notes": "Railway supports variable references (${{SERVICE.VAR}}) for cross-service config. Variables are scoped per environment. Shared variables propagate automatically."
+}

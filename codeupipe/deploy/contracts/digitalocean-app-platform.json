@@ -1,0 +1,33 @@
+{
+  "id": "digitalocean-app-platform",
+  "name": "DigitalOcean App Platform",
+  "category": "paas",
+  "docs_url": "https://docs.digitalocean.com/products/app-platform/how-to/use-environment-variables/",
+  "required_vars": [],
+  "optional_vars": [
+    "PORT",
+    "APP_URL",
+    "APP_DOMAIN"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX naming.",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": 65536,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "Values \u2264 64 KB. Vars can be set at app or component level. Supports 'secret' type that encrypts values."
+  },
+  "secret_backends": [
+    "digitalocean-env",
+    "hashicorp-vault",
+    "doppler"
+  ],
+  "export_formats": [
+    "env-file"
+  ],
+  "notes": "App Platform supports app-level and component-level env vars. Vars marked as 'secret' are encrypted and not shown after creation. Defined in .do/app.yaml or via dashboard."
+}

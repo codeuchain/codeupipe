@@ -1,0 +1,23 @@
+{
+  "id": "heroku",
+  "name": "Heroku",
+  "category": "paas",
+  "docs_url": "https://devcenter.heroku.com/articles/config-vars",
+  "required_vars": [],
+  "optional_vars": ["PORT", "DATABASE_URL", "REDIS_URL", "LOG_LEVEL"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. Heroku auto-sets PORT, DATABASE_URL (when Postgres addon attached), etc.",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": 32768,
+    "notes": "Total combined size of all config vars must be ≤ 32 KB. Individual key/value sizes are not explicitly limited beyond the total."
+  },
+  "secret_backends": ["heroku-config", "hashicorp-vault", "doppler"],
+  "export_formats": ["env-file", "heroku-json"],
+  "notes": "Config vars are exposed to all dynos at runtime. Use Heroku's built-in config for most cases. For shared secrets across apps, consider Vault or Doppler."
+}

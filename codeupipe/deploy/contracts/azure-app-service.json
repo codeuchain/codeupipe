@@ -1,0 +1,21 @@
+{
+  "id": "azure-app-service",
+  "name": "Azure App Service",
+  "category": "cloud",
+  "docs_url": "https://learn.microsoft.com/en-us/azure/app-service/configure-common",
+  "required_vars": [],
+  "optional_vars": ["WEBSITE_SITE_NAME", "WEBSITES_PORT"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_.]*$",
+    "description": "Azure supports dots in setting names (e.g. ConnectionStrings.Default). Nested settings use __ as separator."
+  },
+  "limits": {
+    "key_max_length": 512,
+    "value_max_length": 1048576,
+    "max_vars": null,
+    "notes": "No hard per-var count limit. Settings stored in App Service configuration blade."
+  },
+  "secret_backends": ["azure-keyvault", "env-file"],
+  "export_formats": ["azure-app-settings-json", "env-file"],
+  "notes": "Use @Microsoft.KeyVault(SecretUri=...) references for secrets. Slot-sticky settings for deployment slots."
+}

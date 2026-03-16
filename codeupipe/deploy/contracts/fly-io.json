@@ -1,0 +1,38 @@
+{
+  "id": "fly-io",
+  "name": "Fly.io",
+  "category": "paas",
+  "docs_url": "https://fly.io/docs/reference/secrets/",
+  "required_vars": [],
+  "optional_vars": [
+    "FLY_APP_NAME",
+    "FLY_REGION",
+    "FLY_ALLOC_ID",
+    "PRIMARY_REGION",
+    "PORT"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. FLY_ prefix vars are injected by the platform at runtime.",
+    "forbidden_prefixes": [
+      "FLY_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No documented hard limits. Secrets are encrypted at rest and injected as env vars. Use 'fly secrets set' to manage."
+  },
+  "secret_backends": [
+    "fly-secrets",
+    "hashicorp-vault",
+    "doppler"
+  ],
+  "export_formats": [
+    "env-file",
+    "fly-toml"
+  ],
+  "notes": "Fly secrets are encrypted and only available at runtime. They persist across deployments. Use fly.toml [env] for non-sensitive config."
+}

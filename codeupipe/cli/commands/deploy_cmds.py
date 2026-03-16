@@ -62,6 +62,33 @@ def setup(sub, reg):
     ci_parser.add_argument("--frontend", help="Frontend framework")
     reg.register("ci", _handle_ci)
 
+    # cup config validate <contract> [--env-file FILE] [--var KEY=VALUE...] [--json]
+    config_parser = sub.add_parser(
+        "config",
+        help="Validate deployment config against a platform contract",
+    )
+    config_parser.add_argument(
+        "contract", nargs="?",
+        help="Platform contract ID (e.g. aws-lambda, kubernetes). Omit with --list.",
+    )
+    config_parser.add_argument(
+        "--list", action="store_true", dest="list_contracts",
+        help="List all available platform contracts",
+    )
+    config_parser.add_argument(
+        "--env-file", metavar="FILE",
+        help="Read env vars from a .env file",
+    )
+    config_parser.add_argument(
+        "--var", action="append", metavar="KEY=VALUE", default=[],
+        help="Set an env var (repeatable)",
+    )
+    config_parser.add_argument(
+        "--json", action="store_true", dest="json_output",
+        help="Output as JSON",
+    )
+    reg.register("config", _handle_config)
+
 
 # ── Handlers ────────────────────────────────────────────────────────
 
@@ -241,6 +268,89 @@ def _handle_ci(args):
             for entry in found:
                 print(f"  {entry['provider']:20s} {entry['path']}")
         return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def _handle_config(args):
+    try:
+        from codeupipe.deploy.contract import (
+            list_contracts, load_contract, validate_env, ContractError,
+        )
+
+        # --list: show available contracts
+        if getattr(args, "list_contracts", False):
+            contracts = list_contracts()
+            if getattr(args, "json_output", False):
+                print(json.dumps(contracts, indent=2))
+            else:
+                print(f"{'ID':<30s} {'Name':<30s} Category")
+                print("-" * 75)
+                for c in contracts:
+                    print(f"{c['id']:<30s} {c['name']:<30s} {c.get('category', '')}")
+            return 0
+
+        contract_id = getattr(args, "contract", None)
+        if not contract_id:
+            print("Usage: cup config <contract> [--env-file FILE] [--var KEY=VALUE...]")
+            print("       cup config --list")
+            return 1
+
+        # Build env vars from --env-file and --var
+        env = {}
+        env_file = getattr(args, "env_file", None)
+        if env_file:
+            p = Path(env_file)
+            if not p.exists():
+                print(f"Error: env file not found: {env_file}", file=sys.stderr)
+                return 1
+            for line in p.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    env[k.strip()] = v.strip().strip('"').strip("'")
+
+        for var_str in getattr(args, "var", []):
+            if "=" not in var_str:
+                print(f"Error: --var must be KEY=VALUE, got: {var_str}", file=sys.stderr)
+                return 1
+            k, v = var_str.split("=", 1)
+            env[k] = v
+
+        result = validate_env(env, contract_id)
+
+        if getattr(args, "json_output", False):
+            print(json.dumps({
+                "contract": result.contract_id,
+                "valid": result.valid,
+                "errors": result.errors,
+                "warnings": result.warnings,
+                "env_count": len(env),
+            }, indent=2))
+        else:
+            contract = load_contract(contract_id)
+            print(f"Contract: {contract.get('name', contract_id)} ({contract_id})")
+            print(f"Variables: {len(env)}")
+            print()
+            if result.valid:
+                print("✅ Validation passed")
+            else:
+                print("❌ Validation failed")
+                for e in result.errors:
+                    print(f"  ERROR: {e}")
+            if result.warnings:
+                print()
+                for w in result.warnings:
+                    print(f"  WARN: {w}")
+
+        return 0 if result.valid else 1
+
+    except ContractError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1

@@ -1,0 +1,38 @@
+{
+  "id": "circleci",
+  "name": "CircleCI",
+  "category": "ci-cd",
+  "docs_url": "https://circleci.com/docs/env-vars/",
+  "required_vars": [],
+  "optional_vars": [
+    "CIRCLE_BRANCH",
+    "CIRCLE_BUILD_NUM",
+    "CIRCLE_SHA1",
+    "CIRCLE_PROJECT_REPONAME"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. CIRCLE_ prefix vars are auto-injected by CircleCI.",
+    "forbidden_prefixes": [
+      "CIRCLE_"
+    ]
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "No documented hard limits. Env vars can be set at org, project, or context level. Context-level vars are shared across projects."
+  },
+  "secret_backends": [
+    "circleci-context",
+    "hashicorp-vault",
+    "aws-ssm",
+    "doppler"
+  ],
+  "export_formats": [
+    "env-file",
+    "circleci-yaml"
+  ],
+  "notes": "CircleCI supports Contexts for sharing secrets across projects. Vars set in project settings are masked in logs. Use restricted contexts with security groups for sensitive credentials."
+}

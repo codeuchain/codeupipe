@@ -21,7 +21,10 @@ __all__ = [
     "CaptureTap",
     "InsightTap",
     "MetricsTap",
+    "PushTap",
     "RunRecord",
+    "file_sink",
+    "stdout_sink",
     "save_run_record",
     "load_run_records",
     "export_captures_for_testing",
@@ -239,6 +242,151 @@ class InsightTap:
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(raw, encoding="utf-8")
         return raw
+
+
+# ── PushTap — buffered observation sink ──────────────────────────────
+
+
+class PushTap:
+    """Tap that buffers observations and pushes batches to an external sink.
+
+    PushTap collects payload snapshots in a buffer.  When the buffer hits
+    a count *threshold*, it calls the *sink* callback with the batch.
+    Call ``.flush()`` to drain remaining data (e.g. on shutdown).
+
+    The sink is "just a function": ``sink(batch: list[dict]) -> None``.
+    Plug in Redis, Kafka, a file, an HTTP endpoint — anything.
+
+    If the sink raises, the buffer is preserved so the next flush retries.
+
+    Usage:
+        tap = PushTap(sink=my_redis_sink, threshold=50)
+        pipeline.add_tap(tap, name="push_to_redis")
+
+        # Or attach to all pipelines at once:
+        accessor.add_tap(tap, "push_to_redis")
+
+        # On shutdown:
+        tap.flush()
+
+    Thread-safe.
+    """
+
+    def __init__(
+        self,
+        sink,
+        *,
+        name: str = "push",
+        threshold: int = 100,
+    ):
+        self.name = name
+        self.threshold = threshold
+        self._sink = sink
+        self._lock = threading.Lock()
+        self._buffer: List[Dict[str, Any]] = []
+        self._total_observed: int = 0
+        self._total_pushed: int = 0
+        self._flush_count: int = 0
+
+    async def observe(self, payload: Payload) -> None:
+        """Buffer a payload snapshot.  Flushes when threshold is reached."""
+        record = payload.to_dict()
+        record["_pushed_at"] = time.time()
+
+        with self._lock:
+            self._total_observed += 1
+            self._buffer.append(record)
+            if len(self._buffer) >= self.threshold:
+                self._flush_locked()
+
+    def flush(self) -> None:
+        """Manually flush the buffer to the sink.  No-op if buffer is empty."""
+        with self._lock:
+            self._flush_locked()
+
+    def _flush_locked(self) -> None:
+        """Flush under lock.  On sink error, buffer is preserved."""
+        if not self._buffer:
+            return
+        batch = list(self._buffer)
+        try:
+            self._sink(batch)
+            self._total_pushed += len(batch)
+            self._flush_count += 1
+            self._buffer.clear()
+        except Exception:
+            # Sink failed — keep buffer intact for retry
+            pass
+
+    @property
+    def pending(self) -> int:
+        """Number of observations waiting in the buffer."""
+        with self._lock:
+            return len(self._buffer)
+
+    @property
+    def total_pushed(self) -> int:
+        """Total observations successfully pushed to the sink."""
+        with self._lock:
+            return self._total_pushed
+
+    @property
+    def flush_count(self) -> int:
+        """Number of successful flush operations."""
+        with self._lock:
+            return self._flush_count
+
+    def stats(self) -> Dict[str, Any]:
+        """Return a stats summary."""
+        with self._lock:
+            return {
+                "name": self.name,
+                "total_observed": self._total_observed,
+                "total_pushed": self._total_pushed,
+                "pending": len(self._buffer),
+                "flush_count": self._flush_count,
+                "threshold": self.threshold,
+            }
+
+    def reset(self) -> None:
+        """Clear buffer and all counters."""
+        with self._lock:
+            self._buffer.clear()
+            self._total_observed = 0
+            self._total_pushed = 0
+            self._flush_count = 0
+
+
+# ── Built-in sinks ───────────────────────────────────────────────────
+
+
+def file_sink(path: str):
+    """Create a sink that appends each record as a JSON line to a file.
+
+    Returns a callable suitable for PushTap(sink=...).
+
+    Usage:
+        tap = PushTap(sink=file_sink("/var/log/cup/events.jsonl"))
+    """
+    _path = Path(path)
+
+    def _write(batch: List[Dict[str, Any]]) -> None:
+        _path.parent.mkdir(parents=True, exist_ok=True)
+        with open(_path, "a", encoding="utf-8") as f:
+            for record in batch:
+                f.write(json.dumps(record, default=str) + "\n")
+
+    return _write
+
+
+def stdout_sink(batch: List[Dict[str, Any]]) -> None:
+    """Sink that prints each record as JSON to stdout.
+
+    Usage:
+        tap = PushTap(sink=stdout_sink)
+    """
+    for record in batch:
+        print(json.dumps(record, default=str))
 
 
 # ── Run Record — persist pipeline run results ────────────────────────

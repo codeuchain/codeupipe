@@ -1,0 +1,38 @@
+{
+  "id": "gitlab-ci",
+  "name": "GitLab CI/CD",
+  "category": "ci-cd",
+  "docs_url": "https://docs.gitlab.com/ee/ci/variables/",
+  "required_vars": [],
+  "optional_vars": [
+    "CI_COMMIT_SHA",
+    "CI_PIPELINE_ID",
+    "CI_PROJECT_NAME",
+    "CI_REGISTRY_IMAGE"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Standard POSIX. CI_ prefix vars are auto-set by GitLab. Custom vars should avoid CI_ prefix.",
+    "forbidden_prefixes": [
+      "CI_"
+    ]
+  },
+  "limits": {
+    "key_max_length": 255,
+    "value_max_length": 10000,
+    "max_vars": 200,
+    "max_total_size": null,
+    "notes": "Max ~200 variables per project (group + project combined). Values \u2264 10,000 chars. Variables can be scoped to environments and protected branches."
+  },
+  "secret_backends": [
+    "gitlab-variables",
+    "hashicorp-vault",
+    "aws-ssm",
+    "gcp-secret-manager"
+  ],
+  "export_formats": [
+    "env-file",
+    "gitlab-ci-yaml"
+  ],
+  "notes": "GitLab supports variable types: Variable (env var) and File (creates temp file). Variables can be masked, protected, and environment-scoped. Native Vault integration available."
+}

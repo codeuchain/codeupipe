@@ -1,0 +1,22 @@
+{
+  "id": "github-actions",
+  "name": "GitHub Actions",
+  "category": "ci-cd",
+  "docs_url": "https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions",
+  "required_vars": [],
+  "optional_vars": ["GITHUB_TOKEN"],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "description": "Must start with letter or underscore. Cannot start with GITHUB_ (reserved prefix).",
+    "forbidden_prefixes": ["GITHUB_"]
+  },
+  "limits": {
+    "key_max_length": 255,
+    "value_max_length": 65536,
+    "max_vars": 1000,
+    "notes": "1000 org secrets, 1000 repo secrets, 100 environment secrets. Values max 64 KB."
+  },
+  "secret_backends": ["github-secrets"],
+  "export_formats": ["github-actions-yaml", "env-file"],
+  "notes": "Secrets are masked in logs. Use ${{ secrets.NAME }} syntax in workflows. GITHUB_ prefix is reserved."
+}

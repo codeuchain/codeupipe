@@ -1,0 +1,35 @@
+{
+  "id": "azure-functions",
+  "name": "Azure Functions",
+  "category": "serverless",
+  "docs_url": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings",
+  "required_vars": [
+    "AzureWebJobsStorage",
+    "FUNCTIONS_WORKER_RUNTIME"
+  ],
+  "optional_vars": [
+    "FUNCTIONS_EXTENSION_VERSION",
+    "WEBSITE_RUN_FROM_PACKAGE",
+    "APPINSIGHTS_INSTRUMENTATIONKEY"
+  ],
+  "naming": {
+    "pattern": "^[a-zA-Z_][a-zA-Z0-9_.:-]*$",
+    "description": "Allows dots, colons, and hyphens in addition to POSIX chars. Colons used for nested config (e.g., ConnectionStrings:Default).",
+    "forbidden_prefixes": []
+  },
+  "limits": {
+    "key_max_length": null,
+    "value_max_length": null,
+    "max_vars": null,
+    "max_total_size": null,
+    "notes": "App Settings stored in Azure App Configuration. No documented hard limit but practical limit around a few hundred vars. Slots support slot-specific settings."
+  },
+  "secret_backends": [
+    "azure-key-vault",
+    "azure-app-configuration"
+  ],
+  "export_formats": [
+    "env-file"
+  ],
+  "notes": "Azure Functions uses App Settings (not traditional env vars). Use Key Vault references (@Microsoft.KeyVault(...)) for secrets. Deployment slots support slot-sticky settings."
+}

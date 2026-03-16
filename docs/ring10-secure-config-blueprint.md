@@ -1,0 +1,132 @@
+# Ring 10 — Secure Config: Implementation Blueprint
+
+**Goal:** Platform-aware config validation and payload security at pipeline boundaries.
+
+This ring absorbs the validated concepts from the Zero-Trust Deploy Config (ZTDC) prototype into codeupipe core. It adds two capabilities: **platform contracts** for deploy config validation, and **secure payload** for signing/encrypting data at pipeline boundaries.
+
+---
+
+## What We Absorbed
+
+The ZTDC prototype was a client-side SPA (GitHub Pages + Cloudflare Worker) that proved:
+
+1. **Platform contracts work.** Encoding deployment constraints (naming rules, size limits, required vars, secret backends) as JSON schemas enables automated validation before deployment.
+2. **Signing at the boundary matters.** Data should flow as plaintext inside a pipeline (debuggable, inspectable) but be signed/encrypted when crossing trust boundaries (network, disk, external services).
+3. **23 platform contracts are broadly useful.** AWS Lambda, Kubernetes, Vercel, Cloudflare Workers, Docker, Terraform, and 17 more.
+
+## What We Deliberately Left Out
+
+| ZTDC Feature | Decision | Reason |
+|---|---|---|
+| Client-side SPA | Not absorbed | codeupipe is a Python framework, not a web app |
+| Cloudflare Worker API | Not absorbed | External service dependency violates zero-dep |
+| AES-256-GCM browser crypto | Adapted to stdlib | Web Crypto API ≠ Python stdlib; we use HMAC + PBKDF2 |
+| OAuth popup flow | Not absorbed | Already have `codeupipe.auth` with proper OAuth |
+| Multi-factor key derivation | Not absorbed | Niche UX concern, not a pipeline primitive |
+| Recipe builder UI | Not absorbed | CLI `cup recipe` already handles this |
+| 17 export formatters | Not yet | May absorb selectively in future rings |
+
+---
+
+## What Was Built
+
+### Platform Contracts (`codeupipe/deploy/contract.py`)
+
+| Function | Purpose |
+|---|---|
+| `list_contracts()` | List all 23 platform contract IDs with names and categories |
+| `load_contract(id)` | Load a contract JSON by platform slug |
+| `validate_env(vars, contract_id)` | Validate env vars against contract rules |
+| `ContractError` | Raised on load failures |
+| `ValidationResult` | Result object with `.valid`, `.errors`, `.warnings` |
+
+**Contract data** lives in `codeupipe/deploy/contracts/` — 23 JSON files plus `index.json` and `_schema.json`.
+
+**CLI** — `cup config`:
+```bash
+cup config --list                              # List platforms
+cup config aws-lambda --var MY_KEY=value       # Validate vars
+cup config kubernetes --env-file .env          # Validate from file
+cup config aws-lambda --json                   # JSON output
+```
+
+### Secure Payload (`codeupipe/core/secure.py`)
+
+**Design principle: plaintext at rest, signed on boundary, encrypted on wire.**
+
+| Component | Purpose |
+|---|---|
+| `seal_payload(data, key)` | HMAC-SHA256 sign a dict → envelope |
+| `verify_payload(envelope, key)` | Verify signature → extract original dict |
+| `encrypt_data(data, key)` | PBKDF2 + XOR + HMAC authenticated encryption |
+| `decrypt_data(encrypted, key)` | Decrypt and verify → original dict |
+| `SignFilter` | Pipeline filter — signs payload at boundary |
+| `VerifyFilter` | Pipeline filter — verifies signed payload |
+| `EncryptFilter` | Pipeline filter — encrypts payload for transmission |
+| `DecryptFilter` | Pipeline filter — decrypts received payload |
+| `SecurePayloadError` | Raised on tamper, wrong key, or expiry |
+
+**Usage pattern:**
+```python
+from codeupipe import Pipeline, SignFilter, VerifyFilter, EncryptFilter, DecryptFilter
+
+key = b"shared-secret-between-services"
+
+# Sign at output boundary
+send_pipeline = Pipeline()
+send_pipeline.add(ProcessDataFilter(), "process")
+send_pipeline.add(SignFilter(key=key), "sign")
+
+# Verify at input boundary
+receive_pipeline = Pipeline()
+receive_pipeline.add(VerifyFilter(key=key, max_age=300), "verify")
+receive_pipeline.add(HandleDataFilter(), "handle")
+
+# Or encrypt for transmission
+send_pipeline.add(EncryptFilter(key=key), "encrypt")
+receive_pipeline.add(DecryptFilter(key=key), "decrypt")
+```
+
+---
+
+## Architecture Decisions
+
+### Why stdlib-only crypto?
+
+The zero-dependency constraint is non-negotiable. We use:
+- `hmac` + `hashlib` for HMAC-SHA256 signing (constant-time comparison via `hmac.compare_digest`)
+- `hashlib.pbkdf2_hmac` for key derivation (100k iterations, SHA-256)
+- XOR cipher with PBKDF2-derived keystream + HMAC authentication for encryption
+
+**This is NOT production-grade encryption.** The XOR+HMAC scheme provides authenticated confidentiality for pipeline data in transit, but for actual secrets management, use the TokenVault (Ring 8) or an external KMS. The encryption here is for the payload envelope, not for long-term secret storage.
+
+### Why contracts live in deploy/, not core/?
+
+Contracts are deployment-specific knowledge — they describe platform constraints for environment variables. They complement the existing `DeployAdapter` implementations. A future enhancement could have `DockerAdapter.validate()` automatically load the docker contract for pre-flight checks.
+
+### Why SignFilter writes `_sealed` and EncryptFilter writes `_encrypted`?
+
+Explicit envelope keys make the pipeline's trust boundaries visible in debug output and payload inspection. You can see exactly where signing/encryption happens in the data flow. No magic — just keys.
+
+---
+
+## Test Coverage
+
+| Test File | Tests | Status |
+|---|---|---|
+| `test_deploy_contracts.py` | 18 | ✅ |
+| `test_secure_payload.py` | 21 | ✅ |
+
+---
+
+## What's Next (Not Committed)
+
+These are natural extensions, not commitments:
+
+| Enhancement | What It Does |
+|---|---|
+| **Deploy adapter integration** | `DockerAdapter.validate()` auto-loads the docker contract |
+| **Export formatters** | `cup config export aws-lambda --format env-file` (selective absorption from ZTDC) |
+| **Pipeline-level signing** | `pipeline.with_signing(key)` wraps input/output in sign/verify automatically |
+| **Encrypted checkpoints** | `CheckpointHook` encrypts checkpoint data before writing to disk |
+| **Contract authoring** | `cup config new my-platform` scaffolds a new contract JSON |
