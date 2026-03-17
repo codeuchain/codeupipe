@@ -61,6 +61,70 @@ def doc_check(directory: str) -> dict:
     return result.get("doc_report", {})
 
 
+def agent_docs(
+    directory: str,
+    mode: str = "validate",
+    site_url: str = "",
+    project_name: str = "",
+    docs_dir: str = "docs",
+    nav_file: str = "mkdocs.yml",
+) -> dict:
+    """Generate or validate agent-optimized documentation.
+
+    Modes:
+        ``init``      — Scaffold agent docs structure from scratch.
+        ``update``    — Regenerate docs (preserves hand-maintained files).
+        ``validate``  — Check completeness and freshness (default).
+
+    Returns a dict with ``agent_docs_report`` and, for init/update,
+    ``skill_index_path`` and ``domain_docs_written``.
+    """
+    import asyncio
+    from codeupipe.linter.agent_docs_pipeline import build_agent_docs_pipeline
+
+    # Try to read config from cup.toml
+    config = _load_agent_docs_config(directory)
+
+    pipeline = build_agent_docs_pipeline()
+    payload = Payload({
+        "directory": directory,
+        "agent_docs_mode": mode,
+        "site_url": site_url or config.get("site_url", ""),
+        "project_name": project_name or config.get("project_name", ""),
+        "docs_dir": docs_dir,
+        "nav_file": nav_file,
+        "agent_docs_config": config,
+    })
+    result = asyncio.run(pipeline.run(payload))
+    return {
+        "report": result.get("agent_docs_report", {}),
+        "skill_index_path": result.get("skill_index_path", ""),
+        "domain_docs_written": result.get("domain_docs_written", []),
+        "skill_domains": result.get("skill_domains", []),
+    }
+
+
+def _load_agent_docs_config(directory: str) -> dict:
+    """Try to load [agent-docs] from cup.toml."""
+    from pathlib import Path
+    cup_toml = Path(directory) / "cup.toml"
+    if not cup_toml.exists():
+        return {}
+    try:
+        import tomllib
+    except ImportError:
+        try:
+            import tomli as tomllib  # type: ignore[no-redef]
+        except ImportError:
+            # Fall back to basic parsing
+            return {}
+    try:
+        data = tomllib.loads(cup_toml.read_text(encoding="utf-8"))
+        return data.get("agent-docs", {})
+    except Exception:
+        return {}
+
+
 # ── Parser Setup ────────────────────────────────────────────────────
 
 def setup(sub, reg):
@@ -94,6 +158,42 @@ def setup(sub, reg):
     doc_parser.add_argument("--all", action="store_true", dest="fix_all", help="With --fix, auto-approve all drifted hashes without prompting")
     doc_parser.add_argument("--auto-fix", action="store_true", dest="auto_fix", help="Non-interactive: auto-approve and fix all drifted hashes (shorthand for --fix --all)")
     reg.register("doc-check", _handle_doc_check)
+
+    # cup agent-docs [init|update|validate] [path] [--site-url] [--project-name] [--json]
+    ad_parser = sub.add_parser(
+        "agent-docs",
+        help="Generate or validate agent-optimized documentation",
+    )
+    ad_parser.add_argument(
+        "mode", nargs="?", default="validate",
+        choices=["init", "update", "validate"],
+        help="init: scaffold from scratch, update: regenerate, validate: check (default)",
+    )
+    ad_parser.add_argument(
+        "path", nargs="?", default=".",
+        help="Project directory (default: current dir)",
+    )
+    ad_parser.add_argument(
+        "--site-url", default="", dest="site_url",
+        help="Site URL for curl endpoints (e.g. https://example.github.io/project)",
+    )
+    ad_parser.add_argument(
+        "--project-name", default="", dest="project_name",
+        help="Project name for doc titles",
+    )
+    ad_parser.add_argument(
+        "--docs-dir", default="docs", dest="docs_dir",
+        help="Docs directory (default: docs)",
+    )
+    ad_parser.add_argument(
+        "--nav-file", default="mkdocs.yml", dest="nav_file",
+        help="Nav config file (default: mkdocs.yml)",
+    )
+    ad_parser.add_argument(
+        "--json", action="store_true", dest="json_output",
+        help="Machine-readable JSON output",
+    )
+    reg.register("agent-docs", _handle_agent_docs)
 
 
 # ── Handlers ────────────────────────────────────────────────────────
@@ -355,3 +455,80 @@ def _apply_hash_fix(detail, auto_approve):
             print(f"    ! Line {line_num} out of range in {doc_path}")
     except Exception as e:
         print(f"    ✗ Failed to fix {doc_path}: {e}", file=sys.stderr)
+
+
+def _handle_agent_docs(args):
+    """Handler for ``cup agent-docs [init|update|validate] [path]``."""
+    import json as _json
+
+    mode = getattr(args, "mode", "validate")
+    directory = os.path.abspath(getattr(args, "path", "."))
+    json_out = getattr(args, "json_output", False)
+    site_url = getattr(args, "site_url", "")
+    project_name = getattr(args, "project_name", "")
+    docs_dir = getattr(args, "docs_dir", "docs")
+    nav_file = getattr(args, "nav_file", "mkdocs.yml")
+
+    result = agent_docs(
+        directory=directory,
+        mode=mode,
+        site_url=site_url or None,
+        project_name=project_name or None,
+        docs_dir=docs_dir,
+        nav_file=nav_file,
+    )
+
+    report = result.get("report", {})
+    status = report.get("status", "unknown")
+    issues = report.get("issues", [])
+
+    if json_out:
+        print(_json.dumps(result, indent=2))
+        raise SystemExit(0 if status == "ok" else 1)
+
+    # Human-readable output
+    domains = result.get("skill_domains", [])
+    written = result.get("domain_docs_written", [])
+
+    if mode == "init":
+        print(f"  Agent docs initialised — {len(domains)} domains discovered")
+        if written:
+            for p in written:
+                print(f"    + {p}")
+        print(f"  Index → {result.get('skill_index_path', 'docs/agents.md')}")
+
+    elif mode == "update":
+        print(f"  Agent docs updated — {len(domains)} domains")
+        for p in written:
+            print(f"    ↻ {p}")
+        if not written:
+            print("    (no generated files to update)")
+
+    else:  # validate
+        total = report.get("total_domains", 0)
+        documented = report.get("documented", 0)
+        missing = report.get("missing", [])
+        orphaned = report.get("orphaned", [])
+
+        icon = "✓" if status == "ok" else "✗"
+        print(f"  {icon} Agent docs: {documented}/{total} domains documented")
+
+        if missing:
+            print(f"  Missing docs:")
+            for m in missing:
+                print(f"    - {m}")
+        if orphaned:
+            print(f"  Orphaned docs:")
+            for o in orphaned:
+                print(f"    - {o}")
+        if issues:
+            print(f"  Issues:")
+            for issue in issues:
+                print(f"    ! {issue}")
+
+    if issues and mode != "validate":
+        print(f"\n  ⚠ {len(issues)} issue(s):")
+        for issue in issues:
+            print(f"    ! {issue}")
+
+    raise SystemExit(0 if status == "ok" or mode in ("init", "update") else 1)

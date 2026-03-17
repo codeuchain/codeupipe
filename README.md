@@ -214,7 +214,7 @@ print(pipeline.state.chunks_processed)   # {'upper': 3}  (streaming mode)
 <!-- cup:ref file=codeupipe/cli/_registry.py symbols=CommandRegistry hash=8e82ece -->
 <!-- cup:ref file=codeupipe/cli/_scaffold.py symbols=scaffold,COMPONENT_TYPES hash=1f62e60 -->
 <!-- cup:ref file=codeupipe/cli/_bundle.py symbols=bundle hash=9a1b776 -->
-<!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
+<!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=78a833f -->
 The `cup` command-line tool scaffolds, lints, and analyzes CUP projects:
 
 ```bash

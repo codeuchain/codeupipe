@@ -749,17 +749,20 @@ my-agent/
 
 ## Linter Pipelines
 
-<!-- cup:ref file=codeupipe/linter/__init__.py hash=84e6f07 -->
+<!-- cup:ref file=codeupipe/linter/__init__.py hash=adbf7fd -->
 <!-- cup:ref file=codeupipe/linter/lint_pipeline.py symbols=build_lint_pipeline hash=ccff493 -->
 <!-- cup:ref file=codeupipe/linter/coverage_pipeline.py symbols=build_coverage_pipeline hash=004f7b8 -->
 <!-- cup:ref file=codeupipe/linter/report_pipeline.py symbols=build_report_pipeline hash=15f61c5 -->
 <!-- cup:ref file=codeupipe/linter/doc_check_pipeline.py symbols=build_doc_check_pipeline hash=00e62dc -->
+<!-- cup:ref file=codeupipe/linter/agent_docs_pipeline.py symbols=build_agent_docs_pipeline hash=e955c10 -->
 | Pipeline | Command | Purpose |
 |----------|---------|---------|
 | `build_lint_pipeline()` | `cup lint` | Standards violations (CUP000–CUP008) |
 | `build_coverage_pipeline()` | `cup coverage` | Component↔test coverage gaps |
 | `build_report_pipeline()` | `cup report` | Health report with scores |
 | `build_doc_check_pipeline()` | `cup doc-check` | Doc freshness verification |
+| `build_agent_docs_pipeline()` | `cup agent-docs` | Agent doc generation + validation |
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -888,7 +891,7 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 <!-- cup:ref file=codeupipe/cli/_bundle.py symbols=bundle hash=9a1b776 -->
 <!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=192e8bb -->
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
-<!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
+<!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=78a833f -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
 <!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=9c59563 -->
 <!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
