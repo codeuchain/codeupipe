@@ -1,0 +1,236 @@
+# codeupipe Core — Agent Reference
+
+> `curl https://codeuchain.github.io/codeupipe/agents/core.txt`
+
+---
+
+## Types at a Glance
+
+| Type | Import | Purpose |
+|------|--------|---------|
+| `Payload` | `from codeupipe import Payload` | Immutable data container. `.get(key)`, `.insert(key, val)`, `.merge(dict)`, `.to_dict()` |
+| `MutablePayload` | `from codeupipe import MutablePayload` | Mutable sibling for bulk edits. `.set(key, val)`, `.to_immutable()` |
+| `Filter` | `from codeupipe import Filter` | Processing unit. Implement `.call(payload) → Payload` (sync or async) |
+| `StreamFilter` | `from codeupipe import StreamFilter` | Streaming. `async def stream(chunk) → AsyncIterator[Payload]` |
+| `Pipeline` | `from codeupipe import Pipeline` | Orchestrator. `.add_filter()`, `.add_tap()`, `.use_hook()`, `.run()`, `.stream()` |
+| `Valve` | `from codeupipe import Valve` | Conditional gate. Wraps Filter + predicate |
+| `Tap` | `from codeupipe import Tap` | Read-only observer. `.observe(payload) → None` |
+| `Hook` | `from codeupipe import Hook` | Lifecycle. `.before()`, `.after()`, `.on_error()` |
+| `State` | `from codeupipe import State` | Execution metadata. `.executed`, `.skipped`, `.errors`, `.chunks_processed` |
+
+---
+
+## Payload — The Data Container
+
+```python
+from codeupipe import Payload
+
+# Create
+p = Payload({"name": "Alice", "score": 42})
+
+# Read (never mutates)
+p.get("name")          # "Alice"
+p.get("missing", "?")  # "?" (default)
+
+# Write (returns NEW Payload)
+p2 = p.insert("grade", "A")
+p3 = p.merge({"score": 100, "bonus": True})
+
+# Convert
+d = p.to_dict()  # {"name": "Alice", "score": 42}
+
+# Bulk mutation (performance-critical paths)
+p4 = p.with_mutation(lambda m: (m.set("x", 1), m.set("y", 2)))
+```
+
+**Critical rule:** Payload is immutable. `.insert()` and `.merge()` return a **new** Payload. Forgetting to capture the return value is the #1 agent mistake.
+
+---
+
+## Filter — The Processing Unit
+
+```python
+class UpperCase:
+    """Sync filter — most common pattern."""
+    def call(self, payload):
+        text = payload.get("text", "")
+        return payload.insert("text", text.upper())
+
+class AsyncFetch:
+    """Async filter — for I/O-bound work."""
+    async def call(self, payload):
+        data = await fetch(payload.get("url"))
+        return payload.insert("response", data)
+```
+
+**Rules:**
+- One class per file. File name = `snake_case` of class name.
+- Must accept `Payload` and return `Payload`.
+- Can be sync or async — Pipeline handles both transparently.
+- Never store state between calls. Filters are stateless.
+
+---
+
+## Pipeline — The Orchestrator
+
+```python
+from codeupipe import Payload, Pipeline
+
+pipeline = Pipeline()
+pipeline.add_filter(UpperCase(), name="upper")
+pipeline.add_filter(AppendExclaim(), name="exclaim")
+
+# Sync
+result = pipeline.run_sync(Payload({"text": "hello"}))
+
+# Async
+result = await pipeline.run(Payload({"text": "hello"}))
+
+# Streaming (constant-memory)
+async for chunk in pipeline.stream(source_iterator):
+    process(chunk)
+```
+
+### Pipeline Composition
+
+```python
+# Parallel fan-out/fan-in
+pipeline.add_parallel([FilterA(), FilterB(), FilterC()])
+
+# Nested pipeline as single step
+inner = Pipeline()
+inner.add_filter(StepA())
+inner.add_filter(StepB())
+pipeline.add_pipeline(inner, name="sub_pipeline")
+
+# From config file (TOML/JSON)
+pipeline = Pipeline.from_config("pipeline.toml", registry=my_registry)
+```
+
+### Resilience
+
+```python
+# Retry on failure
+pipeline.with_retry(max_retries=3)
+
+# Circuit breaker — opens after N consecutive failures
+pipeline.with_circuit_breaker(threshold=5)
+```
+
+---
+
+## Valve — Conditional Gate
+
+```python
+from codeupipe import Valve
+
+# Only runs the filter when predicate returns True
+valve = Valve(
+    filter=ExpensiveFilter(),
+    predicate=lambda p: p.get("needs_processing", False)
+)
+pipeline.add_filter(valve, name="conditional")
+```
+
+---
+
+## Tap — Observation
+
+```python
+class LogTap:
+    def observe(self, payload):
+        print(f"Payload has {len(payload.to_dict())} keys")
+
+pipeline.add_tap(LogTap(), name="logger")
+```
+
+Taps never modify the Payload. They see it, they don't touch it.
+
+---
+
+## Hook — Lifecycle
+
+```python
+from codeupipe import Hook
+
+class TimingHook(Hook):
+    def before(self, payload):
+        print("Pipeline starting")
+    def after(self, payload, state):
+        print(f"Done — {state.executed} filters ran")
+    def on_error(self, payload, error):
+        print(f"Failed: {error}")
+
+pipeline.use_hook(TimingHook())
+```
+
+---
+
+## State — Execution Metadata
+
+After `pipeline.run()`, the result Payload contains a `State` object:
+
+```python
+result = pipeline.run_sync(Payload({"x": 1}))
+state = result.get("__state__")
+state.executed           # list of filter names that ran
+state.skipped            # list of valve-skipped filters
+state.errors             # list of (filter_name, exception) tuples
+state.chunks_processed   # count (streaming mode)
+```
+
+---
+
+## Govern — Schemas, Contracts, Audit
+
+```python
+from codeupipe.core import PayloadSchema, AuditHook, AuditTrail
+
+# Declare required keys + types
+schema = PayloadSchema({"name": str, "score": int})
+pipeline.add_schema(schema)  # raises SchemaViolation on bad data
+
+# Audit trail
+trail = AuditTrail()
+pipeline.use_hook(AuditHook(trail))
+# After run: trail.entries → list of AuditEntry
+```
+
+---
+
+## Events
+
+```python
+from codeupipe.core import EventEmitter, PipelineEvent
+
+emitter = EventEmitter()
+emitter.on("filter_complete", lambda event: print(event))
+pipeline.set_event_emitter(emitter)
+```
+
+---
+
+## Runtime Control (Zero-Downtime)
+
+```python
+from codeupipe import TapSwitch, HotSwap
+
+# Toggle taps without restarting
+switch = TapSwitch(pipeline)
+switch.disable("verbose_logger")
+switch.enable("verbose_logger")
+
+# Hot-swap pipeline from new config (in-flight requests finish safely)
+swap = HotSwap("pipeline.json", registry=my_registry)
+result = await swap.run(payload)
+swap.reload("pipeline_v2.json")  # atomic swap
+```
+
+---
+
+## Zero Dependencies
+
+codeupipe uses **only the Python standard library**. No pip installs beyond codeupipe itself. This means:
+- No version conflicts
+- No supply-chain risk
+- Works in any Python 3.9+ environment including Lambda, Docker scratch images, air-gapped systems

@@ -1,0 +1,84 @@
+# codeupipe Connect — Agent Reference
+
+> `curl https://codeuchain.github.io/codeupipe/agents/connect.txt`
+
+---
+
+## Overview
+
+Connectors are optional packages that integrate external services (databases, APIs, payment processors) into codeupipe pipelines. They auto-register via Python entry points and are declared in `cup.toml`.
+
+---
+
+## Available Connectors
+
+| Package | Service | Install |
+|---------|---------|---------|
+| `codeupipe-postgres` | PostgreSQL (Query, Execute, Transaction) | `pip install codeupipe-postgres` |
+| `codeupipe-stripe` | Stripe payments | `pip install codeupipe-stripe` |
+| `codeupipe-resend` | Email via Resend API | `pip install codeupipe-resend` |
+| `codeupipe-google-ai` | Google Gemini AI | `pip install codeupipe-google-ai` |
+
+---
+
+## Declaration in cup.toml
+
+```toml
+[connectors.postgres]
+package = "codeupipe-postgres"
+env = ["DATABASE_URL"]
+
+[connectors.stripe]
+package = "codeupipe-stripe"
+env = ["STRIPE_SECRET_KEY"]
+```
+
+---
+
+## Discovery & Health
+
+```bash
+cup connect --list             # list registered connectors
+cup connect --health           # run pre-flight health checks
+```
+
+```python
+from codeupipe.connect import discover_connectors, check_health
+
+connectors = discover_connectors()  # entry-point discovery
+health = check_health(connectors)   # returns health status dict
+```
+
+---
+
+## Built-in HTTP Connector
+
+No install needed — uses `urllib` from stdlib:
+
+```python
+from codeupipe.connect import HttpConnector
+
+http = HttpConnector(base_url="https://api.example.com")
+# Use as a Filter in pipelines
+pipeline.add_filter(http, name="api_call")
+```
+
+---
+
+## Marketplace
+
+Community connector index:
+
+```bash
+cup marketplace search "payments"          # keyword search
+cup marketplace info codeupipe-stripe      # package details
+cup marketplace install codeupipe-stripe   # install from PyPI
+```
+
+### Trust Tiers
+
+| Tier | Badge | Meaning |
+|------|-------|---------|
+| **verified** | ✅ | Published by codeuchain org |
+| **community** | 🔷 | Community-submitted, CI-validated |
+| **unindexed** | — | Works via entry points, not in index |

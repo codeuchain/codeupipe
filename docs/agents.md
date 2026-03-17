@@ -1,187 +1,133 @@
-# codeupipe — Agent Navigation Guide
+# codeupipe — Agent Skill Index
 
-> This file helps AI agents, LLMs, and automated tools navigate the
-> codeupipe documentation efficiently. All pages are available as
-> plain-text Markdown at `<page-url>.txt` — no HTML parsing required.
-
----
-
-## What Is codeupipe?
-
-codeupipe is a Python pipeline framework for composing data-processing workflows.
-Core pattern: Payload → Filter → Pipeline. Zero external dependencies. Python 3.9+.
-
-**Key types:**
-
-| Type | Role |
-|------|------|
-| `Payload` | Immutable data container; `.get(key)` / `.insert(key, value)` |
-| `Filter` | Sync or async `.call(payload) → Payload` |
-| `Pipeline` | Orchestrator; `.run()` / `.run_sync()` / `.stream()` |
-| `Valve` | Conditional filter; only runs when predicate returns True |
-| `Tap` | Observation point; `.observe()` without modifying payload |
-| `Hook` | Lifecycle callbacks: before / after / on_error |
-| `StreamFilter` | Async generator; receives one chunk, yields 0..N chunks |
-| `State` | Execution metadata: executed, skipped, errors, chunks |
-| `TapSwitch` | Toggle taps on/off at runtime — zero-downtime observability |
-| `HotSwap` | Atomically replace the active Pipeline from config — zero-downtime updates |
-
-**Install:** `pip install codeupipe`
-**Repo:** https://github.com/codeuchain/codeupipe
+> **Entry point for AI agents, LLMs, and automated tools.**
+> Read this file first. It tells you what codeupipe can do and where to
+> find the details. Each skill below links to a focused reference doc
+> available as plain-text Markdown — no HTML parsing required.
 
 ---
 
-## Navigation — Plain Text Endpoints (no HTML)
+## Discovery Protocol
 
-**Start here** (recommended first page):
+```bash
+# 1. Read this index (you're here)
+curl https://codeuchain.github.io/codeupipe/agents.txt
 
-```
-curl https://codeuchain.github.io/codeupipe/getting-started.txt
-```
+# 2. Pick the skill you need from the catalog below
+curl https://codeuchain.github.io/codeupipe/agents/browser.txt
 
-**Full API reference** (every type, every method):
-
-```
+# 3. If you need more: full API reference, module map, or all URLs
 curl https://codeuchain.github.io/codeupipe/concepts.txt
-```
-
-**All page URLs:**
-
-```
+curl https://codeuchain.github.io/codeupipe/module-index.txt
 curl https://codeuchain.github.io/codeupipe/curl.txt
 ```
 
 ---
 
-## Page Map
+## What Is codeupipe?
 
-| Path | Description |
-|------|-------------|
-| `/getting-started.txt` | Quick start, first pipeline, CLI, testing helpers |
-| `/install.txt` | Install instructions, connectors, Python versions |
-| `/concepts.txt` | Full API reference — all types with examples |
-| `/best-practices.txt` | Project structure, naming, testing strategy |
-| `/deploy-guide.txt` | Docker, Render (free), Vercel, Netlify — cup.toml |
-| `/module-index.txt` | Package structure map, all public symbols |
-| `/roadmap.txt` | Expansion rings v0.1–v0.9+ with status |
-| `/blueprints/ring7.txt` | Ring 7 design: deploy adapters, manifest, CLI |
-| `/blueprints/ring8.txt` | Ring 8 design: connector protocol, marketplace |
-| `/blueprints/ring9.txt` | Ring 9 design: marketplace index, first-party connectors |
-
----
-
-## Quick Reference — Core Patterns
-
-### Minimal Pipeline
+A Python pipeline framework. **Payload → Filter → Pipeline.** Zero external dependencies. Python 3.9+.
 
 ```python
 from codeupipe import Payload, Pipeline
 
-class MyFilter:
+class Upper:
     def call(self, payload):
-        return payload.insert("result", payload.get("input").upper())
+        return payload.insert("text", payload.get("text", "").upper())
 
 pipeline = Pipeline()
-pipeline.add_filter(MyFilter(), name="upper")
-result = pipeline.run_sync(Payload({"input": "hello"}))
-# result.get("result") == "HELLO"
+pipeline.add_filter(Upper(), name="upper")
+result = pipeline.run_sync(Payload({"text": "hello"}))
+# result.get("text") == "HELLO"
 ```
 
-### Payload Is Immutable — always return a new one
-
-```python
-# CORRECT
-def call(self, payload):
-    return payload.insert("key", "value")   # returns new Payload
-
-# WRONG — modifying in place does nothing
-def call(self, payload):
-    payload["key"] = "value"                # AttributeError
-```
-
-### Testing
-
-```python
-from codeupipe.testing import run_filter, assert_payload
-result = run_filter(MyFilter(), {"input": "hello"})
-assert_payload(result, result="HELLO")
-```
-
-### CLI
-
-```bash
-cup new filter <name> <dir>             # scaffold filter + test
-cup new pipeline <name> <dir>           # scaffold pipeline
-cup lint <dir>                          # convention checks
-cup run pipeline.json                   # execute from config
-cup deploy docker cup.toml              # generate Docker artifacts
-cup deploy render cup.toml              # generate Render (free cloud) artifacts
-cup distribute checkpoint cp.json --status  # manage payload checkpoints
-cup distribute remote https://api.example   # test remote filter endpoint
-cup test                                # smart test runner
-cup doctor                              # project health diagnostics
-cup graph pipeline.json                 # Mermaid pipeline visualization
-cup version --bump patch                # show/bump semver
-cup browser-open https://example.com    # open URL in headless browser
-cup browser-snapshot                    # accessibility tree with @refs
-cup browser-click @e2                   # click element by @ref
-cup browser-eval "document.title"       # evaluate JS in page
-cup browser-screenshot /tmp/shot.png    # capture PNG screenshot
-cup browser-get title                   # get page title/text/url
-cup browser-close                       # close browser session
-```
-
-### Runtime Control (Zero-Downtime)
-
-```python
-from codeupipe import Pipeline, TapSwitch, HotSwap
-
-# Toggle taps without restarting the server
-switch = TapSwitch(pipeline)
-switch.disable("verbose_logger")  # silence a noisy tap
-switch.enable("verbose_logger")   # bring it back
-switch.status()                   # {"verbose_logger": True, ...}
-
-# Hot-swap the pipeline from a new config (in-flight requests finish safely)
-swap = HotSwap("pipeline.json", registry=my_registry)
-result = await swap.run(payload)
-swap.reload("pipeline_v2.json")   # atomic swap, version increments
-```
+**Install:** `pip install codeupipe`
+**Repo:** [github.com/codeuchain/codeupipe](https://github.com/codeuchain/codeupipe)
 
 ---
 
-## Connectors (optional packages)
+## Skill Catalog
 
-```bash
-pip install codeupipe-postgres     # PostgreSQL: Query, Execute, Transaction
-pip install codeupipe-stripe       # Stripe payments
-pip install codeupipe-resend       # Email via Resend
-pip install codeupipe-google-ai    # Google Gemini AI
-```
+Each skill has a dedicated reference doc. Curl the URL to get the full guide.
 
-Connectors auto-register via entry points. Declared in `cup.toml` `[connectors.*]`.
+| Skill | URL | Summary |
+|-------|-----|---------|
+| **Core** | [`/agents/core.txt`](agents/core.md) | Payload, Filter, Pipeline, Valve, Tap, Hook, State, Govern, Events, Runtime control. All types, all methods, all patterns. |
+| **Browser** | [`/agents/browser.txt`](agents/browser.md) | Chrome DevTools Protocol via agent-browser. 10 wrapped Filters + **60+ passthrough commands** via `bridge.run()`. Navigation, input, network interception, cookies, tracing, visual diffs, PDF export, iOS simulator. |
+| **CLI** | [`/agents/cli.txt`](agents/cli.md) | 40+ `cup` commands. Scaffold, lint, test, deploy, auth, vault, browser, marketplace. Every command with arguments and flags. |
+| **Testing** | [`/agents/testing.txt`](agents/testing.md) | `run_filter`, `assert_payload`, `mock_filter`, `RecordingTap`. Three-tier strategy: unit → integration → E2E. Scaffolding, observability, capture/replay. |
+| **Deploy** | [`/agents/deploy.txt`](agents/deploy.md) | 12 platform adapters (Docker, Render, Vercel, Netlify, Fly, Railway, Cloud Run, etc). cup.toml manifest, recipes, CI generation. |
+| **Connect** | [`/agents/connect.txt`](agents/connect.md) | Connector protocol, marketplace, built-in HTTP connector. Postgres, Stripe, Resend, Google AI packages. Discovery + health checks. |
+| **Auth & Vault** | [`/agents/auth.txt`](agents/auth.md) | OAuth2 login (Google, GitHub), credential persistence, proxy token vault with TTL/scopes/usage limits, audit ledger. |
+| **Patterns** | [`/agents/patterns.txt`](agents/patterns.md) | ETL, validation gates, fan-out/fan-in, nested pipelines, streaming, retry/circuit-breaker, config-driven pipelines, project structure, converter, distributed execution. |
+
+### How to Choose
+
+- **Building a pipeline?** → Start with [Core](agents/core.md), then [Patterns](agents/patterns.md)
+- **Automating a browser?** → Go straight to [Browser](agents/browser.md)
+- **Running commands?** → [CLI](agents/cli.md)
+- **Writing tests?** → [Testing](agents/testing.md)
+- **Deploying?** → [Deploy](agents/deploy.md)
+- **Connecting services?** → [Connect](agents/connect.md)
+- **Managing credentials?** → [Auth & Vault](agents/auth.md)
 
 ---
 
-## Deploy Targets
+## Key Types (Quick Reference)
 
-| Target | What it generates |
-|--------|-------------------|
-| `docker` | Dockerfile + docker-compose.yml (local dev) |
-| `render` | render.yaml blueprint (free tier, no credit card) |
-| `vercel` | vercel.json + serverless functions |
-| `netlify` | netlify.toml + serverless functions |
+| Type | Import | One-Line |
+|------|--------|----------|
+| `Payload` | `from codeupipe import Payload` | Immutable data container — `.get()`, `.insert()`, `.merge()` |
+| `Filter` | `from codeupipe import Filter` | Processing unit — `.call(payload) → Payload` |
+| `Pipeline` | `from codeupipe import Pipeline` | Orchestrator — `.run()`, `.stream()`, `.from_config()` |
+| `Valve` | `from codeupipe import Valve` | Conditional gate — filter + predicate |
+| `Tap` | `from codeupipe import Tap` | Observer — `.observe()` without modifying |
+| `Hook` | `from codeupipe import Hook` | Lifecycle — `.before()`, `.after()`, `.on_error()` |
+| `State` | `from codeupipe import State` | Metadata — `.executed`, `.skipped`, `.errors` |
+| `BrowserBridge` | `from codeupipe.browser import BrowserBridge` | Chrome control — `.run()` passes through to agent-browser |
+
+> Full type reference → [`/agents/core.txt`](agents/core.md)
+
+---
+
+## Page Map (all docs as plain text)
+
+| Path | Description |
+|------|-------------|
+| **Agent Skill Docs** | |
+| `/agents.txt` | This file — skill index and discovery protocol |
+| `/agents/core.txt` | Core types, Payload, Filter, Pipeline, runtime control |
+| `/agents/browser.txt` | Browser control — 60+ commands, full surface area |
+| `/agents/cli.txt` | All 40+ cup CLI commands with arguments |
+| `/agents/testing.txt` | Test helpers, three-tier strategy, mocking |
+| `/agents/deploy.txt` | 12 deploy targets, cup.toml manifest, recipes |
+| `/agents/connect.txt` | Connectors, marketplace, HTTP connector |
+| `/agents/auth.txt` | OAuth2, credentials, proxy token vault |
+| `/agents/patterns.txt` | Pipeline patterns, project structure, distributed execution |
+| **General Docs** | |
+| `/getting-started.txt` | Quick start, first pipeline |
+| `/install.txt` | Install instructions, Python versions |
+| `/concepts.txt` | Full API reference — every type, every method |
+| `/best-practices.txt` | Project structure, naming, testing strategy |
+| `/deploy-guide.txt` | Deploy guide with cup.toml examples |
+| `/module-index.txt` | Complete package structure, all public symbols |
+| `/roadmap.txt` | Expansion rings with status |
+| `/blueprints/ring7.txt` | Ring 7 design: deploy adapters |
+| `/blueprints/ring8.txt` | Ring 8 design: connector protocol |
+| `/blueprints/ring9.txt` | Ring 9 design: marketplace |
+
+All URLs are under `https://codeuchain.github.io/codeupipe/`.
 
 ---
 
 ## Notes for Agents
 
-- Strip HTML comment markers (`<!-- cup:ref ... -->`) from `.txt` files — these
-  are doc-freshness tracking markers used by the `cup doc-check` tool, not
-  content intended for end users.
-- Code blocks use standard Markdown fenced syntax.
-- Tables use standard Markdown pipe syntax.
-- All examples in `concepts.txt` are verified against the actual source code
-  by the test suite (`tests/test_docs_examples.py`).
-- The framework has zero external runtime dependencies — everything shown
-  in the docs runs with only the Python standard library.
+- **HTML comments** (`<!-- cup:ref ... -->`) in `.txt` files are doc-freshness
+  markers for `cup doc-check`. Ignore them — they're not content.
+- **All examples** in `concepts.txt` are verified by the test suite.
+- **Zero dependencies** — everything runs with the Python standard library.
+- **Payload is immutable** — `.insert()` returns a new Payload. Forgetting
+  to capture the return value is the #1 agent mistake.
+- **Browser passthrough** — the 10 browser Filters are convenience wrappers.
+  `BrowserBridge.run()` accepts any `agent-browser` command (60+).
+  See `/agents/browser.txt` for the full surface.

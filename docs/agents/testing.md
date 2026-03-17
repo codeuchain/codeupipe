@@ -1,0 +1,184 @@
+# codeupipe Testing — Agent Reference
+
+> `curl https://codeuchain.github.io/codeupipe/agents/testing.txt`
+
+---
+
+## Test Helpers
+
+```python
+from codeupipe.testing import (
+    run_filter,        # run one filter with dict or Payload
+    run_pipeline,      # run full pipeline
+    assert_payload,    # assert key=value pairs
+    assert_keys,       # assert keys exist
+    assert_state,      # assert execution metadata
+    mock_filter,       # mock that inserts predefined data
+    mock_tap,          # recording tap
+    mock_hook,         # recording hook
+    cup_component,     # scaffold a component file on disk
+    RecordingTap,      # tap that records every payload
+    RecordingHook,     # hook that records all lifecycle events
+)
+```
+
+---
+
+## Unit Testing a Filter
+
+```python
+from codeupipe.testing import run_filter, assert_payload
+
+class UpperCase:
+    def call(self, payload):
+        return payload.insert("text", payload.get("text", "").upper())
+
+# run_filter handles sync/async transparently
+result = run_filter(UpperCase(), {"text": "hello"})
+assert_payload(result, text="HELLO")
+```
+
+## Testing a Pipeline
+
+```python
+from codeupipe.testing import run_pipeline, assert_state
+
+pipeline = Pipeline()
+pipeline.add_filter(FilterA(), name="a")
+pipeline.add_filter(FilterB(), name="b")
+
+result = run_pipeline(pipeline, {"input": "data"})
+assert_payload(result, output="expected")
+assert_state(result, executed=["a", "b"], skipped=[], errors=[])
+```
+
+## Mocking
+
+```python
+from codeupipe.testing import mock_filter, mock_tap, mock_hook
+
+# Mock filter that always inserts specific keys
+fake = mock_filter(score=100, grade="A")
+result = run_filter(fake, {})
+assert_payload(result, score=100, grade="A")
+
+# Recording tap — captures every payload it observes
+tap = mock_tap()
+pipeline.add_tap(tap)
+run_pipeline(pipeline, {"x": 1})
+assert len(tap.observed) == 1
+
+# Recording hook — captures lifecycle events
+hook = mock_hook()
+pipeline.use_hook(hook)
+run_pipeline(pipeline, {"x": 1})
+assert hook.before_called
+assert hook.after_called
+```
+
+---
+
+## Three-Tier Testing Strategy
+
+### Tier 1: Unit (Isolated)
+
+Test each filter in complete isolation. Mock all dependencies.
+
+```python
+def test_upper_case_filter():
+    result = run_filter(UpperCase(), {"text": "hello"})
+    assert_payload(result, text="HELLO")
+
+def test_upper_case_empty():
+    result = run_filter(UpperCase(), {})
+    assert_payload(result, text="")
+```
+
+### Tier 2: Integration (Mocked Environment)
+
+Test filters composed in a pipeline with mocked external services.
+
+```python
+def test_pipeline_with_mock_api():
+    mock_api = mock_filter(response={"status": 200, "body": "ok"})
+    pipeline = Pipeline()
+    pipeline.add_filter(PrepareRequest())
+    pipeline.add_filter(mock_api, name="api_call")
+    pipeline.add_filter(ParseResponse())
+
+    result = run_pipeline(pipeline, {"url": "https://api.example.com"})
+    assert_payload(result, parsed_body="ok")
+```
+
+### Tier 3: End-to-End (Real Services)
+
+Test with real external services. Use pytest markers to isolate slow tests.
+
+```python
+import pytest
+
+@pytest.mark.e2e
+def test_real_api_call():
+    pipeline = Pipeline()
+    pipeline.add_filter(PrepareRequest())
+    pipeline.add_filter(RealApiFilter())
+    pipeline.add_filter(ParseResponse())
+
+    result = run_pipeline(pipeline, {"url": "https://httpbin.org/get"})
+    assert result.get("status") == 200
+```
+
+---
+
+## Scaffolding Tests
+
+```bash
+cup new filter my_filter ./src    # creates my_filter.py AND test_my_filter.py
+```
+
+The generated test file includes:
+
+```python
+import pytest
+from codeupipe.testing import run_filter, assert_payload
+from src.my_filter import MyFilter
+
+class TestMyFilter:
+    def test_call_returns_payload(self):
+        result = run_filter(MyFilter(), {"input": "test"})
+        assert_payload(result, input="test")
+```
+
+---
+
+## Running Tests
+
+```bash
+cup test                              # smart runner (auto-discovers, shows coverage)
+cup test --markers "not e2e"          # skip E2E tests
+pytest                                # standard pytest works too
+pytest -x -q                          # fail fast, quiet
+pytest -k "test_browser"              # pattern match
+pytest --tb=short                     # short tracebacks
+```
+
+---
+
+## Observability in Tests
+
+```python
+from codeupipe import CaptureTap
+from codeupipe.testing import run_pipeline
+
+tap = CaptureTap()
+pipeline.add_tap(tap, name="capture")
+result = run_pipeline(pipeline, {"x": 1})
+
+# Replay captured payloads
+for snapshot in tap.captures:
+    print(snapshot.to_dict())
+
+# Export as pytest fixtures
+from codeupipe import export_captures_for_testing
+export_captures_for_testing(tap, "tests/fixtures/")
+```

@@ -1,0 +1,159 @@
+# codeupipe CLI — Agent Reference
+
+> `curl https://codeuchain.github.io/codeupipe/agents/cli.txt`
+
+---
+
+## Install & Run
+
+```bash
+pip install codeupipe
+cup --help                    # all commands
+cup <command> --help          # command-specific help
+python3 -m codeupipe.cli     # alternative entry point
+```
+
+---
+
+## Command Reference
+
+### Scaffolding
+
+```bash
+cup new filter my_filter ./src       # create filter + test file
+cup new pipeline my_pipe ./src       # create pipeline + test
+cup new tap my_tap ./src             # create tap + test
+cup new hook my_hook ./src           # create hook + test
+cup new stream_filter my_sf ./src    # create stream filter + test
+cup new valve my_valve ./src         # create valve + test
+cup list                             # show all component types
+cup bundle ./src                     # regenerate __init__.py re-exports
+```
+
+### Analysis
+
+```bash
+cup lint ./src                       # check CUP conventions (CUP000–CUP008)
+cup coverage ./src                   # map component ↔ test coverage gaps
+cup report ./src                     # health report with scores
+cup doc-check .                      # verify doc freshness (cup:ref markers)
+cup doc-check . --json               # machine-readable output
+cup doc-check . --auto-fix           # auto-update stale hashes (AI/CI friendly)
+```
+
+### Execution
+
+```bash
+cup run pipeline.toml                # execute pipeline from config
+cup run pipeline.json --record       # execute + save run record
+cup describe pipeline.toml           # inspect inputs, outputs, steps
+cup graph pipeline.toml              # generate Mermaid flowchart
+cup runs                             # show recent run history
+```
+
+### Testing & Health
+
+```bash
+cup test                             # smart test runner (markers, coverage)
+cup test ./src --markers browser     # filter by pytest markers
+cup doctor                           # 6 project health checks
+cup doctor ./src                     # health check specific path
+```
+
+### Deploy
+
+```bash
+cup deploy docker cup.toml           # generate Docker artifacts
+cup deploy render cup.toml           # Render.com (free tier)
+cup deploy vercel cup.toml           # Vercel serverless
+cup deploy netlify cup.toml          # Netlify serverless
+cup init                             # scaffold project with cup.toml
+cup recipe list                      # available deployment recipes
+cup recipe apply <name>              # apply a recipe
+cup ci                               # generate CI pipeline config
+```
+
+### Connectors & Marketplace
+
+```bash
+cup connect --list                   # list registered connectors
+cup connect --health                 # run health checks
+cup marketplace search "payments"    # search marketplace
+cup marketplace info codeupipe-stripe  # package details
+cup marketplace install codeupipe-stripe  # install from PyPI
+```
+
+### Auth & Vault
+
+```bash
+cup auth login google                # browser-based OAuth2 login
+cup auth login github                # GitHub OAuth2
+cup auth status google               # check credential status
+cup auth revoke google               # remove stored credentials
+cup auth list                        # list all stored providers
+cup vault issue google               # issue proxy token
+cup vault resolve cup_tok_xxx        # verify token validity
+cup vault revoke cup_tok_xxx         # revoke token
+cup vault revoke-all                 # revoke all tokens
+cup vault list                       # list active tokens
+cup vault status cup_tok_xxx         # detailed token inspection
+```
+
+### Browser Control
+
+```bash
+cup browser-open <url>               # open URL in headless browser
+cup browser-close                    # close browser session
+cup browser-snapshot                 # accessibility tree with @refs
+cup browser-click <selector>         # click element by @ref
+cup browser-fill <sel> <text>        # fill form field
+cup browser-eval <expression>        # evaluate JavaScript
+cup browser-screenshot [path]        # capture PNG
+cup browser-tabs                     # list open tabs
+cup browser-raw <method> [params]    # raw CDP passthrough
+cup browser-get <what> [selector]    # get text/title/url/html/value
+
+# Browser flags (apply to all browser commands)
+--headed                             # visible browser
+--cdp-port <port>                    # attach to existing Chrome
+--profile <name>                     # persistent sessions
+```
+
+> **Note:** These 10 commands are convenience wrappers. The underlying `agent-browser` has 60+ commands — all accessible via `BrowserBridge.run()` in Python. See `agents/browser.txt` for the full surface.
+
+### Project Management
+
+```bash
+cup version                          # show current version
+cup version --bump patch             # bump semver
+cup upgrade                          # regenerate scaffolded files to latest templates
+cup publish ./dist                   # validate & build for publishing
+```
+
+### Global Flags
+
+```bash
+--json                               # machine-readable JSON output
+--auto-fix                           # auto-fix (doc-check only)
+```
+
+---
+
+## Programmatic API
+
+Every CLI command has an importable Python function:
+
+```python
+# Analysis
+from codeupipe.cli.commands.analysis_cmds import lint, coverage, report, doc_check
+
+# Browser
+from codeupipe.cli.commands.browser_cmds import (
+    browser_open, browser_snapshot, browser_click, browser_eval
+)
+
+# All functions return dicts with "ok", "output", and command-specific keys
+result = browser_open("https://example.com")
+print(result["ok"])      # True
+print(result["output"])  # "✓ Example Domain"
+```

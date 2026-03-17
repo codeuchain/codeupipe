@@ -54,6 +54,16 @@ nav:
       - "Ring 7 — Deploy": blueprints/ring7.md
       - "Ring 8 — Connect": blueprints/ring8.md
       - "Ring 9 — Marketplace": blueprints/ring9.md
+  - Agent Docs:
+      - Skill Index: agents.md
+      - Core: agents/core.md
+      - Browser: agents/browser.md
+      - CLI: agents/cli.md
+      - Testing: agents/testing.md
+      - Deploy: agents/deploy.md
+      - Connect: agents/connect.md
+      - Auth & Vault: agents/auth.md
+      - Patterns: agents/patterns.md
   - Marketplace: https://codeuchain.github.io/codeupipe-marketplace/
 
 markdown_extensions:
