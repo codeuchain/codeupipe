@@ -366,15 +366,21 @@ codeupipe/
 ├── auth/           Ring 8     Credential, AuthProvider, TokenVault, ProxyToken
 ├── ai/             Ring 12    Agent SDK, Providers, Filters, Pipelines, Hooks,
 │                              Hub, Discovery, TUI, Eval (optional extras)
+├── browser/        Ring 13    BrowserBridge, 10 Filters (Open, Close, Snapshot,
+│                              Click, Fill, Eval, Screenshot, Tabs, Raw, Get)
 ├── linter/         Ring 1     Dogfooded lint/coverage/doc-check pipelines
 ├── converter/      Ring 2     Config pipeline assembly helpers
 ├── registry.py     Ring 2     Registry, cup_component, default_registry
 ├── testing.py      Ring 1     run_filter, run_pipeline, assert_payload, mock_filter
-└── cli/            Ring 1+    22+ commands: new, list, bundle, lint, coverage,
+└── cli/            Ring 1+    32+ commands: new, list, bundle, lint, coverage,
                                report, doc-check, run, deploy, recipe, init,
                                connect, describe, marketplace, config,
                                ai-ask, ai-interactive, ai-tui, ai-discover,
-                               ai-sync, ai-register, ai-hub
+                               ai-sync, ai-register, ai-hub,
+                               browser-open, browser-close, browser-snapshot,
+                               browser-click, browser-fill, browser-eval,
+                               browser-screenshot, browser-tabs, browser-raw,
+                               browser-get
 
 connectors/                    Ring 9 — standalone PyPI packages
 ├── codeupipe-google-ai/       4 filters (generate, stream, embed, vision)

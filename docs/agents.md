@@ -122,6 +122,13 @@ cup test                                # smart test runner
 cup doctor                              # project health diagnostics
 cup graph pipeline.json                 # Mermaid pipeline visualization
 cup version --bump patch                # show/bump semver
+cup browser-open https://example.com    # open URL in headless browser
+cup browser-snapshot                    # accessibility tree with @refs
+cup browser-click @e2                   # click element by @ref
+cup browser-eval "document.title"       # evaluate JS in page
+cup browser-screenshot /tmp/shot.png    # capture PNG screenshot
+cup browser-get title                   # get page title/text/url
+cup browser-close                       # close browser session
 ```
 
 ### Runtime Control (Zero-Downtime)

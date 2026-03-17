@@ -104,6 +104,19 @@ codeupipe/
 │   ├── doc_check_pipeline.py# build_doc_check_pipeline()
 │   └── (18 filter files)    # ScanDirectory, CheckNaming, etc.
 │
+├── browser/                 # Browser control via agent-browser (Ring 13)
+│   ├── bridge.py            # BrowserBridge subprocess wrapper, BrowserResult
+│   ├── browser_open.py      # BrowserOpen — navigate to URL
+│   ├── browser_close.py     # BrowserClose — close session
+│   ├── browser_snapshot.py  # BrowserSnapshot — accessibility tree with @refs
+│   ├── browser_click.py     # BrowserClick — click by @ref selector
+│   ├── browser_fill.py      # BrowserFill — fill form field
+│   ├── browser_eval.py      # BrowserEval — evaluate JavaScript
+│   ├── browser_screenshot.py# BrowserScreenshot — capture PNG
+│   ├── browser_tabs.py      # BrowserTabs — list open tabs
+│   ├── browser_raw.py       # BrowserRaw — raw CDP passthrough
+│   └── browser_get.py       # BrowserGet — get text/title/url/html/value
+│
 ├── testing.py               # Test helpers — run_filter, assert_payload, etc.
 │
 ├── ai/                      # AI Suite (Ring 12) — requires pip install codeupipe[ai]
@@ -143,7 +156,8 @@ codeupipe/
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
         ├── auth_cmds.py     # auth login/status/revoke/list
-        └── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
+        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
+        └── browser_cmds.py  # browser-open/close/snapshot/click/fill/eval/screenshot/tabs/raw/get
 ```
 <!-- /cup:ref -->
 
@@ -754,6 +768,54 @@ my-agent/
 
 ---
 
+## Browser Control
+
+<!-- cup:ref file=codeupipe/browser/__init__.py hash=d1f0f80 -->
+<!-- cup:ref file=codeupipe/browser/bridge.py symbols=BrowserBridge,BrowserResult hash=835c568 -->
+<!-- cup:ref file=codeupipe/browser/browser_open.py symbols=BrowserOpen hash=4d137e3 -->
+<!-- cup:ref file=codeupipe/browser/browser_close.py symbols=BrowserClose hash=ac04eb5 -->
+<!-- cup:ref file=codeupipe/browser/browser_snapshot.py symbols=BrowserSnapshot hash=77768a3 -->
+<!-- cup:ref file=codeupipe/browser/browser_click.py symbols=BrowserClick hash=fdf400f -->
+<!-- cup:ref file=codeupipe/browser/browser_fill.py symbols=BrowserFill hash=ad96e8d -->
+<!-- cup:ref file=codeupipe/browser/browser_eval.py symbols=BrowserEval hash=aa5cd73 -->
+<!-- cup:ref file=codeupipe/browser/browser_screenshot.py symbols=BrowserScreenshot hash=f7072ba -->
+<!-- cup:ref file=codeupipe/browser/browser_tabs.py symbols=BrowserTabs hash=167e645 -->
+<!-- cup:ref file=codeupipe/browser/browser_raw.py symbols=BrowserRaw hash=6eb6d57 -->
+<!-- cup:ref file=codeupipe/browser/browser_get.py symbols=BrowserGet hash=16267b1 -->
+
+Programmatic browser control via `agent-browser`. Each filter wraps a single browser action; compose them into pipelines for multi-step automation. Requires `npm install -g agent-browser`.
+
+| Export | Role |
+|--------|------|
+| `BrowserBridge` | Subprocess wrapper — single contact point with `agent-browser` CLI |
+| `BrowserResult` | Frozen dataclass: `stdout`, `stderr`, `returncode`, `.ok`, `.output` |
+| `BrowserOpen` | Navigate to a URL |
+| `BrowserClose` | Close the browser session |
+| `BrowserSnapshot` | Accessibility tree with `@ref` annotations for agent interaction |
+| `BrowserClick` | Click an element by `@ref` selector |
+| `BrowserFill` | Fill a form field with text |
+| `BrowserEval` | Evaluate JavaScript in the page context |
+| `BrowserScreenshot` | Capture PNG screenshot |
+| `BrowserTabs` | List open browser tabs |
+| `BrowserRaw` | Raw CDP method passthrough (escape hatch) |
+| `BrowserGet` | Get page property: text, title, url, html, value |
+
+**Payload keys:** `browser_url`, `browser_snapshot`, `browser_eval`, `browser_screenshot`, `browser_tabs`, `browser_raw`, `browser_get_result`, `browser_ok`, `browser_output`, `browser_error`, `browser_selector`, `browser_text`, `browser_expression`, `browser_cdp_method`, `browser_cdp_params`, `browser_get_what`, `browser_get_selector`, `browser_interactive`, `browser_screenshot_path`
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Testing Utilities
 
 <!-- cup:ref file=codeupipe/testing.py symbols=run_filter,run_pipeline,assert_payload,assert_keys,assert_state,mock_filter hash=65f0296 -->
@@ -778,7 +840,7 @@ my-agent/
 <!-- cup:ref file=codeupipe/cli/_templates.py hash=c43b99a -->
 <!-- cup:ref file=codeupipe/cli/_scaffold.py symbols=scaffold,COMPONENT_TYPES hash=1f62e60 -->
 <!-- cup:ref file=codeupipe/cli/_bundle.py symbols=bundle hash=9a1b776 -->
-<!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=542d5e0 -->
+<!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=192e8bb -->
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
@@ -789,6 +851,7 @@ my-agent/
 <!-- cup:ref file=codeupipe/cli/commands/auth_cmds.py hash=a0df015 -->
 <!-- cup:ref file=codeupipe/cli/commands/vault_cmds.py hash=d2fb81a -->
 <!-- cup:ref file=codeupipe/cli/commands/ai_cmds.py symbols=setup -->
+<!-- cup:ref file=codeupipe/cli/commands/browser_cmds.py symbols=browser_open,browser_close,browser_snapshot,browser_click,browser_fill,browser_eval,browser_screenshot,browser_tabs,browser_raw,browser_get hash=f99d599 -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |
@@ -832,8 +895,22 @@ my-agent/
 | `cup ai-register --server-name N` | Register MCP server capabilities |
 | `cup ai-hub` | Show default hub server registry |
 | `cup init agent-loop <name>` | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
+| `cup browser-open <url>` | Open URL in headless browser |
+| `cup browser-close` | Close browser session |
+| `cup browser-snapshot` | Accessibility tree with @ref annotations |
+| `cup browser-click <selector>` | Click element by @ref |
+| `cup browser-fill <selector> <text>` | Fill form field |
+| `cup browser-eval <expression>` | Evaluate JavaScript in page |
+| `cup browser-screenshot [path]` | Capture PNG screenshot |
+| `cup browser-tabs` | List open tabs |
+| `cup browser-raw <method> [params]` | Raw CDP passthrough |
+| `cup browser-get <what> [selector]` | Get text/title/url/html/value |
+| `--headed` (browser) | Run browser in visible mode |
+| `--cdp-port` (browser) | Connect to existing browser via CDP |
+| `--profile` (browser) | Named profile for persistent sessions |
 | `--json` (global) | Machine-readable JSON output |
 | `--auto-fix` (doc-check) | Non-interactive hash fix (AI/CI friendly) |
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -961,7 +1038,7 @@ my-agent/
 
 ## Tests
 
-3351 Python tests (2130 core + 1221 AI suite) across 176+ files. 88 TypeScript tests. 59 Rust tests. 68 Go tests. **3566 total across all languages.**
+3396 Python tests (2175 core + 1221 AI suite) across 176+ files. 88 TypeScript tests. 59 Rust tests. 68 Go tests. **3611 total across all languages.**
 
 ```bash
 # Python — core (zero deps)

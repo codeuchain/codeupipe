@@ -10,6 +10,7 @@ from . import (
     ai_cmds,
     analysis_cmds,
     auth_cmds,
+    browser_cmds,
     connect_cmds,
     deploy_cmds,
     distribute_cmds,
@@ -30,6 +31,7 @@ _ALL_MODULES = [
     auth_cmds,
     vault_cmds,
     ai_cmds,
+    browser_cmds,
 ]
 
 
