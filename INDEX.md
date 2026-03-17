@@ -801,6 +801,52 @@ Programmatic browser control via `agent-browser`. Each filter wraps a single bro
 | `BrowserGet` | Get page property: text, title, url, html, value |
 
 **Payload keys:** `browser_url`, `browser_snapshot`, `browser_eval`, `browser_screenshot`, `browser_tabs`, `browser_raw`, `browser_get_result`, `browser_ok`, `browser_output`, `browser_error`, `browser_selector`, `browser_text`, `browser_expression`, `browser_cdp_method`, `browser_cdp_params`, `browser_get_what`, `browser_get_selector`, `browser_interactive`, `browser_screenshot_path`
+
+### The Full Surface (bridge.run passthrough)
+
+The 10 Filters and 10 CLI commands above are **convenience wrappers** for the most common agent-loop actions. But `BrowserBridge.run()` is a direct passthrough to the entire `agent-browser` CLI — every command and flag. This means `cup browser` gives you access to **60+ commands and 30+ flags** that aren't individually wrapped:
+
+| Category | Commands via `bridge.run()` | Example |
+|----------|---------------------------|---------|
+| **Input** | `dblclick`, `type`, `press`, `keyboard type/inserttext`, `hover`, `focus`, `check`, `uncheck`, `select`, `drag`, `upload`, `download` | `bridge.run("press", "Enter")` |
+| **Navigation** | `back`, `forward`, `reload`, `wait` | `bridge.run("back")` |
+| **Find** | `find role/text/label/placeholder/alt/title/testid/first/last/nth` | `bridge.run("find", "role", "button", "click")` |
+| **State** | `is visible`, `is enabled`, `is checked` | `bridge.run("is", "visible", "@e2")` |
+| **Mouse** | `mouse move/down/up/wheel` | `bridge.run("mouse", "move", "100", "200")` |
+| **Viewport** | `set viewport`, `set device`, `set geo`, `set media` | `bridge.run("set", "viewport", "375", "812")` |
+| **Network** | `set offline`, `set headers`, `set credentials`, `network route/unroute/requests` | `bridge.run("set", "offline", "on")` |
+| **Storage** | `cookies get/set/clear`, `storage local/session` | `bridge.run("cookies", "get")` |
+| **Debug** | `trace start/stop`, `profiler start/stop`, `record start/stop`, `console`, `errors`, `highlight`, `inspect` | `bridge.run("trace", "start")` |
+| **Export** | `pdf`, `screenshot --annotate`, `screenshot --full` | `bridge.run("pdf", "report.pdf")` |
+| **Diff** | `diff snapshot`, `diff screenshot`, `diff url` | `bridge.run("diff", "snapshot")` |
+| **Auth vault** | `auth save/login/list/show/delete` | `bridge.run("auth", "save", "myapp", "--url", "...")` |
+| **Sessions** | `session`, `session list` | `bridge.run("session", "list")` |
+| **Clipboard** | `clipboard read/write/copy/paste` | `bridge.run("clipboard", "read")` |
+| **iOS** | `-p ios open`, `swipe`, `tap`, `device list` | `bridge.run("-p", "ios", "open", url)` |
+
+**Extra flags** available on every invocation via `BrowserBridge(extra_args=[...])` or inline:
+
+| Flag | Purpose |
+|------|---------|
+| `--json` | Machine-readable JSON output (great for agent parsing) |
+| `--annotate` | Numbered screenshot labels for vision models |
+| `--full` | Full-page screenshot |
+| `--color-scheme dark` | Force dark/light mode |
+| `--allowed-domains` | Restrict navigation to specific domains |
+| `--action-policy <path>` | JSON policy file controlling allowed actions |
+| `--confirm-actions` | Require confirmation for destructive actions |
+| `--proxy <url>` | Route through HTTP/SOCKS proxy |
+| `--user-agent <ua>` | Custom User-Agent string |
+| `--ignore-https-errors` | Accept self-signed certificates |
+| `--session-name <name>` | Auto-persist cookies/localStorage across restarts |
+| `--state <path>` | Load saved auth state from JSON |
+| `--auto-connect` | Discover and attach to a running Chrome instance |
+| `--engine lightpanda` | Use LightPanda engine instead of Chrome |
+| `--extension <path>` | Load browser extensions |
+
+> **For agents:** `bridge.run()` + `--json` turns the browser into a structured-output tool. Combine `snapshot -i` for element discovery with `find role` for semantic queries, `set viewport` for responsive testing, and `diff snapshot` for change detection. The 10 Filters handle 90% of agent loops; `bridge.run()` handles the other 100%.
+
+> **Demo:** See `examples/browser_demo.py` for a working tour of all 11 tiers.
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
