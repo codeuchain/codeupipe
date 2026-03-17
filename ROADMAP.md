@@ -18,11 +18,12 @@ Ring 6  Govern         ████████████  v0.5.0  ✅  (no ta
 Ring 7  Accelerate     ████████████  v0.7.0  ✅
 Ring 8  Connect        ████████████  v0.8.0  ✅
 Ring 9  Marketplace    ████████████  v0.9.0  ✅
-Ring 10 Secure Config  ████████████  v0.10.0 ✅  ← YOU ARE HERE
-Ring 11 ???            ░░░░░░░░░░░░          next
+Ring 10 Secure Config  ████████████  v0.10.0 ✅
+Ring 11 Polyglot Core  ████████████  v0.11.0 ✅
+Ring 12 AI Suite       ████████████  v0.12.0 ✅  ← YOU ARE HERE
 ```
 
-**2015 core tests + 31 connector tests = 2046 total. 230 doc refs verified. Zero external dependencies in core.**
+**3351 total tests: 2130 core Python + 1221 AI suite Python + 88 TypeScript + 59 Rust + 68 Go = 3566 across all languages. 236 doc refs verified. Zero external dependencies in core.**
 
 ---
 
@@ -171,13 +172,125 @@ Platform-aware config validation and payload security at pipeline boundaries. Ab
 
 ---
 
+### Ring 11 — Polyglot Core ✅ (v0.11.0)
+
+Language ports of the core primitives — same API, same mental model, idiomatic per language.
+
+- **TypeScript port** (`ports/ts/`):
+  - 8 source files: Payload, MutablePayload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+  - Promise-based async, AsyncIterable streaming, generic typing
+  - Zero dependencies (TypeScript + vitest dev only)
+  - Fluent builder API, serialize/deserialize, full feature parity with Python core
+  - 88 tests (36 payload + 15 state + 4 valve + 33 pipeline)
+  - Package: `@codeupipe/core` v0.1.0
+
+- **Rust port** (`ports/rs/`):
+  - 8 source files: Payload, MutablePayload, Value enum, Filter trait, StreamFilter trait, Pipeline, Valve, Tap, State, Hook
+  - Send + Sync trait bounds — thread-safe by default
+  - Zero external dependencies — stdlib only, WASM-compatible
+  - AtomicBool for Valve, hand-rolled JSON serialize/deserialize
+  - 59 tests (inline `#[cfg(test)]` modules)
+  - Crate: `codeupipe-core` v0.1.0
+
+- **Go port** (`ports/go/`):
+  - 8 source files: Payload, MutablePayload, Filter, NamedFilter, StreamFilter, Pipeline, Valve, Tap, State, Hook, DefaultHook
+  - Interfaces for Filter, StreamFilter, Tap, Hook (Go duck-typing)
+  - Goroutine-based `AddParallel()` — real concurrency via `sync.WaitGroup`
+  - Channel-based `Stream()` — idiomatic Go streaming
+  - Zero external dependencies — stdlib only
+  - Value semantics: Payload is a struct, not a pointer
+  - 68 tests (24 payload + 14 state + 30 pipeline/valve)
+  - Module: `github.com/codeuchain/codeupipe-core` (Go 1.21+)
+
+- Blueprint: [docs/ring11-ai-frontend-blueprint.md](docs/ring11-ai-frontend-blueprint.md)
+
+---
+
+### Ring 12 — AI Suite ✅ (v0.12.0)
+
+Full AI agent framework absorbed from the orchie project. Everything under `codeupipe.ai` — gated behind optional extras (`pip install codeupipe[ai]`). Zero-dep core untouched.
+
+- **Agent SDK** (`codeupipe.ai.agent`):
+  - `Agent`, `AgentConfig`, `AgentEvent`, `EventType`, `ServerDef`
+  - Async generator-based event streaming (TURN_START, RESPONSE, TOOL_CALL, DONE, ERROR)
+  - Inject, steer, and push directives for multi-turn conversations
+  - Billing event tracking in verbose mode
+
+- **Providers** (`codeupipe.ai.providers`):
+  - `LanguageModelProvider` ABC — pluggable LLM backends
+  - `CopilotProvider` — GitHub Copilot integration via copilot-sdk
+  - Provider lifecycle: init → create_session → chat → cleanup
+
+- **AI Filters** (`codeupipe.ai.filters`):
+  - `InitProviderLink` — configure LLM provider from payload
+  - `LanguageModelLink` — send messages to LLM, handle tool calls
+  - `RegisterServersLink` — register MCP servers with the hub
+  - `DiscoverByIntentLink` — intent-based capability discovery
+  - Loop filters: `AgentLoopLink`, `ToolContinuationLink`, `ManageStateLink`, `BackchannelLink`, `ContextPruningLink`, `ContextAttributionLink`, `ConversationRevisionLink`, `UpdateIntentLink`, `RediscoverLink`, `ResumeSessionLink`, `SaveCheckpointLink`
+  - Discovery filters: `EmbedQueryLink`, `CoarseSearchLink`, `FineRankLink`, `ValidateAvailabilityLink`, `FetchDefinitionsLink`, `GroupResultsLink`
+  - Registration filters: `ScanFilesLink`, `ParseCapabilitiesLink`, `SyncRegistryLink`
+
+- **AI Pipelines** (`codeupipe.ai.pipelines`):
+  - `build_agent_session_chain()` — full agent lifecycle
+  - `build_intent_discovery_chain()` — intent → capabilities
+  - `build_capability_registration_chain()` — MCP server → registry
+  - `build_file_registration_chain()` — local files → registry
+
+- **Hooks** (`codeupipe.ai.hooks`):
+  - `LoggingMiddleware` — per-step logging
+  - `TimingMiddleware` — per-step elapsed time
+  - `AuditProducer` — audit trail for AI operations
+
+- **Hub** (`codeupipe.ai.hub`):
+  - `ServerRegistry` / `create_default_hub()` — MCP server lifecycle management
+  - `IOWrapper` — stdio/SSE transport abstraction
+
+- **Discovery** (`codeupipe.ai.discovery`):
+  - `CapabilityRegistry` — SQLite-backed capability store
+  - `SnowflakeArcticEmbedder` — local embedding model (requires torch)
+  - Capability types: tool, skill, instruction, plan, prompt, resource
+
+- **TUI** (`codeupipe.ai.tui`):
+  - `CopilotApp` — Textual-based rich terminal interface
+  - Screens: chat, events, history
+  - Widgets: input bar, message panel, event panel
+
+- **Eval** (`codeupipe.ai.eval`):
+  - Experiment runner, scenario management, metric computation
+  - Baseline management, A/B comparisons, statistical analysis
+  - SQLite storage, export, scoring, validation, reporting
+
+- **CLI** — 7 new `cup ai-*` commands:
+  - `cup ai-ask`, `cup ai-interactive`, `cup ai-tui`
+  - `cup ai-discover`, `cup ai-sync`, `cup ai-register`, `cup ai-hub`
+
+- **Extras** — optional dependency groups:
+  - `codeupipe[ai]` — core AI deps (copilot-sdk, mcp, pydantic, numpy)
+  - `codeupipe[ai-discovery]` — torch + transformers for embedding
+  - `codeupipe[ai-tui]` — textual for TUI
+  - `codeupipe[ai-full]` — everything
+
+- 1221 AI tests (1221 pass without extras, remainder needs torch/textual/API keys)
+
+- **Agent-Loop Template** (`cup init agent-loop`):
+  - Full project scaffold for agentic turn-loop pattern (Claude Code / orchie flow)
+  - `cup init agent-loop <name> --ai Copilot` → providers/, tools/, skills/, prompts/, sessions/, config/
+  - Recipe: `agent-loop.json` — 5 session steps + 14-filter turn pipeline + 3 hooks
+  - 4-layer system prompt, MCP hub config, context budget management, `__follow_up__` convention
+  - `main.py` entry point with one-shot and interactive modes
+  - 32 template-specific tests in `tests/test_agent_loop_template.py`
+
+- Blueprint: [docs/ring12-ai-suite-blueprint.md](docs/ring12-ai-suite-blueprint.md)
+
+---
+
 ## What's Next — Open Directions
 
 Everything below is **unscheduled**. These are the natural next moves given what exists, not commitments. Pick what creates the most value and build it.
 
 ### Harden & Ship (v1.0 candidate)
 
-The framework has 9 rings, 1357 tests, and a connector ecosystem. A v1.0 signals stability.
+The framework has 12 rings, 3351 Python tests + 215 polyglot tests, and a connector ecosystem. A v1.0 signals stability.
 
 | Work | What It Means |
 |---|---|
@@ -225,45 +338,57 @@ The deploy protocol exists (Ring 7). These are new adapters plugging into it.
 | **Organization registries** | Private Registry servers for enterprise teams |
 | **Richer recipes** | Recipes that auto-resolve connector dependencies from the marketplace |
 
-### Polyglot Runtime (Long-term)
+### Polyglot Runtime (In Progress → Ring 11)
 
 Write pipeline configs once, run them in any language. The codeuchain vision.
 
-| Feature | What It Does |
-|---|---|
-| **Wire protocol spec** | Language-agnostic Payload/Filter/Pipeline serialization spec |
-| **TypeScript runtime** | Edge/serverless (Cloudflare Workers, Deno Deploy, Vercel Edge) |
-| **Rust runtime** | Native-speed executor for performance-critical workloads |
-| **Go runtime** | Concurrent executor for infrastructure-heavy deployments |
-| **Cross-runtime orchestration** | Python filters + Rust filters + Go filters in one pipeline |
-| **WASM filter support** | Compile filters to WebAssembly, run in any runtime |
+| Feature | What It Does | Status |
+|---|---|---|
+| **TypeScript runtime** | Browser/edge pipelines (GH Pages, CF Workers, Deno) | ✅ `ports/ts/` — 88 tests |
+| **Rust runtime** | WASM, desktop, performance-critical workloads | ✅ `ports/rs/` — 59 tests |
+| **Go runtime** | Concurrent executor for cloud infrastructure | ✅ `ports/go/` — 68 tests |
+| **Wire protocol spec** | Language-agnostic Payload/Filter/Pipeline serialization | 🔜 Planned |
+| **Cross-runtime orchestration** | Python + Rust + Go + TS filters in one pipeline | 🔜 Planned |
+| **WASM filter support** | Compile Rust filters to WASM, run in any runtime | 🔜 Planned |
 
 ---
 
-## Architecture Snapshot (v0.10.0)
+## Architecture Snapshot (v0.12.0)
 
 ```
 codeupipe/
 ├── core/           Ring 1-4,10 Payload, Filter, Tap, Hook, StreamFilter, Valve,
 │                              Pipeline, State, Event, Govern, Secure
 ├── distribute/     Ring 5     RemoteFilter, Checkpoint, Source, WorkerPool
-├── deploy/         Ring 7,10  Adapters, Recipes, Init, Contracts (23 platforms)
+├── deploy/         Ring 7,10  Adapters, Recipes, Init, Contracts (25 platforms)
 ├── connect/        Ring 8     ConnectorConfig, discover_connectors, HttpConnector
 ├── marketplace/    Ring 9     fetch_index, search, info, marketplace CLI
 ├── auth/           Ring 8     Credential, AuthProvider, TokenVault, ProxyToken
+├── ai/             Ring 12    Agent SDK, Providers, Filters, Pipelines, Hooks,
+│                              Hub, Discovery, TUI, Eval (optional extras)
 ├── linter/         Ring 1     Dogfooded lint/coverage/doc-check pipelines
 ├── converter/      Ring 2     Config pipeline assembly helpers
 ├── registry.py     Ring 2     Registry, cup_component, default_registry
 ├── testing.py      Ring 1     run_filter, run_pipeline, assert_payload, mock_filter
-└── cli/            Ring 1+    15 commands: new, list, bundle, lint, coverage,
+└── cli/            Ring 1+    22+ commands: new, list, bundle, lint, coverage,
                                report, doc-check, run, deploy, recipe, init,
-                               connect, describe, marketplace, config
+                               connect, describe, marketplace, config,
+                               ai-ask, ai-interactive, ai-tui, ai-discover,
+                               ai-sync, ai-register, ai-hub
 
 connectors/                    Ring 9 — standalone PyPI packages
 ├── codeupipe-google-ai/       4 filters (generate, stream, embed, vision)
 ├── codeupipe-stripe/          4 filters (checkout, subscription, webhook, customer)
 ├── codeupipe-postgres/        4 filters (query, execute, transaction, bulk_insert)
 └── codeupipe-resend/          2 filters (email, template)
+
+ports/                         Ring 11 — polyglot core implementations
+├── ts/                        TypeScript — @codeupipe/core (88 tests)
+│   └── src/                   Payload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+├── rs/                        Rust — codeupipe-core (59 tests)
+│   └── src/                   Payload, Value, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+└── go/                        Go — github.com/codeuchain/codeupipe-core (68 tests)
+    └── codeupipe/             Payload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
 ```
 
 ---
@@ -276,7 +401,7 @@ connectors/                    Ring 9 — standalone PyPI packages
 - **Not a message broker.** Kafka/RabbitMQ move messages. codeupipe *consumes from* them via source adapters.
 - **Not an ORM.** Database filters are thin wrappers, not a query builder.
 - **Not a web framework.** Flask/FastAPI serve HTTP. codeupipe pipelines are the handler logic behind a route.
-- **Zero-dep core, always.** Connectors have their SDK deps. The core stays pure Python, zero dependencies, Python 3.9+.
+- **Zero-dep core, always.** Connectors have their SDK deps. The core stays zero dependencies in every language — Python stdlib, TS no npm deps, Rust no crates, Go no modules.
 
 ### What We Always Do
 

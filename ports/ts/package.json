@@ -1,0 +1,20 @@
+{
+  "name": "@codeupipe/core",
+  "version": "0.1.0",
+  "description": "codeupipe core pipeline primitives — TypeScript port",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["pipeline", "filter", "payload", "codeupipe", "composability"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  }
+}

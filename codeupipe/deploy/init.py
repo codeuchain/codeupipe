@@ -57,6 +57,10 @@ _TEMPLATES = {
         "description": "Scheduled job — fetch, process, store, notify",
         "recipes": ["scheduled-job"],
     },
+    "agent-loop": {
+        "description": "Agentic turn loop — system prompt, tool use, context budget, done detection (Claude Code / orchie pattern)",
+        "recipes": ["agent-loop"],
+    },
 }
 
 
@@ -127,7 +131,7 @@ def init_project(
     _write(project_dir / "cup.toml", manifest, created_files)
 
     # 2. pyproject.toml
-    pyproject = _render_pyproject(name)
+    pyproject = _render_pyproject(name, template)
     _write(project_dir / "pyproject.toml", pyproject, created_files)
 
     # 3. pipelines/ directory with recipe-based configs
@@ -167,6 +171,10 @@ def init_project(
     # 8. Frontend scaffold (if requested)
     if frontend:
         _scaffold_frontend(project_dir, name, frontend, deploy_target, created_files)
+
+    # 9. Agent-loop scaffold (if template is agent-loop)
+    if template == "agent-loop":
+        _scaffold_agent_loop(project_dir, name, opts, created_files)
 
     return {
         "project_dir": str(project_dir),
@@ -212,8 +220,9 @@ def _render_manifest(name: str, deploy_target: str, frontend: Optional[str], opt
     return "\n".join(lines) + "\n"
 
 
-def _render_pyproject(name: str) -> str:
+def _render_pyproject(name: str, template: str = "") -> str:
     safe_name = name.replace("-", "_")
+    dep = '"codeupipe[ai]>=0.12.0"' if template == "agent-loop" else '"codeupipe>=0.5.0"'
     return (
         "[build-system]\n"
         'requires = ["setuptools>=68.0", "wheel"]\n'
@@ -224,7 +233,7 @@ def _render_pyproject(name: str) -> str:
         'version = "0.1.0"\n'
         f'description = "{name} — powered by codeupipe"\n'
         'requires-python = ">=3.9"\n'
-        'dependencies = ["codeupipe>=0.5.0"]\n'
+        f'dependencies = [{dep}]\n'
     )
 
 
@@ -295,6 +304,477 @@ def _render_test_scaffold(name: str) -> str:
         '        """Replace with real tests."""\n'
         '        p = Payload({"test": True})\n'
         '        assert p.get("test") is True\n'
+    )
+
+
+# ── Agent-Loop Scaffold ─────────────────────────────────────────────
+
+
+def _scaffold_agent_loop(
+    project_dir: Path,
+    name: str,
+    opts: Dict[str, str],
+    created_files: List[str],
+) -> None:
+    """Generate agent-loop specific directories and files.
+
+    Creates the full agentic project structure:
+        providers/    — LLM provider implementation
+        tools/        — MCP tool definitions
+        skills/       — Reusable skill files (lazy-loaded context)
+        prompts/      — System prompt layers
+        sessions/     — Session persistence directory
+        config/       — Agent and hub configuration
+    """
+    provider = opts.get("ai", "Copilot")
+    safe = name.replace("-", "_")
+
+    # providers/ — LLM provider stub
+    providers_dir = project_dir / "providers"
+    providers_dir.mkdir()
+    _write(providers_dir / "__init__.py", '"""LLM providers for this agent."""\n', created_files)
+    _write(providers_dir / "provider.py", _render_agent_provider(provider), created_files)
+
+    # tools/ — MCP tool definitions
+    tools_dir = project_dir / "tools"
+    tools_dir.mkdir()
+    _write(tools_dir / "__init__.py", '"""MCP tools for this agent."""\n', created_files)
+    _write(tools_dir / "echo.py", _render_agent_tool_example(), created_files)
+
+    # skills/ — reusable skill files
+    skills_dir = project_dir / "skills"
+    skills_dir.mkdir()
+    _write(skills_dir / "README.md", _render_skills_readme(), created_files)
+    _write(skills_dir / "example.md", _render_skill_example(name), created_files)
+
+    # prompts/ — system prompt layers
+    prompts_dir = project_dir / "prompts"
+    prompts_dir.mkdir()
+    _write(prompts_dir / "system.md", _render_system_prompt(name), created_files)
+    _write(prompts_dir / "tools.md", _render_tools_prompt(), created_files)
+
+    # sessions/ — gitignored persistence directory
+    sessions_dir = project_dir / "sessions"
+    sessions_dir.mkdir()
+    _write(sessions_dir / ".gitkeep", "", created_files)
+
+    # config/ — agent and hub config
+    config_dir = project_dir / "config"
+    config_dir.mkdir()
+    _write(config_dir / "agent.toml", _render_agent_config(name, provider), created_files)
+    _write(config_dir / "hub.toml", _render_hub_config(), created_files)
+
+    # .gitignore additions for sessions and local config
+    gitignore = "sessions/*.db\nsessions/*.json\nconfig/*.local.toml\n.env\n"
+    _write(project_dir / ".gitignore", gitignore, created_files)
+
+    # main.py — entry point
+    _write(project_dir / "main.py", _render_agent_main(name, safe), created_files)
+
+    # filters/ — override with agent-specific custom filter
+    custom_filter_path = project_dir / "filters" / "custom.py"
+    if custom_filter_path.exists():
+        custom_filter_path.write_text(_render_agent_custom_filter())
+
+    # tests/ — override with agent-specific test
+    test_path = project_dir / "tests" / f"test_{safe}.py"
+    if test_path.exists():
+        test_path.write_text(_render_agent_test_scaffold(name, safe))
+
+
+def _render_agent_provider(provider: str) -> str:
+    return (
+        f'"""Language model provider — {provider}."""\n'
+        "\n"
+        "from __future__ import annotations\n"
+        "\n"
+        "\n"
+        f"class {provider}Provider:\n"
+        f'    """Connect to {provider} language model.\n'
+        "\n"
+        "    Implements the LanguageModelProvider protocol:\n"
+        "        start(**kwargs) → None\n"
+        "        send(prompt: str) → ModelResponse\n"
+        "        stop() → None\n"
+        '    """\n'
+        "\n"
+        "    async def start(self, **kwargs) -> None:\n"
+        f'        """Initialize {provider} session."""\n'
+        "        pass  # TODO: authenticate and open session\n"
+        "\n"
+        "    async def send(self, prompt: str):\n"
+        '        """Send prompt and return response with tool results.\n'
+        "\n"
+        "        The provider handles the tool-use loop internally:\n"
+        "        prompt → LLM → tool_call → execute → feed back → repeat\n"
+        "        until the model produces end_turn (no more tool calls).\n"
+        "\n"
+        "        Returns a ModelResponse with .content and .tool_results.\n"
+        '        """\n'
+        "        raise NotImplementedError\n"
+        "\n"
+        "    async def stop(self) -> None:\n"
+        '        """Shut down provider session."""\n'
+        "        pass  # TODO: close connections\n"
+    )
+
+
+def _render_agent_tool_example() -> str:
+    return (
+        '"""Example MCP tool — echo.\n'
+        "\n"
+        "Tools are the agent's hands. Each tool:\n"
+        "  1. Receives JSON input from the LLM\n"
+        "  2. Executes in a sandboxed environment\n"
+        "  3. Returns plain text results\n"
+        "\n"
+        "The LLM decides which tools to call and when.\n"
+        "Tool results feed back into the next turn automatically.\n"
+        "\n"
+        "To signal that more work is needed after this tool completes,\n"
+        "embed a __follow_up__ key in the result dict:\n"
+        "\n"
+        '    {"status": "ok", "data": {...},\n'
+        '     "__follow_up__": {"reason": "3 more pages", "action": "continue"}}\n'
+        '"""\n'
+        "\n"
+        "\n"
+        "def echo_tool(message: str) -> dict:\n"
+        '    """Echo the input message back.\n'
+        "\n"
+        "    Args:\n"
+        "        message: The message to echo.\n"
+        "\n"
+        "    Returns:\n"
+        "        Dict with the echoed message.\n"
+        '    """\n'
+        '    return {"status": "ok", "message": message}\n'
+    )
+
+
+def _render_skills_readme() -> str:
+    return (
+        "# Skills\n"
+        "\n"
+        "Skills are **lazy-loaded context** — reusable markdown files that the\n"
+        "agent loads on demand when a task requires specialized knowledge.\n"
+        "\n"
+        "Think of skills as the agent's reference library. The main agent knows\n"
+        "what specialists it can consult, and only loads a skill when the current\n"
+        "task demands it.\n"
+        "\n"
+        "## Structure\n"
+        "\n"
+        "Each skill is a markdown file with:\n"
+        "- A clear title describing the expertise\n"
+        "- Instructions the agent should follow\n"
+        "- Examples, templates, or reference material\n"
+        "\n"
+        "## How Skills Are Used\n"
+        "\n"
+        "1. The agent sees the available skill names from the registry\n"
+        "2. When a task matches, the skill content is injected into context\n"
+        "3. The agent follows the skill's instructions for that specific task\n"
+        "4. After completion, the skill context is released (keeps main context clean)\n"
+        "\n"
+        "## Conventions\n"
+        "\n"
+        "- One skill per file\n"
+        "- Filename = skill name (e.g. `code-review.md` → skill `code-review`)\n"
+        "- Keep skills focused — a skill that does too much should be split\n"
+    )
+
+
+def _render_skill_example(name: str) -> str:
+    return (
+        f"# Example Skill — {name}\n"
+        "\n"
+        "You are assisting with the project. When asked to help:\n"
+        "\n"
+        "1. Read the relevant files first\n"
+        "2. Understand the existing patterns\n"
+        "3. Make changes consistent with the codebase style\n"
+        "4. Run tests to verify your changes\n"
+        "\n"
+        "## Key Files\n"
+        "\n"
+        "- `main.py` — Entry point\n"
+        "- `filters/` — Custom pipeline filters\n"
+        "- `tools/` — Available MCP tools\n"
+        "- `config/agent.toml` — Agent configuration\n"
+    )
+
+
+def _render_system_prompt(name: str) -> str:
+    return (
+        f"# System Prompt — {name}\n"
+        "\n"
+        "## Layer 1: Identity\n"
+        "\n"
+        f"You are an AI agent for the {name} project. You help users\n"
+        "by reading context, using tools, and iterating until the task\n"
+        "is complete.\n"
+        "\n"
+        "## Layer 2: Capabilities\n"
+        "\n"
+        "You have access to tools registered in the MCP hub. Use them\n"
+        "to take actions — read files, run commands, query databases,\n"
+        "or call external services.\n"
+        "\n"
+        "## Layer 3: Behavior\n"
+        "\n"
+        "- Think step by step before acting\n"
+        "- Use tools to verify your work (run tests, check output)\n"
+        "- When a tool returns a __follow_up__ signal, continue iterating\n"
+        "- Stop when the task is complete and no tools need calling\n"
+        "- If unsure, ask the user for clarification\n"
+        "\n"
+        "## Layer 4: Constraints\n"
+        "\n"
+        "- Do not access files outside the project directory\n"
+        "- Do not execute destructive operations without confirmation\n"
+        "- Respect the max_iterations safety cap\n"
+        "- Keep context within the token budget\n"
+    )
+
+
+def _render_tools_prompt() -> str:
+    return (
+        "# Tool Definitions\n"
+        "\n"
+        "Tools are auto-registered from the MCP hub at session start.\n"
+        "This file documents conventions and custom tool behavior.\n"
+        "\n"
+        "## Tool Result Format\n"
+        "\n"
+        "All tools return plain text or JSON. The agent receives the\n"
+        "result and decides what to do next.\n"
+        "\n"
+        "## Follow-Up Convention\n"
+        "\n"
+        "Tools can embed a `__follow_up__` key to request another turn:\n"
+        "\n"
+        "```json\n"
+        "{\n"
+        '  "status": "ok",\n'
+        '  "data": {"items": [...]},\n'
+        '  "__follow_up__": {\n'
+        '    "reason": "Partial results. 3 more pages available.",\n'
+        '    "action": "continue"\n'
+        "  }\n"
+        "}\n"
+        "```\n"
+        "\n"
+        "Actions: `continue` | `retry` | `verify` | `review`\n"
+    )
+
+
+def _render_agent_config(name: str, provider: str) -> str:
+    return (
+        f"# Agent configuration for {name}\n"
+        "\n"
+        "[agent]\n"
+        f'model = "gpt-4.1"\n'
+        "max_iterations = 10\n"
+        "verbose = false\n"
+        "auto_discover = true\n"
+        "\n"
+        "[agent.context]\n"
+        'system_prompt = "prompts/system.md"\n'
+        'tools_prompt = "prompts/tools.md"\n'
+        'skills_dir = "skills/"\n'
+        'sessions_dir = "sessions/"\n'
+        "\n"
+        "# Token budget for context window management\n"
+        "[agent.context.budget]\n"
+        "max_tokens = 128000\n"
+        "revision_threshold = 0.75\n"
+        "pruning_threshold = 0.90\n"
+        "\n"
+        "# MCP server hub — see config/hub.toml for server definitions\n"
+        "[agent.hub]\n"
+        'config = "config/hub.toml"\n'
+    )
+
+
+def _render_hub_config() -> str:
+    return (
+        "# MCP Server Hub Configuration\n"
+        "#\n"
+        "# Register MCP servers that provide tools to the agent.\n"
+        "# Servers can be local (stdio) or remote (SSE/HTTP).\n"
+        "\n"
+        "[servers.echo]\n"
+        "description = \"Built-in echo server for testing\"\n"
+        "command = \"python\"\n"
+        "args = [\"-m\", \"codeupipe.ai.servers.echo\"]\n"
+        "tools = [\"*\"]\n"
+        "\n"
+        "# Example: Add your own MCP servers\n"
+        "#\n"
+        "# [servers.my-api]\n"
+        "# description = \"My custom API server\"\n"
+        "# url = \"http://localhost:8080/mcp\"\n"
+        "# tools = [\"*\"]\n"
+        "#\n"
+        "# [servers.database]\n"
+        "# description = \"Database query server\"\n"
+        "# command = \"node\"\n"
+        "# args = [\"./servers/db-server.js\"]\n"
+        "# tools = [\"query\", \"schema\"]\n"
+    )
+
+
+def _render_agent_main(name: str, safe: str) -> str:
+    return (
+        f'"""Entry point for {name} — agentic turn loop."""\n'
+        "\n"
+        "import asyncio\n"
+        "import sys\n"
+        "\n"
+        "\n"
+        "async def main() -> None:\n"
+        '    """Run the agent in one-shot or interactive mode.\n'
+        "\n"
+        "    The agent loop:\n"
+        "      1. Registers MCP servers (tools)\n"
+        "      2. Discovers capabilities matching user intent\n"
+        "      3. Initializes the language model provider\n"
+        "      4. Runs the turn-by-turn loop:\n"
+        "         inject_notifications → read_input → language_model →\n"
+        "         process_response → backchannel → tool_continuation →\n"
+        "         update_intent → rediscover → manage_state →\n"
+        "         context_attribution → conversation_revision →\n"
+        "         save_checkpoint → context_pruning → check_done\n"
+        "      5. Cleans up session\n"
+        "\n"
+        "    Each turn: the agent evaluates the prompt, calls tools to\n"
+        "    take action, receives results, and repeats until the task\n"
+        "    is complete (no more tool calls → loop ends).\n"
+        '    """\n'
+        "    try:\n"
+        "        from codeupipe.ai import Agent, AgentConfig\n"
+        "    except ImportError:\n"
+        "        print(\n"
+        '            "codeupipe.ai requires extra dependencies.\\n"\n'
+        '            "Install with: pip install codeupipe[ai]",\n'
+        "            file=sys.stderr,\n"
+        "        )\n"
+        "        sys.exit(1)\n"
+        "\n"
+        "    config = AgentConfig(\n"
+        '        model="gpt-4.1",\n'
+        "        max_iterations=10,\n"
+        "        verbose=True,\n"
+        "    )\n"
+        "    agent = Agent(config)\n"
+        "\n"
+        "    # One-shot mode\n"
+        "    if len(sys.argv) > 1:\n"
+        '        prompt = " ".join(sys.argv[1:])\n'
+        "        answer = await agent.ask(prompt)\n"
+        "        print(answer)\n"
+        "        return\n"
+        "\n"
+        "    # Interactive mode\n"
+        f'    print("{name} agent — type your prompt (Ctrl+C to exit)")\n'
+        "    while True:\n"
+        "        try:\n"
+        '            prompt = input("\\n> ")\n'
+        "        except (KeyboardInterrupt, EOFError):\n"
+        "            print()\n"
+        "            break\n"
+        "\n"
+        "        if not prompt.strip():\n"
+        "            continue\n"
+        "\n"
+        "        async for event in agent.run(prompt):\n"
+        '            if event.type.value == "response":\n'
+        '                content = event.data.get("content", "")\n'
+        "                if content:\n"
+        "                    print(content, end=\"\", flush=True)\n"
+        "        print()\n"
+        "\n"
+        "\n"
+        'if __name__ == "__main__":\n'
+        "    asyncio.run(main())\n"
+    )
+
+
+def _render_agent_custom_filter() -> str:
+    return (
+        '"""Custom agent filter — add your own processing logic.\n'
+        "\n"
+        "This filter sits in the turn pipeline. It receives the payload\n"
+        "after the LLM responds and can modify, gate, or augment the\n"
+        "response before the next turn.\n"
+        "\n"
+        "Common uses:\n"
+        "  - Output formatting / sanitization\n"
+        "  - Response validation against rules\n"
+        "  - Tool result post-processing\n"
+        "  - Custom state management\n"
+        '"""\n'
+        "\n"
+        "from codeupipe import Payload\n"
+        "\n"
+        "\n"
+        "class CustomAgentFilter:\n"
+        '    """Process agent response before the next turn."""\n'
+        "\n"
+        "    async def call(self, payload: Payload) -> Payload:\n"
+        "        response = payload.get(\"response\")\n"
+        "        if response:\n"
+        "            # Example: strip markdown code fences from response\n"
+        "            pass\n"
+        "        return payload\n"
+    )
+
+
+def _render_agent_test_scaffold(name: str, safe: str) -> str:
+    return (
+        f'"""Tests for {name} agent loop."""\n'
+        "\n"
+        "import pytest\n"
+        "from codeupipe import Payload, Pipeline\n"
+        "from codeupipe.testing import run_filter, assert_payload\n"
+        "\n"
+        "\n"
+        f"class Test{safe.title().replace('_', '')}Agent:\n"
+        f'    """Tests for the {name} agentic turn loop."""\n'
+        "\n"
+        "    def test_payload_creation(self):\n"
+        '        """Verify basic payload for agent session."""\n'
+        "        p = Payload({\n"
+        '            "prompt": "Hello",\n'
+        '            "model": "gpt-4.1",\n'
+        '            "max_iterations": 5,\n'
+        "        })\n"
+        '        assert p.get("prompt") == "Hello"\n'
+        '        assert p.get("max_iterations") == 5\n'
+        "\n"
+        "    def test_custom_filter(self):\n"
+        '        """Verify custom filter passes through."""\n'
+        "        from filters.custom import CustomAgentFilter\n"
+        "\n"
+        "        p = Payload({\"response\": \"hello world\"})\n"
+        "        # Sync wrapper for async filter\n"
+        "        import asyncio\n"
+        "        result = asyncio.run(CustomAgentFilter().call(p))\n"
+        "        assert result.get(\"response\") == \"hello world\"\n"
+        "\n"
+        "    @pytest.mark.ai\n"
+        "    def test_agent_session_builds(self):\n"
+        '        """Verify the agent session pipeline can be constructed.\n'
+        "\n"
+        "        Requires: pip install codeupipe[ai]\n"
+        '        """\n'
+        "        from codeupipe.ai.pipelines.agent_session import (\n"
+        "            build_agent_session_chain,\n"
+        "        )\n"
+        "\n"
+        "        chain = build_agent_session_chain()\n"
+        "        assert chain is not None\n"
     )
 
 
@@ -1169,9 +1649,49 @@ def _render_readme(
         "",
         "```bash",
         "pip install -e .",
-        "cup run pipelines/*.json",
-        "```",
     ]
+
+    if template == "agent-loop":
+        lines.extend([
+            "pip install codeupipe[ai]",
+            "python main.py",
+            "```",
+            "",
+            "## Architecture",
+            "",
+            "This project implements the **agentic turn loop** pattern:",
+            "",
+            "```",
+            "register_servers → discover_capabilities → init_provider →",
+            "┌─────────────────────────────────────────────────────────┐",
+            "│ TURN LOOP (repeats until done)                         │",
+            "│   inject_notifications → read_input → language_model → │",
+            "│   process_response → backchannel → tool_continuation → │",
+            "│   update_intent → rediscover → manage_state →          │",
+            "│   context_attribution → conversation_revision →        │",
+            "│   save_checkpoint → context_pruning → check_done       │",
+            "└─────────────────────────────────────────────────────────┘",
+            "→ session_cleanup",
+            "```",
+            "",
+            "## Project Structure",
+            "",
+            "| Directory | Purpose |",
+            "|-----------|---------|",
+            "| `providers/` | LLM provider implementation |",
+            "| `tools/` | MCP tool definitions (the agent's hands) |",
+            "| `skills/` | Lazy-loaded context (the agent's reference library) |",
+            "| `prompts/` | System prompt layers (identity, capabilities, behavior) |",
+            "| `filters/` | Custom turn-pipeline filters |",
+            "| `config/` | Agent + hub configuration |",
+            "| `sessions/` | Session persistence (SQLite, gitignored) |",
+            "| `pipelines/` | Pipeline config (from recipe) |",
+        ])
+    else:
+        lines.extend([
+            "cup run pipelines/*.json",
+            "```",
+        ])
 
     if frontend:
         lines.extend([

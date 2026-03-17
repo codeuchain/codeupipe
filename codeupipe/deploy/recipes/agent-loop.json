@@ -1,0 +1,140 @@
+{
+  "recipe": {
+    "name": "agent-loop",
+    "description": "Turn-by-turn agentic loop — the Claude Code / orchie pattern: system prompt, tool execution, context management, done detection, session persistence",
+    "variables": ["ai_provider"]
+  },
+  "pipeline": {
+    "name": "agent-session",
+    "description": "Full agent lifecycle: register servers → discover capabilities → init provider → agent loop → cleanup",
+    "steps": [
+      {
+        "name": "RegisterServers",
+        "type": "filter",
+        "description": "Boot MCP servers from hub config and register tool schemas"
+      },
+      {
+        "name": "DiscoverByIntent",
+        "type": "filter",
+        "description": "Match user prompt to registered capabilities via intent embedding"
+      },
+      {
+        "name": "Init${ai_provider}Provider",
+        "type": "filter",
+        "description": "Initialize the language model provider (start session, authenticate)"
+      },
+      {
+        "name": "AgentLoop",
+        "type": "pipeline",
+        "description": "Turn-by-turn loop — runs the turn pipeline until done",
+        "max_iterations": 10,
+        "steps": [
+          {
+            "name": "InjectNotifications",
+            "type": "filter",
+            "description": "Drain the notification queue (user inject, tool backchannel, system alerts)"
+          },
+          {
+            "name": "ReadInput",
+            "type": "filter",
+            "description": "Prepare the next prompt: initial user prompt (turn 1) or follow-up/notification (turn N). Prepends system prompt directives (steer)."
+          },
+          {
+            "name": "${ai_provider}LanguageModel",
+            "type": "filter",
+            "description": "Send prompt to LLM provider. Provider handles tool_use → execute → feed back internally until end_turn. Returns response + tool_results."
+          },
+          {
+            "name": "ProcessResponse",
+            "type": "filter",
+            "description": "Parse response, classify turn type (user, tool_continuation, notification, rediscovery), record turn in state"
+          },
+          {
+            "name": "Backchannel",
+            "type": "filter",
+            "description": "Extract embedded notifications from tool results, push to queue for next iteration"
+          },
+          {
+            "name": "ToolContinuation",
+            "type": "filter",
+            "description": "Inspect tool results for __follow_up__ markers, set follow_up_prompt to trigger another turn"
+          },
+          {
+            "name": "UpdateIntent",
+            "type": "filter",
+            "description": "Detect intent shifts in agent output, update current_intent on state"
+          },
+          {
+            "name": "Rediscover",
+            "type": "filter",
+            "description": "Re-run capability discovery when intent changes mid-conversation"
+          },
+          {
+            "name": "ManageState",
+            "type": "filter",
+            "description": "Apply state updates (capability adopt/drop, context changes) after agent response"
+          },
+          {
+            "name": "ContextAttribution",
+            "type": "filter",
+            "description": "Track token usage by source (system, user, tool, history) for observability and budget"
+          },
+          {
+            "name": "ConversationRevision",
+            "type": "filter",
+            "description": "Compress older turns when token budget threshold is crossed (context compaction)"
+          },
+          {
+            "name": "SaveCheckpoint",
+            "type": "filter",
+            "description": "Persist session state after revision for resume capability"
+          },
+          {
+            "name": "ContextPruning",
+            "type": "filter",
+            "description": "Trim stale turn history and cleared response data to stay within context budget"
+          },
+          {
+            "name": "CheckDone",
+            "type": "filter",
+            "description": "Single authority for loop termination: no next_prompt → done, max iterations → done, already done → pass through"
+          }
+        ]
+      },
+      {
+        "name": "SessionCleanup",
+        "type": "filter",
+        "description": "Shut down provider session, close MCP connections, flush audit logs"
+      }
+    ],
+    "hooks": [
+      {
+        "name": "EventEmitter",
+        "type": "hook",
+        "description": "Emit AgentEvent objects to the SDK event stream (attached to inner turn pipeline)"
+      },
+      {
+        "name": "AuditHook",
+        "type": "hook",
+        "description": "Capture structured audit events for compliance and debugging"
+      },
+      {
+        "name": "TimingHook",
+        "type": "hook",
+        "description": "Track per-filter execution time for performance observability"
+      }
+    ],
+    "require_input": ["prompt", "model"],
+    "guarantee_output": ["response", "agent_state"],
+    "context_schema": {
+      "prompt": "str — the user's input message",
+      "model": "str — language model identifier (e.g. 'gpt-4.1', 'claude-sonnet')",
+      "max_iterations": "int — safety cap for loop turns (default: 10)",
+      "directives": "list[str] — persistent system prompt directives (steer)",
+      "notification_queue": "NotificationQueue — injectable message queue",
+      "registry": "ServerRegistry — MCP server hub",
+      "capability_registry": "CapabilityRegistry — optional, enables intent discovery",
+      "skills_paths": "list[Path] — directories to scan for skill definitions"
+    }
+  }
+}

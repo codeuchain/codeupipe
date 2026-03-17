@@ -39,6 +39,6 @@ class TestNewTemplates:
             assert (proj_dir / "pipelines" / f"{recipe_name}.json").exists()
 
     @pytest.mark.unit
-    def test_all_eight_templates_present(self):
-        expected = {"saas", "api", "etl", "chatbot", "cli", "webhook", "ml-pipeline", "scheduled-job"}
+    def test_all_nine_templates_present(self):
+        expected = {"saas", "api", "etl", "chatbot", "cli", "webhook", "ml-pipeline", "scheduled-job", "agent-loop"}
         assert set(_TEMPLATES.keys()) == expected

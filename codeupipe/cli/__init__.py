@@ -27,6 +27,15 @@ Usage:
     cup vault list [--json]
     cup vault status <token> [--json]
 
+AI Suite (requires pip install codeupipe[ai]):
+    cup ai-ask <prompt> [--model M] [--verbose] [--json]
+    cup ai-interactive [--model M] [--verbose]
+    cup ai-tui [--model M] [--verbose]
+    cup ai-discover <intent> [--verbose] [--json]
+    cup ai-sync [--verbose]
+    cup ai-register --server-name N (--server-url U | --server-command C) [--verbose]
+    cup ai-hub [--json]
+
 Components:
     filter          Filter (sync def call) — Pipeline handles awaiting
     async-filter    Filter (async def call) — native coroutine

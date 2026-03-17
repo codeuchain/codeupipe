@@ -14,6 +14,8 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 | [SKILL.md](SKILL.md) | Agent skill reference (types, patterns, conversion) |
 | [INDEX.md](INDEX.md) | This file — project map |
 | [ring10-secure-config-blueprint.md](docs/ring10-secure-config-blueprint.md) | Ring 10 — Secure Config design blueprint |
+| [ring11-ai-frontend-blueprint.md](docs/ring11-ai-frontend-blueprint.md) | Ring 11 — Polyglot Core & AI Frontend blueprint |
+| [ring12-ai-suite-blueprint.md](docs/ring12-ai-suite-blueprint.md) | Ring 12 — AI Suite design blueprint |
 | [docs/archive/](docs/archive/) | Archived blueprints (rings 7-9, shipping exploration) |
 
 ---
@@ -103,6 +105,28 @@ codeupipe/
 │   └── (18 filter files)    # ScanDirectory, CheckNaming, etc.
 │
 ├── testing.py               # Test helpers — run_filter, assert_payload, etc.
+│
+├── ai/                      # AI Suite (Ring 12) — requires pip install codeupipe[ai]
+│   ├── __init__.py          # Public API — Agent, AgentConfig, AgentEvent, EventType
+│   ├── _check.py            # Import guard — require_ai_deps()
+│   ├── config.py            # Settings — registry_path, model defaults
+│   ├── agent/               # Agent SDK — Agent, AgentConfig, AgentEvent, EventType, ServerDef
+│   ├── providers/           # LLM backends — LanguageModelProvider ABC, CopilotProvider
+│   ├── filters/             # AI filters — InitProvider, LanguageModel, RegisterServers
+│   │   ├── loop/            # Agent loop — AgentLoop, ToolContinuation, ManageState, Backchannel, ...
+│   │   ├── discovery/       # Discovery — EmbedQuery, CoarseSearch, FineRank, FetchDefinitions
+│   │   └── registration/    # Registration — ScanFiles, ParseCapabilities, SyncRegistry
+│   ├── pipelines/           # Pipeline builders — agent_session, intent_discovery, file/cap registration
+│   ├── hooks/               # Middleware — LoggingMiddleware, TimingMiddleware, AuditProducer
+│   ├── hub/                 # MCP server registry — ServerRegistry, IOWrapper, create_default_hub
+│   ├── loop/                # Session management — SessionStore
+│   ├── discovery/           # Capability registry — CapabilityRegistry, SnowflakeArcticEmbedder
+│   ├── servers/             # Built-in MCP servers — echo
+│   ├── tui/                 # Textual TUI — CopilotApp (requires codeupipe[ai-tui])
+│   │   ├── screens/         # Chat, events, history screens
+│   │   └── widgets/         # InputBar, MessagePanel, EventPanel
+│   └── eval/                # Evaluation framework — Experiment, Scenario, Metrics, Scoring, Storage
+│
 └── cli/                     # CLI package — registry-routed command dispatch
     ├── __init__.py          # Thin main() + backward-compat re-exports
     ├── __main__.py          # python -m codeupipe.cli entry
@@ -118,7 +142,8 @@ codeupipe/
         ├── connect_cmds.py  # connect, marketplace
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
-        └── auth_cmds.py     # auth login/status/revoke/list
+        ├── auth_cmds.py     # auth login/status/revoke/list
+        └── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
 ```
 <!-- /cup:ref -->
 
@@ -407,6 +432,261 @@ cup obfuscate src/ dist/ --json                             # Machine-readable o
 
 ---
 
+## Polyglot Ports (Ring 11)
+
+Core primitives ported to TypeScript and Rust. Same 8 types, same API shape, language-idiomatic.
+
+### TypeScript — `ports/ts/`
+
+<!-- cup:ref file=ports/ts/src/index.ts -->
+| Type | Source | Role |
+|------|--------|------|
+| `Payload<T>` | src/payload.ts | Immutable data container (generic typed) |
+| `MutablePayload<T>` | src/payload.ts | Mutable sibling for bulk edits |
+| `Filter<TIn, TOut>` | src/filter.ts | Processing interface — `call(payload): Promise<Payload>` |
+| `StreamFilter<TIn, TOut>` | src/stream_filter.ts | Streaming — `stream(chunk): AsyncIterable<Payload>` |
+| `Pipeline<TIn, TOut>` | src/pipeline.ts | Orchestrator — `.run()` / `.stream()` |
+| `Valve<TIn, TOut>` | src/valve.ts | Conditional gate — filter + predicate |
+| `Tap<T>` | src/tap.ts | Read-only observer — `.observe(payload)` |
+| `State` | src/state.ts | Execution metadata |
+| `Hook<T>` | src/hook.ts | Lifecycle — before / after / onError |
+<!-- /cup:ref -->
+
+**88 tests** across 4 files. `npm test` in `ports/ts/`.
+
+### Rust — `ports/rs/`
+
+<!-- cup:ref file=ports/rs/src/lib.rs -->
+| Type | Source | Role |
+|------|--------|------|
+| `Payload` | src/payload.rs | Immutable data container |
+| `MutablePayload` | src/payload.rs | Mutable sibling for bulk edits |
+| `Value` | src/payload.rs | Dynamic value enum (Int, Float, Str, Bool, List, Map, Null) |
+| `Filter` | src/filter.rs | Processing trait — `call(payload) → Result<Payload>` |
+| `StreamFilter` | src/stream_filter.rs | Streaming — `stream(chunk) → Vec<Payload>` |
+| `Pipeline` | src/pipeline.rs | Orchestrator — `.run()` / `.stream()` |
+| `Valve` | src/valve.rs | Conditional gate — filter + predicate (AtomicBool) |
+| `Tap` | src/tap.rs | Read-only observer — `.observe(&payload)` |
+| `State` | src/state.rs | Execution metadata |
+| `Hook` | src/hook.rs | Lifecycle — before / after / on_error |
+<!-- /cup:ref -->
+
+**59 tests** (inline `#[cfg(test)]` modules). `cargo test` in `ports/rs/`.
+
+### Go — `ports/go/`
+
+<!-- cup:ref file=ports/go/codeupipe/pipeline.go -->
+| Type | Source | Role |
+|------|--------|------|
+| `Payload` | codeupipe/payload.go | Immutable data container (value semantics) |
+| `MutablePayload` | codeupipe/payload.go | Mutable sibling for bulk edits |
+| `Filter` | codeupipe/filter.go | Processing interface — `Call(payload) (Payload, error)` |
+| `NamedFilter` | codeupipe/filter.go | Optional interface for custom filter names |
+| `StreamFilter` | codeupipe/stream_filter.go | Streaming — `Stream(chunk) ([]Payload, error)` |
+| `Pipeline` | codeupipe/pipeline.go | Orchestrator — `.Run()` / `.Stream()` (goroutines + channels) |
+| `Valve` | codeupipe/valve.go | Conditional gate — filter + predicate |
+| `Tap` | codeupipe/tap.go | Read-only observer — `.Observe(payload)` |
+| `State` | codeupipe/state.go | Execution metadata |
+| `Hook` | codeupipe/hook.go | Lifecycle — `Before` / `After` / `OnError` |
+| `DefaultHook` | codeupipe/hook.go | No-op Hook for embedding |
+<!-- /cup:ref -->
+
+**68 tests** across 3 files. `go test -v ./...` in `ports/go/`.
+
+---
+
+## AI Suite (Ring 12)
+
+AI agent framework gated behind optional extras. Core stays zero-dep.
+
+Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (torch) · `codeupipe[ai-tui]` (textual) · `codeupipe[ai-full]` (everything)
+
+### Agent SDK
+
+<!-- cup:ref file=codeupipe/ai/__init__.py -->
+<!-- cup:ref file=codeupipe/ai/agent/__init__.py symbols=Agent,AgentConfig,AgentEvent,EventType,ServerDef -->
+| Type | Source | Role |
+|------|--------|------|
+| `Agent` | ai/agent/agent.py | Main agent — async generator event loop |
+| `AgentConfig` | ai/agent/config.py | Model, max_iterations, verbose, server defs |
+| `AgentEvent` | ai/agent/events.py | Typed event emitted during agent execution |
+| `EventType` | ai/agent/events.py | Enum — TURN_START, RESPONSE, TOOL_CALL, DONE, ERROR, etc. |
+| `ServerDef` | ai/agent/config.py | MCP server definition (name, command/url, args) |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+### Providers
+
+<!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider -->
+<!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider -->
+| Type | Source | Role |
+|------|--------|------|
+| `LanguageModelProvider` | ai/providers/base.py | ABC — init, create_session, chat, cleanup |
+| `CopilotProvider` | ai/providers/copilot.py | GitHub Copilot backend via copilot-sdk |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+### AI Filters
+
+<!-- cup:ref file=codeupipe/ai/filters/__init__.py -->
+| Type | Source | Role |
+|------|--------|------|
+| `InitProviderLink` | ai/filters/init_provider.py | Configure LLM provider from payload |
+| `LanguageModelLink` | ai/filters/language_model.py | Send messages to LLM |
+| `RegisterServersLink` | ai/filters/register_servers.py | Register MCP servers |
+| `CleanupSessionLink` | ai/filters/session_cleanup.py | Clean up session resources |
+| `DiscoverByIntentLink` | ai/filters/discovery/ | Intent → capability discovery |
+| `AgentLoopLink` | ai/filters/loop/agent_loop.py | Core agent iteration loop |
+| `ToolContinuationLink` | ai/filters/loop/ | Process tool call results |
+| `ManageStateLink` | ai/filters/loop/ | Manage conversation state |
+| `BackchannelLink` | ai/filters/loop/ | Handle backchannel messages |
+| `ContextPruningLink` | ai/filters/loop/ | Prune context to fit model limits |
+| `EmbedQueryLink` | ai/filters/discovery/ | Embed query for semantic search |
+| `CoarseSearchLink` | ai/filters/discovery/ | Coarse-grained capability search |
+| `FineRankLink` | ai/filters/discovery/ | Fine-grained re-ranking |
+| `ScanFilesLink` | ai/filters/registration/ | Scan local capability files |
+| `ParseCapabilitiesLink` | ai/filters/registration/ | Parse file-based capabilities |
+| `SyncRegistryLink` | ai/filters/registration/ | Sync capabilities to registry |
+<!-- /cup:ref -->
+
+### AI Pipelines
+
+<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain -->
+<!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain -->
+<!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain -->
+<!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain -->
+| Pipeline | Purpose |
+|----------|---------|
+| `build_agent_session_chain()` | Full agent lifecycle: register → discover → init → loop → cleanup |
+| `build_intent_discovery_chain()` | Intent → embed → search → rank → validate → fetch |
+| `build_capability_registration_chain()` | MCP server tools → registry |
+| `build_file_registration_chain()` | Local files → parse → sync to registry |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+### Hub & Discovery
+
+<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub -->
+<!-- cup:ref file=codeupipe/ai/discovery/registry.py symbols=CapabilityRegistry -->
+| Type | Source | Role |
+|------|--------|------|
+| `ServerRegistry` | ai/hub/server.py | MCP server lifecycle management |
+| `create_default_hub()` | ai/hub/server.py | Default hub with echo server |
+| `CapabilityRegistry` | ai/discovery/registry.py | SQLite-backed capability store |
+| `SnowflakeArcticEmbedder` | ai/discovery/embedder.py | Local embedding model (requires torch) |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+### AI Hooks
+
+<!-- cup:ref file=codeupipe/ai/hooks/logging_hook.py symbols=LoggingMiddleware -->
+<!-- cup:ref file=codeupipe/ai/hooks/timing_hook.py symbols=TimingMiddleware -->
+<!-- cup:ref file=codeupipe/ai/hooks/audit_producer.py symbols=AuditProducer -->
+| Type | Source | Role |
+|------|--------|------|
+| `LoggingMiddleware` | ai/hooks/logging_hook.py | Per-step info/error logging |
+| `TimingMiddleware` | ai/hooks/timing_hook.py | Per-step elapsed time tracking |
+| `AuditProducer` | ai/hooks/audit_producer.py | Audit trail for AI operations |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+### TUI
+
+<!-- cup:ref file=codeupipe/ai/tui/app.py symbols=CopilotApp -->
+| Type | Source | Role |
+|------|--------|------|
+| `CopilotApp` | ai/tui/app.py | Textual TUI — chat, events, history (requires `codeupipe[ai-tui]`) |
+<!-- /cup:ref -->
+
+### Eval
+
+<!-- cup:ref file=codeupipe/ai/eval/__init__.py -->
+| Module | Role |
+|--------|------|
+| `experiment.py` | A/B experiment runner |
+| `scenario.py` | Scenario management |
+| `metrics.py` | Metric computation |
+| `scorer.py` | Deterministic + LLM scoring |
+| `baseline.py` | Control group management |
+| `comparator.py` | A/B comparisons |
+| `analytics.py` | Audit-powered analytics |
+| `collector.py` | Mass data capture |
+| `storage.py` | SQLite persistence |
+| `export.py` | Data export (CSV, JSON) |
+| `report.py` | Markdown report generation |
+| `validation.py` | Data integrity checks |
+| `query.py` | Fluent query builder |
+<!-- /cup:ref -->
+
+**1221 AI tests** (1221 pass without extras; remainder needs torch, textual, or API keys).
+
+### Agent-Loop Template (`cup init agent-loop`)
+
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=_scaffold_agent_loop -->
+<!-- cup:ref file=codeupipe/deploy/recipes/agent-loop.json -->
+
+Scaffolds a full agentic turn-loop project — the Claude Code / orchie pattern — via `cup init agent-loop <name>`.
+
+**Usage:**
+```bash
+cup init agent-loop my-agent --ai Copilot
+```
+
+**Scaffolded structure:**
+```
+my-agent/
+├── main.py              # async entry point — one-shot + interactive modes
+├── cup.toml             # codeupipe project manifest
+├── pyproject.toml       # depends on codeupipe[ai]>=0.12.0
+├── README.md            # architecture overview with turn loop diagram
+├── .gitignore           # sessions/, .env, local config
+├── pipelines/
+│   └── agent-loop.json  # resolved recipe config
+├── providers/
+│   ├── __init__.py
+│   └── provider.py      # LLM provider stub (Copilot/Anthropic/OpenAI)
+├── tools/
+│   ├── __init__.py
+│   └── echo.py          # example MCP tool with __follow_up__ convention
+├── skills/
+│   ├── README.md        # skill authoring guide
+│   └── example.md       # example lazy-loaded context skill
+├── prompts/
+│   ├── system.md        # 4-layer system prompt (identity, capabilities, behavior, constraints)
+│   └── tools.md         # tool conventions + follow-up protocol
+├── sessions/
+│   └── .gitkeep         # session persistence directory (gitignored)
+├── config/
+│   ├── agent.toml       # model, max_iterations, context budget thresholds
+│   └── hub.toml         # MCP server registry (echo server pre-registered)
+├── filters/
+│   └── custom.py        # CustomAgentFilter — response post-processing hook
+└── tests/
+    └── test_my_agent.py # payload + filter + session chain tests
+```
+
+**Turn loop architecture (14 filters per turn):**
+```
+┌─────────── AgentLoop (repeats until done) ───────────┐
+│ InjectNotifications → ReadInput → LanguageModel →     │
+│ ProcessResponse → Backchannel → ToolContinuation →    │
+│ UpdateIntent → Rediscover → ManageState →             │
+│ ContextAttribution → ConversationRevision →           │
+│ SaveCheckpoint → ContextPruning → CheckDone           │
+└───────────────────────────────────────────────────────┘
+```
+
+**Recipe:** `agent-loop.json` — 5 session steps (RegisterServers → DiscoverByIntent → InitProvider → AgentLoop → SessionCleanup) + 3 hooks (EventEmitter, AuditHook, TimingHook).
+
+**32 template tests:** `tests/test_agent_loop_template.py`
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Utils
 
 <!-- cup:ref file=codeupipe/utils/__init__.py hash=9c3f862 -->
@@ -489,6 +769,7 @@ cup obfuscate src/ dist/ --json                             # Machine-readable o
 <!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->
 <!-- cup:ref file=codeupipe/cli/commands/auth_cmds.py hash=a0df015 -->
 <!-- cup:ref file=codeupipe/cli/commands/vault_cmds.py hash=d2fb81a -->
+<!-- cup:ref file=codeupipe/cli/commands/ai_cmds.py symbols=setup -->
 | Command | Purpose |
 |---------|---------||
 | `cup new <type> <name> [path]` | Scaffold component + test |
@@ -524,6 +805,14 @@ cup obfuscate src/ dist/ --json                             # Machine-readable o
 | `cup config <id> --env-file .env` | Validate .env file against a contract |
 | `cup obfuscate <src> <out>` | Build obfuscated SPA — minify HTML, obfuscate JS |
 | `cup obfuscate <src> <out> --strict` | Fail if Node.js tools not installed |
+| `cup ai-ask <prompt>` | Send a prompt to the AI agent |
+| `cup ai-interactive` | Start interactive AI REPL session |
+| `cup ai-tui` | Launch rich Textual TUI (requires `codeupipe[ai-tui]`) |
+| `cup ai-discover <intent>` | Discover capabilities by intent |
+| `cup ai-sync` | Sync local file-based capabilities |
+| `cup ai-register --server-name N` | Register MCP server capabilities |
+| `cup ai-hub` | Show default hub server registry |
+| `cup init agent-loop <name>` | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
 | `--json` (global) | Machine-readable JSON output |
 | `--auto-fix` (doc-check) | Non-interactive hash fix (AI/CI friendly) |
 <!-- /cup:ref -->
@@ -653,7 +942,27 @@ cup obfuscate src/ dist/ --json                             # Machine-readable o
 
 ## Tests
 
-2015 tests across 60+ files. Full suite: `pytest`
+3351 Python tests (2130 core + 1221 AI suite) across 176+ files. 88 TypeScript tests. 59 Rust tests. 68 Go tests. **3566 total across all languages.**
+
+```bash
+# Python — core (zero deps)
+pytest tests/ --ignore=tests/ai/
+
+# Python — AI suite (requires codeupipe[ai])
+pytest tests/ai/
+
+# Python — all
+pytest
+
+# TypeScript
+cd ports/ts && npm test
+
+# Rust
+cd ports/rs && cargo test
+
+# Go
+cd ports/go && go test -v ./...
+```
 
 ---
 

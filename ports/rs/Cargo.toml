@@ -1,0 +1,15 @@
+[package]
+name = "codeupipe-core"
+version = "0.1.0"
+edition = "2021"
+description = "codeupipe core pipeline primitives — Rust port"
+license = "MIT"
+keywords = ["pipeline", "filter", "payload", "codeupipe", "wasm"]
+
+[features]
+default = []
+wasm = []
+
+[lib]
+name = "codeupipe_core"
+path = "src/lib.rs"

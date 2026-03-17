@@ -7,6 +7,7 @@ and registers handler functions with the registry.
 """
 
 from . import (
+    ai_cmds,
     analysis_cmds,
     auth_cmds,
     connect_cmds,
@@ -28,6 +29,7 @@ _ALL_MODULES = [
     distribute_cmds,
     auth_cmds,
     vault_cmds,
+    ai_cmds,
 ]
 
 
