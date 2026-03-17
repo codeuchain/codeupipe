@@ -195,7 +195,7 @@ codeupipe/
 <!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
 <!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
 <!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
-<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=381c944 -->
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=8e90613 -->
 <!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=717235e -->
 <!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
 <!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
@@ -504,7 +504,26 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 ### Agent SDK
 
 <!-- cup:ref file=codeupipe/ai/__init__.py -->
-<!-- cup:ref file=codeupipe/ai/agent/__init__.py symbols=Agent,AgentConfig,AgentEvent,EventType,ServerDef -->
+<!-- cup:ref file=codeupipe/ai/_check.py hash=f27f76c -->
+<!-- cup:ref file=codeupipe/ai/config.py hash=135861f -->
+<!-- cup:ref file=codeupipe/ai/agent/__init__.py hash=414a2a1 -->
+<!-- cup:ref file=codeupipe/ai/agent/billing.py hash=b8b1d7a -->
+<!-- cup:ref file=codeupipe/ai/agent/emitter.py hash=5008313 -->
+<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=73eda39 -->
+<!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
+<!-- cup:ref file=codeupipe/ai/pipelines/__init__.py hash=3595169 -->
+<!-- cup:ref file=codeupipe/ai/hooks/__init__.py hash=72a09c4 -->
+<!-- cup:ref file=codeupipe/ai/hub/__init__.py hash=ebda4eb -->
+<!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
+<!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
+<!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=0a95140 -->
+<!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
+<!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
+<!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
+<!-- cup:ref file=codeupipe/ai/agent/agent.py symbols=Agent -->
+<!-- cup:ref file=codeupipe/ai/agent/config.py symbols=AgentConfig,ServerDef -->
+<!-- cup:ref file=codeupipe/ai/agent/events.py symbols=AgentEvent,EventType -->
 | Type | Source | Role |
 |------|--------|------|
 | `Agent` | ai/agent/agent.py | Main agent — async generator event loop |
@@ -517,8 +536,8 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### Providers
 
-<!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider -->
-<!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider -->
+<!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider hash=cb016be -->
+<!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider hash=11322a0 -->
 | Type | Source | Role |
 |------|--------|------|
 | `LanguageModelProvider` | ai/providers/base.py | ABC — init, create_session, chat, cleanup |
@@ -528,7 +547,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### AI Filters
 
-<!-- cup:ref file=codeupipe/ai/filters/__init__.py -->
+<!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
 | Type | Source | Role |
 |------|--------|------|
 | `InitProviderLink` | ai/filters/init_provider.py | Configure LLM provider from payload |
@@ -551,10 +570,10 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### AI Pipelines
 
-<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain -->
-<!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain -->
-<!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain -->
-<!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain -->
+<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=40ab356 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain hash=92f29cf -->
+<!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain hash=37e0063 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain hash=e6c7671 -->
 | Pipeline | Purpose |
 |----------|---------|
 | `build_agent_session_chain()` | Full agent lifecycle: register → discover → init → loop → cleanup |
@@ -626,7 +645,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 ### Agent-Loop Template (`cup init agent-loop`)
 
 <!-- cup:ref file=codeupipe/deploy/init.py symbols=_scaffold_agent_loop -->
-<!-- cup:ref file=codeupipe/deploy/recipes/agent-loop.json -->
+<!-- cup:ref file=codeupipe/deploy/recipes/agent-loop.json hash=dc386f6 -->
 
 Scaffolds a full agentic turn-loop project — the Claude Code / orchie pattern — via `cup init agent-loop <name>`.
 
@@ -753,13 +772,13 @@ my-agent/
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=4691a2f -->
+<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=110bfd7 -->
 <!-- cup:ref file=codeupipe/cli/__main__.py hash=eec6b5b -->
 <!-- cup:ref file=codeupipe/cli/_registry.py symbols=CommandRegistry hash=8e82ece -->
 <!-- cup:ref file=codeupipe/cli/_templates.py hash=c43b99a -->
 <!-- cup:ref file=codeupipe/cli/_scaffold.py symbols=scaffold,COMPONENT_TYPES hash=1f62e60 -->
 <!-- cup:ref file=codeupipe/cli/_bundle.py symbols=bundle hash=9a1b776 -->
-<!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=1f2d6ed -->
+<!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=542d5e0 -->
 <!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
 <!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=9d54f93 -->
 <!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->

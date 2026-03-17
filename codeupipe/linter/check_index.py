@@ -59,7 +59,7 @@ class CheckIndex:
             # (the __init__.py for those packages is sufficient coverage)
             parts = py_file.parts
             in_subpackage = False
-            for sub in ("linter", "converter"):
+            for sub in ("linter", "converter", "ai"):
                 if sub in parts:
                     sub_idx = parts.index(sub)
                     # If it's deeper than the direct children, always skip
