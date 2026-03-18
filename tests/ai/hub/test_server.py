@@ -29,9 +29,12 @@ class TestHubServer:
         assert len(registry.list_servers()) == 0
 
     def test_create_default_hub(self):
-        """Default hub comes with echo server docked."""
+        """Default hub comes with echo and mcp-manager docked."""
         registry = create_default_hub()
         assert registry.has("echo")
+        assert registry.has("mcp-manager")
         configs = registry.to_mcp_configs()
         assert "echo" in configs
         assert configs["echo"]["command"] == "python"
+        assert "mcp-manager" in configs
+        assert configs["mcp-manager"]["command"] == "python"

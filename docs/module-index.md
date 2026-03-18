@@ -134,7 +134,7 @@ codeupipe/
 │   ├── hub/                 # MCP server registry — ServerRegistry, IOWrapper, create_default_hub
 │   ├── loop/                # Session management — SessionStore
 │   ├── discovery/           # Capability registry — CapabilityRegistry, SnowflakeArcticEmbedder
-│   ├── servers/             # Built-in MCP servers — echo
+│   ├── servers/             # Built-in MCP servers — echo, mcp_manager
 │   ├── tui/                 # Textual TUI — CopilotApp (requires codeupipe[ai-tui])
 │   │   ├── screens/         # Chat, events, history screens
 │   │   └── widgets/         # InputBar, MessagePanel, EventPanel
@@ -156,7 +156,7 @@ codeupipe/
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
         ├── auth_cmds.py     # auth login/status/revoke/list
-        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
+        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub, ai-hub-manage
         └── browser_cmds.py  # browser-open/close/snapshot/click/fill/eval/screenshot/tabs/raw/get
 ```
 <!-- /cup:ref -->
@@ -531,7 +531,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
 <!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
 <!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
-<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=0a95140 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=bfdbeb3 -->
 <!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
 <!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
 <!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
@@ -601,16 +601,44 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### Hub & Discovery
 
-<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub -->
+<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub hash=ecdaca0 -->
+<!-- cup:ref file=codeupipe/ai/hub/registry.py symbols=ServerRegistry hash=c54b7a9 -->
 <!-- cup:ref file=codeupipe/ai/discovery/registry.py symbols=CapabilityRegistry -->
+<!-- cup:ref file=codeupipe/ai/servers/mcp_manager.py symbols=list_servers,add_server,remove_server,enable_server,disable_server,server_status,discover_tools hash=f0d9688 -->
 | Type | Source | Role |
 |------|--------|------|
-| `ServerRegistry` | ai/hub/server.py | MCP server lifecycle management |
-| `create_default_hub()` | ai/hub/server.py | Default hub with echo server |
+| `ServerRegistry` | ai/hub/registry.py | MCP server lifecycle management (register, enable, disable, tool mapping) |
+| `create_default_hub()` | ai/hub/server.py | Default hub with echo + mcp-manager servers |
 | `CapabilityRegistry` | ai/discovery/registry.py | SQLite-backed capability store |
 | `SnowflakeArcticEmbedder` | ai/discovery/embedder.py | Local embedding model (requires torch) |
+| `mcp_manager` | ai/servers/mcp_manager.py | Agent-driven hub management (tool-for-tools pattern) |
 <!-- /cup:ref -->
 <!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+#### MCP Manager — Agent-Driven Hub Management
+
+The MCP Manager is itself an MCP server docked in the hub. Its tools let the agent
+manage servers on the user's behalf — no manual configuration required.
+
+**Tools exposed to the agent:**
+
+| Tool | Description |
+|------|-------------|
+| `mcp_list_servers` | List all docked MCP servers |
+| `mcp_add_server` | Add a new server (name, command, args, env, tools) |
+| `mcp_remove_server` | Remove a server from the hub |
+| `mcp_enable_server` | Re-enable a disabled server |
+| `mcp_disable_server` | Disable a server (stays docked, tools hidden) |
+| `mcp_server_status` | Inspect a server's status, command, and tools |
+| `mcp_server_config` | Get full configuration for a server |
+| `mcp_discover_tools` | List all tools mapped to a server |
+
+**Architecture:**
+- Pure functions (`add_server`, `remove_server`, …) are testable with zero deps
+- FastMCP `@server.tool()` decorators are just the transport layer
+- `set_hub_registry()` wires the hub's `ServerRegistry` at startup
 
 ### AI Hooks
 
@@ -880,7 +908,7 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=110bfd7 -->
+<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=b8fbe58 -->
 <!-- cup:ref file=codeupipe/cli/__main__.py hash=eec6b5b -->
 <!-- cup:ref file=codeupipe/cli/_registry.py symbols=CommandRegistry hash=8e82ece -->
 <!-- cup:ref file=codeupipe/cli/_templates.py hash=c43b99a -->
@@ -940,6 +968,14 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 | `cup ai-sync` | Sync local file-based capabilities |
 | `cup ai-register --server-name N` | Register MCP server capabilities |
 | `cup ai-hub` | Show default hub server registry |
+| `cup ai-hub-manage list` | List all docked MCP servers |
+| `cup ai-hub-manage add -n NAME -c CMD` | Add a server to the hub |
+| `cup ai-hub-manage remove -n NAME` | Remove a server from the hub |
+| `cup ai-hub-manage enable -n NAME` | Re-enable a disabled server |
+| `cup ai-hub-manage disable -n NAME` | Disable a server (tools hidden) |
+| `cup ai-hub-manage status -n NAME` | Inspect server status and tools |
+| `cup ai-hub-manage config -n NAME` | Show full server configuration |
+| `cup ai-hub-manage tools -n NAME` | List tools mapped to a server |
 | `cup init agent-loop <name>` | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
 | `cup browser-open <url>` | Open URL in headless browser |
 | `cup browser-close` | Close browser session |

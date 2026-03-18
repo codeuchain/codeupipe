@@ -531,7 +531,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
 <!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
 <!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
-<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=0a95140 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=bfdbeb3 -->
 <!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
 <!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
 <!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
@@ -883,7 +883,7 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 
 ## CLI
 
-<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=110bfd7 -->
+<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=b8fbe58 -->
 <!-- cup:ref file=codeupipe/cli/__main__.py hash=eec6b5b -->
 <!-- cup:ref file=codeupipe/cli/_registry.py symbols=CommandRegistry hash=8e82ece -->
 <!-- cup:ref file=codeupipe/cli/_templates.py hash=c43b99a -->

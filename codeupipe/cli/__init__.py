@@ -35,6 +35,7 @@ AI Suite (requires pip install codeupipe[ai]):
     cup ai-sync [--verbose]
     cup ai-register --server-name N (--server-url U | --server-command C) [--verbose]
     cup ai-hub [--json]
+    cup ai-hub-manage <action> [--name N] [--command C] [--args A] [--env E] [--json]
 
 Components:
     filter          Filter (sync def call) — Pipeline handles awaiting

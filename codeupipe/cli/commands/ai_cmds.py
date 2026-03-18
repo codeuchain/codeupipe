@@ -141,6 +141,42 @@ def setup(sub, reg):
     )
     reg.register("ai-hub", _handle_hub)
 
+    # ── cup ai-hub-manage <action> [options] ─────────────────────
+    manage_parser = sub.add_parser(
+        "ai-hub-manage",
+        help="Manage MCP servers in the hub (list/add/remove/enable/disable/status/tools)",
+    )
+    manage_parser.add_argument(
+        "action",
+        choices=["list", "add", "remove", "enable", "disable", "status", "tools", "config"],
+        help="Management action to perform",
+    )
+    manage_parser.add_argument(
+        "--name", "-n",
+        help="Server name (required for add/remove/enable/disable/status/tools/config)",
+    )
+    manage_parser.add_argument(
+        "--command", "-c", dest="server_command",
+        help="Server command (required for add, e.g. 'python' or 'node')",
+    )
+    manage_parser.add_argument(
+        "--args", "-a", dest="server_args",
+        help="Space-separated server arguments (e.g. '-m weather_server')",
+    )
+    manage_parser.add_argument(
+        "--env", "-e",
+        help="Comma-separated KEY=VALUE env pairs (e.g. 'API_KEY=abc,PORT=8080')",
+    )
+    manage_parser.add_argument(
+        "--tools", "-t",
+        help="Comma-separated tool names to expose (empty = all)",
+    )
+    manage_parser.add_argument(
+        "--json", action="store_true", dest="json_output",
+        help="Output as JSON",
+    )
+    reg.register("ai-hub-manage", _handle_hub_manage)
+
 
 # ── handlers ─────────────────────────────────────────────────────────
 
@@ -275,6 +311,140 @@ def _handle_hub(args):
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+
+
+def _handle_hub_manage(args):
+    """Manage MCP servers in the hub."""
+    _require_ai()
+    action = args.action
+    name = getattr(args, "name", None)
+    json_out = getattr(args, "json_output", False)
+
+    from codeupipe.ai.hub.server import create_default_hub
+    from codeupipe.ai.servers.mcp_manager import (
+        add_server,
+        disable_server,
+        discover_tools,
+        enable_server,
+        get_server_config,
+        list_servers,
+        remove_server,
+        server_status,
+    )
+
+    try:
+        hub = create_default_hub()
+
+        if action == "list":
+            result = list_servers(hub)
+        elif action in ("add", "remove", "enable", "disable", "status", "tools", "config"):
+            if not name:
+                print(f"Error: --name is required for '{action}'", file=sys.stderr)
+                return 1
+            if action == "add":
+                cmd = getattr(args, "server_command", None)
+                if not cmd:
+                    print("Error: --command is required for 'add'", file=sys.stderr)
+                    return 1
+                raw_args = getattr(args, "server_args", None)
+                parsed_args = raw_args.split() if raw_args else []
+                raw_env = getattr(args, "env", None)
+                parsed_env: dict[str, str] = {}
+                if raw_env:
+                    for pair in raw_env.split(","):
+                        pair = pair.strip()
+                        if "=" in pair:
+                            k, v = pair.split("=", 1)
+                            parsed_env[k.strip()] = v.strip()
+                raw_tools = getattr(args, "tools", None)
+                parsed_tools = [t.strip() for t in raw_tools.split(",") if t.strip()] if raw_tools else None
+                result = add_server(
+                    hub, name=name, command=cmd,
+                    args=parsed_args, env=parsed_env, tools=parsed_tools,
+                )
+            elif action == "remove":
+                result = remove_server(hub, name=name)
+            elif action == "enable":
+                result = enable_server(hub, name=name)
+            elif action == "disable":
+                result = disable_server(hub, name=name)
+            elif action == "status":
+                result = server_status(hub, name=name)
+            elif action == "tools":
+                result = discover_tools(hub, name=name)
+            elif action == "config":
+                result = get_server_config(hub, name=name)
+            else:
+                result = {"error": f"Unknown action: {action}"}
+        else:
+            result = {"error": f"Unknown action: {action}"}
+
+        if json_out:
+            print(json.dumps(result, indent=2))
+        else:
+            _print_manage_result(action, result)
+        return 0
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def _print_manage_result(action: str, result: dict) -> None:
+    """Pretty-print a management result."""
+    if action == "list":
+        servers = result.get("servers", [])
+        if not servers:
+            print("No servers docked.")
+        else:
+            print(f"Hub — {result['count']} server(s):")
+            for s in servers:
+                print(f"  • {s}")
+    elif action == "add":
+        verb = "Replaced" if result.get("replaced") else "Added"
+        print(f"{verb} server '{result['name']}' ({result['command']})")
+    elif action == "remove":
+        if result.get("removed"):
+            print(f"Removed server '{result['name']}'")
+        else:
+            print(f"Server '{result['name']}' not found.")
+    elif action in ("enable", "disable"):
+        ok = result.get("enabled" if action == "enable" else "disabled", False)
+        if ok:
+            print(f"{'Enabled' if action == 'enable' else 'Disabled'} server '{result['name']}'")
+        else:
+            print(f"Server '{result['name']}' not found.")
+    elif action == "status":
+        if not result.get("found"):
+            print(f"Server '{result['name']}' not found.")
+        else:
+            disabled = " (disabled)" if result.get("disabled") else ""
+            tools = result.get("tools", [])
+            print(f"Server: {result['name']}{disabled}")
+            print(f"  Command: {result['command']} {' '.join(result.get('args', []))}")
+            print(f"  Tools:   {len(tools)} — {', '.join(tools) if tools else '(none)'}")
+    elif action == "tools":
+        if not result.get("found"):
+            print(f"Server '{result['name']}' not found.")
+        else:
+            tools = result.get("tools", [])
+            if not tools:
+                print(f"Server '{result['name']}' has no mapped tools.")
+            else:
+                print(f"Server '{result['name']}' — {len(tools)} tool(s):")
+                for t in tools:
+                    print(f"  • {t}")
+    elif action == "config":
+        if not result.get("found"):
+            print(f"Server '{result.get('name', '?')}' not found.")
+        else:
+            cfg = result["config"]
+            print(f"Server: {cfg['name']}")
+            print(f"  Command:  {cfg['command']}")
+            print(f"  Args:     {cfg['args']}")
+            print(f"  Env:      {cfg['env'] or '(none)'}")
+            print(f"  CWD:      {cfg['cwd'] or '(inherit)'}")
+            print(f"  Tools:    {cfg['tools']}")
+            print(f"  Timeout:  {cfg['timeout']}ms")
 
 
 # ── async helpers ────────────────────────────────────────────────────

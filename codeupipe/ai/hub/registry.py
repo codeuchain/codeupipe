@@ -19,6 +19,7 @@ class ServerRegistry:
     def __init__(self) -> None:
         self._servers: dict[str, ServerConfig] = {}
         self._tool_map: dict[str, str] = {}  # tool_name -> server_name
+        self._disabled: set[str] = set()  # server names that are docked but paused
 
     # ── Server lifecycle ──────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ class ServerRegistry:
     def unregister(self, name: str) -> None:
         """Undock a sub-server from the hub."""
         self._servers.pop(name, None)
+        self._disabled.discard(name)
         # Clean up tool mappings for this server
         self._tool_map = {
             tool: srv for tool, srv in self._tool_map.items() if srv != name
@@ -56,6 +58,33 @@ class ServerRegistry:
         """Resolve which server owns a given tool."""
         return self._tool_map.get(tool_name)
 
+    def tools_for_server(self, server_name: str) -> list[str]:
+        """List all tool names mapped to a specific server."""
+        return [
+            tool for tool, srv in self._tool_map.items()
+            if srv == server_name
+        ]
+
+    # ── Enable / disable ──────────────────────────────────────────────
+
+    def disable(self, name: str) -> bool:
+        """Disable a docked server (excluded from mcp_configs)."""
+        if name not in self._servers:
+            return False
+        self._disabled.add(name)
+        return True
+
+    def enable(self, name: str) -> bool:
+        """Re-enable a disabled server."""
+        if name not in self._servers:
+            return False
+        self._disabled.discard(name)
+        return True
+
+    def is_disabled(self, name: str) -> bool:
+        """Check if a server is currently disabled."""
+        return name in self._disabled
+
     # ── Copilot SDK integration ───────────────────────────────────────
 
     def to_mcp_configs(self) -> dict[str, dict]:
@@ -66,6 +95,8 @@ class ServerRegistry:
         """
         configs: dict[str, dict] = {}
         for name, cfg in self._servers.items():
+            if name in self._disabled:
+                continue
             entry: dict = {
                 "type": "local",
                 "command": cfg.command,

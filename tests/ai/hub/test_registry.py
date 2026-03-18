@@ -101,3 +101,58 @@ class TestServerRegistry:
         assert "echo" in mcp_configs
         assert mcp_configs["echo"]["type"] == "local"
         assert mcp_configs["echo"]["command"] == "python"
+
+    # ── Enable / disable ──────────────────────────────────────────────
+
+    def test_disable_server(self):
+        """Disabled servers are excluded from mcp_configs."""
+        registry = ServerRegistry()
+        registry.register(ServerConfig(name="echo", command="cmd", args=[]))
+        assert registry.disable("echo") is True
+        assert registry.is_disabled("echo") is True
+        assert "echo" not in registry.to_mcp_configs()
+
+    def test_enable_disabled_server(self):
+        """Re-enabled servers reappear in mcp_configs."""
+        registry = ServerRegistry()
+        registry.register(ServerConfig(name="echo", command="cmd", args=[]))
+        registry.disable("echo")
+        assert registry.enable("echo") is True
+        assert registry.is_disabled("echo") is False
+        assert "echo" in registry.to_mcp_configs()
+
+    def test_disable_nonexistent_returns_false(self):
+        """Disabling a non-existent server returns False."""
+        registry = ServerRegistry()
+        assert registry.disable("ghost") is False
+
+    def test_enable_nonexistent_returns_false(self):
+        """Enabling a non-existent server returns False."""
+        registry = ServerRegistry()
+        assert registry.enable("ghost") is False
+
+    def test_unregister_clears_disabled_state(self):
+        """Unregistering a disabled server cleans up disabled set."""
+        registry = ServerRegistry()
+        registry.register(ServerConfig(name="x", command="cmd", args=[]))
+        registry.disable("x")
+        registry.unregister("x")
+        assert registry.is_disabled("x") is False
+
+    # ── tools_for_server ──────────────────────────────────────────────
+
+    def test_tools_for_server(self):
+        """tools_for_server returns all tools mapped to a server."""
+        registry = ServerRegistry()
+        registry.register(ServerConfig(name="echo", command="cmd", args=[]))
+        registry.register_tool("echo_message", "echo")
+        registry.register_tool("echo_reverse", "echo")
+        registry.register_tool("db_query", "db")
+        tools = registry.tools_for_server("echo")
+        assert set(tools) == {"echo_message", "echo_reverse"}
+
+    def test_tools_for_server_empty(self):
+        """Server with no tools returns empty list."""
+        registry = ServerRegistry()
+        registry.register(ServerConfig(name="empty", command="cmd", args=[]))
+        assert registry.tools_for_server("empty") == []

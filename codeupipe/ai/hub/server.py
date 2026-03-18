@@ -31,10 +31,10 @@ def create_hub_registry(config: HubConfig | None = None) -> ServerRegistry:
 
 
 def create_default_hub() -> ServerRegistry:
-    """Create the default hub with the echo server docked.
+    """Create the default hub with the echo and mcp-manager servers docked.
 
-    This is the out-of-the-box experience — one echo server
-    demonstrating the dock pattern.
+    This is the out-of-the-box experience — echo demonstrates the dock
+    pattern, mcp-manager lets the agent manage the hub itself.
     """
     config = HubConfig(
         servers={
@@ -42,6 +42,12 @@ def create_default_hub() -> ServerRegistry:
                 name="echo",
                 command="python",
                 args=["-m", "codeupipe.ai.servers.echo"],
+                tools=["*"],
+            ),
+            "mcp-manager": ServerConfig(
+                name="mcp-manager",
+                command="python",
+                args=["-m", "codeupipe.ai.servers.mcp_manager"],
                 tools=["*"],
             ),
         }
