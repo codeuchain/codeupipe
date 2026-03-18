@@ -134,7 +134,7 @@ codeupipe/
 │   ├── hub/                 # MCP server registry — ServerRegistry, IOWrapper, create_default_hub
 │   ├── loop/                # Session management — SessionStore
 │   ├── discovery/           # Capability registry — CapabilityRegistry, SnowflakeArcticEmbedder
-│   ├── servers/             # Built-in MCP servers — echo, mcp_manager
+│   ├── servers/             # Built-in MCP servers — echo, mcp_manager, api_keys
 │   ├── tui/                 # Textual TUI — CopilotApp (requires codeupipe[ai-tui])
 │   │   ├── screens/         # Chat, events, history screens
 │   │   └── widgets/         # InputBar, MessagePanel, EventPanel
@@ -523,7 +523,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/agent/__init__.py hash=414a2a1 -->
 <!-- cup:ref file=codeupipe/ai/agent/billing.py hash=b8b1d7a -->
 <!-- cup:ref file=codeupipe/ai/agent/emitter.py hash=5008313 -->
-<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=abe2254 -->
+<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=80aada1 -->
 <!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
 <!-- cup:ref file=codeupipe/ai/pipelines/__init__.py hash=3595169 -->
 <!-- cup:ref file=codeupipe/ai/hooks/__init__.py hash=72a09c4 -->
@@ -531,7 +531,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
 <!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
 <!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
-<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=bfdbeb3 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=765bb3f -->
 <!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
 <!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
 <!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
@@ -552,10 +552,17 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 <!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider hash=2a8df91 -->
 <!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider hash=11322a0 -->
+<!-- cup:ref file=codeupipe/ai/providers/openai_compat.py symbols=OpenAICompatibleProvider -->
+<!-- cup:ref file=codeupipe/ai/providers/api_key_store.py symbols=ApiKeyEntry,ApiKeyStore -->
 | Type | Source | Role |
 |------|--------|------|
 | `LanguageModelProvider` | ai/providers/base.py | ABC — init, create_session, chat, cleanup |
 | `CopilotProvider` | ai/providers/copilot.py | GitHub Copilot backend via copilot-sdk |
+| `OpenAICompatibleProvider` | ai/providers/openai_compat.py | Any OpenAI-compatible chat/completions API |
+| `ApiKeyEntry` | ai/providers/api_key_store.py | Data class for a saved provider configuration |
+| `ApiKeyStore` | ai/providers/api_key_store.py | Encrypted persistence for API keys (~/.codeupipe/api_keys.enc) |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 
@@ -584,7 +591,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### AI Pipelines
 
-<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=40ab356 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=472de02 -->
 <!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain hash=92f29cf -->
 <!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain hash=37e0063 -->
 <!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain hash=e6c7671 -->
@@ -601,17 +608,20 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### Hub & Discovery
 
-<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub hash=ecdaca0 -->
+<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub -->
 <!-- cup:ref file=codeupipe/ai/hub/registry.py symbols=ServerRegistry hash=c54b7a9 -->
 <!-- cup:ref file=codeupipe/ai/discovery/registry.py symbols=CapabilityRegistry -->
-<!-- cup:ref file=codeupipe/ai/servers/mcp_manager.py symbols=list_servers,add_server,remove_server,enable_server,disable_server,server_status,discover_tools hash=f0d9688 -->
+<!-- cup:ref file=codeupipe/ai/servers/mcp_manager.py symbols=list_servers,add_server,remove_server,enable_server,disable_server,server_status,discover_tools -->
+<!-- cup:ref file=codeupipe/ai/servers/api_keys.py symbols=save_api_key,list_api_keys,remove_api_key,set_active_provider,get_active_provider,get_provider_details -->
 | Type | Source | Role |
 |------|--------|------|
 | `ServerRegistry` | ai/hub/registry.py | MCP server lifecycle management (register, enable, disable, tool mapping) |
-| `create_default_hub()` | ai/hub/server.py | Default hub with echo + mcp-manager servers |
+| `create_default_hub()` | ai/hub/server.py | Default hub with echo + mcp-manager + api-keys servers |
 | `CapabilityRegistry` | ai/discovery/registry.py | SQLite-backed capability store |
 | `SnowflakeArcticEmbedder` | ai/discovery/embedder.py | Local embedding model (requires torch) |
 | `mcp_manager` | ai/servers/mcp_manager.py | Agent-driven hub management (tool-for-tools pattern) |
+| `api_keys` | ai/servers/api_keys.py | Encrypted LLM provider API key management |
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -639,6 +649,31 @@ manage servers on the user's behalf — no manual configuration required.
 - Pure functions (`add_server`, `remove_server`, …) are testable with zero deps
 - FastMCP `@server.tool()` decorators are just the transport layer
 - `set_hub_registry()` wires the hub's `ServerRegistry` at startup
+
+#### API Keys — Encrypted Provider Key Management
+
+The API Keys server manages encrypted LLM provider credentials. The agent (or CLI)
+can save, list, remove, and switch between providers — all keys encrypted at rest
+via `codeupipe.core.secure`.
+
+**Tools exposed to the agent:**
+
+| Tool | Description |
+|------|-------------|
+| `mcp_save_api_key` | Save/update an LLM provider key (encrypted at rest) |
+| `mcp_list_api_keys` | List all saved provider names and active marker |
+| `mcp_remove_api_key` | Remove a provider from the encrypted store |
+| `mcp_set_active_provider` | Set which provider to use by default |
+| `mcp_get_active_provider` | Get the active provider's config (key redacted) |
+| `mcp_get_provider_details` | Inspect a specific provider (key redacted) |
+
+**CLI equivalent:** `cup ai-keys save|list|remove|active|show`
+
+**Architecture:**
+- Pure functions are testable without FastMCP
+- `ApiKeyStore` encrypts the entire key collection to `~/.codeupipe/api_keys.enc`
+- API keys are never exposed in tool output — always redacted
+- Provider resolution: if a stored key exists, `build_agent_session_chain()` uses it
 
 ### AI Hooks
 
@@ -976,6 +1011,11 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 | `cup ai-hub-manage status -n NAME` | Inspect server status and tools |
 | `cup ai-hub-manage config -n NAME` | Show full server configuration |
 | `cup ai-hub-manage tools -n NAME` | List tools mapped to a server |
+| `cup ai-keys save -n NAME -u URL -k KEY -m MODEL` | Save an API key (encrypted) |
+| `cup ai-keys list` | List all saved providers |
+| `cup ai-keys remove -n NAME` | Remove a saved provider |
+| `cup ai-keys active [-n NAME]` | Get or set the active provider |
+| `cup ai-keys show -n NAME` | Show provider details (key redacted) |
 | `cup init agent-loop <name>` | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
 | `cup browser-open <url>` | Open URL in headless browser |
 | `cup browser-close` | Close browser session |

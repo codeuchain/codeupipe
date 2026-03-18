@@ -10,10 +10,15 @@ all LLM interaction flows through LanguageModelLink inside the loop.
 The DiscoverByIntent step is optional — if a capability_registry is
 on context, it discovers capabilities from the user's prompt. Otherwise
 it passes through unchanged, preserving backward compatibility.
+
+Provider resolution order (when no explicit provider given):
+  1. ApiKeyStore active provider → OpenAICompatibleProvider
+  2. Fallback → CopilotProvider (Copilot SDK)
 """
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from codeupipe import Pipeline
@@ -26,6 +31,42 @@ from codeupipe.ai.filters.session_cleanup import CleanupSessionLink
 
 if TYPE_CHECKING:
     from codeupipe.ai.providers.base import LanguageModelProvider
+
+logger = logging.getLogger("codeupipe.ai.pipelines.agent_session")
+
+
+def _resolve_provider() -> LanguageModelProvider:
+    """Resolve a provider from the encrypted key store, or fall back to Copilot.
+
+    Resolution order:
+        1. If ``ApiKeyStore`` has an active (or sole) provider,
+           create an ``OpenAICompatibleProvider`` from it.
+        2. Otherwise, fall back to ``CopilotProvider``.
+    """
+    try:
+        from codeupipe.ai.providers.api_key_store import ApiKeyStore
+        from codeupipe.ai.providers.openai_compat import OpenAICompatibleProvider
+
+        store = ApiKeyStore()
+        entry = store.resolve_active()
+        if entry is not None:
+            logger.info(
+                "Using stored provider '%s' (%s, model=%s)",
+                entry.name,
+                entry.base_url,
+                entry.model,
+            )
+            return OpenAICompatibleProvider(
+                base_url=entry.base_url,
+                api_key=entry.api_key,
+                model=entry.model,
+                **entry.extras,
+            )
+    except Exception:
+        logger.debug("ApiKeyStore resolution failed, falling back to Copilot", exc_info=True)
+
+    from codeupipe.ai.providers.copilot import CopilotProvider
+    return CopilotProvider()
 
 
 def build_agent_session_chain(
@@ -40,7 +81,9 @@ def build_agent_session_chain(
 
     Args:
         provider: Optional pre-configured language model provider.
-            When *None*, creates a default CopilotProvider.
+            When *None*, resolves from the encrypted API key store
+            (``ApiKeyStore``).  Falls back to ``CopilotProvider``
+            if no stored keys exist.
         turn_chain: Optional pre-built turn chain for AgentLoopLink.
             Pass a chain with middleware attached (e.g. EventEmitterMiddleware)
             to observe inner-loop link execution.  When *None*, AgentLoopLink
@@ -61,8 +104,7 @@ def build_agent_session_chain(
         - capabilities: list[CapabilityDefinition] (if discovery enabled)
     """
     if provider is None:
-        from codeupipe.ai.providers.copilot import CopilotProvider
-        provider = CopilotProvider()
+        provider = _resolve_provider()
 
     chain = Pipeline()
 

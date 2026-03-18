@@ -34,7 +34,8 @@ def create_default_hub() -> ServerRegistry:
     """Create the default hub with the echo and mcp-manager servers docked.
 
     This is the out-of-the-box experience — echo demonstrates the dock
-    pattern, mcp-manager lets the agent manage the hub itself.
+    pattern, mcp-manager lets the agent manage the hub itself, and
+    api-keys lets the agent manage encrypted LLM provider credentials.
     """
     config = HubConfig(
         servers={
@@ -48,6 +49,12 @@ def create_default_hub() -> ServerRegistry:
                 name="mcp-manager",
                 command="python",
                 args=["-m", "codeupipe.ai.servers.mcp_manager"],
+                tools=["*"],
+            ),
+            "api-keys": ServerConfig(
+                name="api-keys",
+                command="python",
+                args=["-m", "codeupipe.ai.servers.api_keys"],
                 tools=["*"],
             ),
         }

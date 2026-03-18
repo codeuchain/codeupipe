@@ -134,7 +134,7 @@ codeupipe/
 │   ├── hub/                 # MCP server registry — ServerRegistry, IOWrapper, create_default_hub
 │   ├── loop/                # Session management — SessionStore
 │   ├── discovery/           # Capability registry — CapabilityRegistry, SnowflakeArcticEmbedder
-│   ├── servers/             # Built-in MCP servers — echo
+│   ├── servers/             # Built-in MCP servers — echo, mcp_manager, api_keys
 │   ├── tui/                 # Textual TUI — CopilotApp (requires codeupipe[ai-tui])
 │   │   ├── screens/         # Chat, events, history screens
 │   │   └── widgets/         # InputBar, MessagePanel, EventPanel
@@ -523,7 +523,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/agent/__init__.py hash=414a2a1 -->
 <!-- cup:ref file=codeupipe/ai/agent/billing.py hash=b8b1d7a -->
 <!-- cup:ref file=codeupipe/ai/agent/emitter.py hash=5008313 -->
-<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=abe2254 -->
+<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=80aada1 -->
 <!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
 <!-- cup:ref file=codeupipe/ai/pipelines/__init__.py hash=3595169 -->
 <!-- cup:ref file=codeupipe/ai/hooks/__init__.py hash=72a09c4 -->
@@ -531,7 +531,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
 <!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
 <!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
-<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=bfdbeb3 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=765bb3f -->
 <!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
 <!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
 <!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
@@ -552,10 +552,17 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 <!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider hash=2a8df91 -->
 <!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider hash=11322a0 -->
+<!-- cup:ref file=codeupipe/ai/providers/openai_compat.py symbols=OpenAICompatibleProvider -->
+<!-- cup:ref file=codeupipe/ai/providers/api_key_store.py symbols=ApiKeyEntry,ApiKeyStore -->
 | Type | Source | Role |
 |------|--------|------|
 | `LanguageModelProvider` | ai/providers/base.py | ABC — init, create_session, chat, cleanup |
 | `CopilotProvider` | ai/providers/copilot.py | GitHub Copilot backend via copilot-sdk |
+| `OpenAICompatibleProvider` | ai/providers/openai_compat.py | Any OpenAI-compatible chat/completions API |
+| `ApiKeyEntry` | ai/providers/api_key_store.py | Data class for a saved provider configuration |
+| `ApiKeyStore` | ai/providers/api_key_store.py | Encrypted persistence for API keys (~/.codeupipe/api_keys.enc) |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 
@@ -584,7 +591,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 
 ### AI Pipelines
 
-<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=40ab356 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=472de02 -->
 <!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain hash=92f29cf -->
 <!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain hash=37e0063 -->
 <!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain hash=e6c7671 -->

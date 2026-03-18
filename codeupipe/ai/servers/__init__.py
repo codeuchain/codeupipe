@@ -3,4 +3,5 @@
 Servers:
     echo           — Example echo server (demonstrates dock pattern)
     mcp_manager    — Agent-driven hub management (tool-for-tools)
+    api_keys       — Encrypted LLM provider API key management
 """

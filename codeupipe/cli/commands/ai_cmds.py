@@ -177,6 +177,38 @@ def setup(sub, reg):
     )
     reg.register("ai-hub-manage", _handle_hub_manage)
 
+    # ── cup ai-keys <action> [options] ───────────────────────────
+    keys_parser = sub.add_parser(
+        "ai-keys",
+        help="Manage encrypted LLM provider API keys (save/list/remove/active/show)",
+    )
+    keys_parser.add_argument(
+        "action",
+        choices=["save", "list", "remove", "active", "show"],
+        help="Key management action",
+    )
+    keys_parser.add_argument(
+        "--name", "-n",
+        help="Provider name (required for save/remove/active/show)",
+    )
+    keys_parser.add_argument(
+        "--base-url", "-u",
+        help="OpenAI-compatible base URL (required for save)",
+    )
+    keys_parser.add_argument(
+        "--api-key", "-k",
+        help="API key / token (required for save; use - to read from stdin)",
+    )
+    keys_parser.add_argument(
+        "--model", "-m",
+        help="Default model for this provider (required for save)",
+    )
+    keys_parser.add_argument(
+        "--json", action="store_true", dest="json_output",
+        help="Output as JSON",
+    )
+    reg.register("ai-keys", _handle_keys)
+
 
 # ── handlers ─────────────────────────────────────────────────────────
 
@@ -445,6 +477,129 @@ def _print_manage_result(action: str, result: dict) -> None:
             print(f"  CWD:      {cfg['cwd'] or '(inherit)'}")
             print(f"  Tools:    {cfg['tools']}")
             print(f"  Timeout:  {cfg['timeout']}ms")
+
+
+def _handle_keys(args):
+    """Manage encrypted LLM provider API keys."""
+    action = args.action
+    name = getattr(args, "name", None)
+    json_out = getattr(args, "json_output", False)
+
+    from codeupipe.ai.providers.api_key_store import ApiKeyStore
+    from codeupipe.ai.servers.api_keys import (
+        get_active_provider,
+        get_provider_details,
+        list_api_keys,
+        remove_api_key,
+        save_api_key,
+        set_active_provider,
+    )
+
+    try:
+        store = ApiKeyStore()
+
+        if action == "save":
+            if not name:
+                print("Error: --name is required for 'save'", file=sys.stderr)
+                return 1
+            base_url = getattr(args, "base_url", None)
+            api_key = getattr(args, "api_key", None)
+            model = getattr(args, "model", None)
+            if not base_url or not model:
+                print("Error: --base-url and --model are required for 'save'", file=sys.stderr)
+                return 1
+            # Support reading key from stdin with --api-key -
+            if api_key == "-":
+                api_key = sys.stdin.readline().strip()
+            elif not api_key:
+                print("Error: --api-key is required for 'save'", file=sys.stderr)
+                return 1
+            result = save_api_key(
+                store, name=name, base_url=base_url,
+                api_key=api_key, model=model,
+            )
+        elif action == "list":
+            result = list_api_keys(store)
+        elif action == "remove":
+            if not name:
+                print("Error: --name is required for 'remove'", file=sys.stderr)
+                return 1
+            result = remove_api_key(store, name=name)
+        elif action == "active":
+            if name:
+                result = set_active_provider(store, name=name)
+            else:
+                result = get_active_provider(store)
+        elif action == "show":
+            if not name:
+                print("Error: --name is required for 'show'", file=sys.stderr)
+                return 1
+            result = get_provider_details(store, name=name)
+        else:
+            result = {"error": f"Unknown action: {action}"}
+
+        if json_out:
+            print(json.dumps(result, indent=2))
+        else:
+            _print_keys_result(action, result, name)
+        return 0
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def _print_keys_result(action: str, result: dict, name: str | None) -> None:
+    """Pretty-print a key management result."""
+    if action == "save":
+        verb = "Updated" if result.get("replaced") else "Saved"
+        print(f"{verb} API key for '{result['name']}'")
+    elif action == "list":
+        keys = result.get("keys", [])
+        active = result.get("active")
+        if not keys:
+            print("No API keys saved. Use 'cup ai-keys save' to add one.")
+        else:
+            print(f"API keys — {result['count']} provider(s):")
+            for k in keys:
+                marker = " (active)" if k == active else ""
+                print(f"  • {k}{marker}")
+    elif action == "remove":
+        if result.get("removed"):
+            print(f"Removed API key for '{result['name']}'")
+        else:
+            print(f"Provider '{result['name']}' not found.")
+    elif action == "active":
+        if "ok" in result:
+            # set_active response
+            if result["ok"]:
+                print(f"Active provider set to '{result['active']}'")
+            else:
+                print(f"Error: {result['error']}", file=sys.stderr)
+        else:
+            # get_active response
+            provider = result.get("provider")
+            if provider:
+                print(f"Active: {provider['name']}")
+                print(f"  URL:   {provider['base_url']}")
+                print(f"  Model: {provider['model']}")
+                print(f"  Key:   {provider['api_key']}")
+            else:
+                active = result.get("active")
+                if active:
+                    print(f"Active provider '{active}' not found in store.")
+                else:
+                    print("No active provider set.")
+    elif action == "show":
+        if not result.get("found"):
+            print(f"Provider '{name}' not found.")
+        else:
+            p = result["provider"]
+            print(f"Provider: {p['name']}")
+            print(f"  URL:   {p['base_url']}")
+            print(f"  Model: {p['model']}")
+            print(f"  Key:   {p['api_key']}")
+            if p.get("extras"):
+                print(f"  Extra: {json.dumps(p['extras'])}")
 
 
 # ── async helpers ────────────────────────────────────────────────────
