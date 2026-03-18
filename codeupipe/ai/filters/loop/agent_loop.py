@@ -20,6 +20,7 @@ from codeupipe.ai.filters.loop.check_done import CheckDoneLink
 from codeupipe.ai.filters.loop.context_attribution import ContextAttributionLink
 from codeupipe.ai.filters.loop.context_pruning import ContextPruningLink
 from codeupipe.ai.filters.loop.conversation_revision import ConversationRevisionLink
+from codeupipe.ai.filters.loop.execute_tool_calls import ExecuteToolCallsLink
 from codeupipe.ai.filters.loop.inject_notifications import InjectNotificationsLink
 from codeupipe.ai.filters.loop.manage_state import ManageStateLink
 from codeupipe.ai.filters.loop.process_response import ProcessResponseLink
@@ -36,11 +37,11 @@ logger = logging.getLogger("codeupipe.ai.loop")
 def build_turn_chain() -> Pipeline:
     """Build the single-turn sub-chain.
 
-    Flow per iteration:
+    Flow per iteration (15 filters):
         inject_notifications → read_input → language_model →
-        process_response → backchannel → tool_continuation →
-        update_intent → rediscover → manage_state →
-        context_attribution → conversation_revision →
+        execute_tool_calls → process_response → backchannel →
+        tool_continuation → update_intent → rediscover →
+        manage_state → context_attribution → conversation_revision →
         save_checkpoint → context_pruning → check_done
 
     InjectNotificationsLink drains the NotificationQueue (if present)
@@ -50,6 +51,12 @@ def build_turn_chain() -> Pipeline:
     next_prompt from context, sends it to the configured provider,
     and stores the response string and normalized event dict.
     The provider is read from context (placed by InitProviderLink).
+
+    ExecuteToolCallsLink detects pending tool_calls in the response
+    and executes them via the ToolExecutor on context. SDK-based
+    providers (e.g., CopilotProvider) handle tools internally, so
+    tool_calls will be empty and this link passes through. For
+    HTTP-based providers, this enables pipeline-managed tool execution.
 
     BackchannelLink extracts embedded notifications from tool results
     and pushes them to the queue for the *next* iteration.
@@ -85,6 +92,7 @@ def build_turn_chain() -> Pipeline:
     chain.add_filter(InjectNotificationsLink(), "inject_notifications")
     chain.add_filter(ReadInputLink(), "read_input")
     chain.add_filter(LanguageModelLink(), "language_model")
+    chain.add_filter(ExecuteToolCallsLink(), "execute_tool_calls")
     chain.add_filter(ProcessResponseLink(), "process_response")
     chain.add_filter(BackchannelLink(), "backchannel")
     chain.add_filter(ToolContinuationLink(), "tool_continuation")

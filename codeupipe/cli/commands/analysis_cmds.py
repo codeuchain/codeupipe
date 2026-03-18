@@ -4,6 +4,7 @@ All four delegate to linter pipelines (dogfooding).
 """
 
 import json
+import os
 import sys
 
 from codeupipe import Payload

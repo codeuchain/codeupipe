@@ -754,15 +754,12 @@ my-agent/
 <!-- cup:ref file=codeupipe/linter/coverage_pipeline.py symbols=build_coverage_pipeline hash=004f7b8 -->
 <!-- cup:ref file=codeupipe/linter/report_pipeline.py symbols=build_report_pipeline hash=15f61c5 -->
 <!-- cup:ref file=codeupipe/linter/doc_check_pipeline.py symbols=build_doc_check_pipeline hash=00e62dc -->
-<!-- cup:ref file=codeupipe/linter/agent_docs_pipeline.py symbols=build_agent_docs_pipeline hash=e955c10 -->
 | Pipeline | Command | Purpose |
 |----------|---------|---------|
 | `build_lint_pipeline()` | `cup lint` | Standards violations (CUP000–CUP008) |
 | `build_coverage_pipeline()` | `cup coverage` | Component↔test coverage gaps |
 | `build_report_pipeline()` | `cup report` | Health report with scores |
 | `build_doc_check_pipeline()` | `cup doc-check` | Doc freshness verification |
-| `build_agent_docs_pipeline()` | `cup agent-docs` | Agent doc generation + validation |
-<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->

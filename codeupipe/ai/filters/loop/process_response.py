@@ -54,9 +54,11 @@ class ProcessResponseLink:
         if state.loop_iteration <= 1:
             return TurnType.USER_PROMPT
 
-        # Check if this turn was triggered by tool continuation
+        # Check if this turn was triggered by tool continuation or execution
         follow_up_source = payload.get("follow_up_source")
         if follow_up_source == "tool_continuation":
+            return TurnType.TOOL_CONTINUATION
+        if follow_up_source == "tool_execution":
             return TurnType.TOOL_CONTINUATION
 
         if payload.get("follow_up_prompt"):
