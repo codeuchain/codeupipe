@@ -361,6 +361,21 @@ The framework has 12 rings, 3351 Python tests + 215 polyglot tests, and a connec
 | **Integration test suite** | Real SDK calls against sandbox accounts (Stripe test mode, Resend test domain, etc.) |
 | **Error message polish** | Every user-facing error should guide them to the fix |
 
+### Doc Pipeline Overhaul (TODO)
+
+The `cup doc-check` pipeline (`ScanDocs → ResolveRefs → CheckSymbols → DetectDrift → CheckIndex → AssembleDocReport`) and the MkDocs build hooks (`sync_docs.py`, `copy_raw.py`, `build_platform.py`) work, but the workflow is clunky when building new features. The pain points:
+
+| Problem | What Happens |
+|---|---|
+| **New modules aren't auto-wired** | Adding a new package/module doesn't automatically get `cup:ref` markers, nav entries, or index coverage. You manually wire docs after writing code. |
+| **Hash drift is noisy** | Any change to an `__init__.py` (even re-exports) drifts *every* doc that references it. 11+ stale warnings at once, most of which are cosmetic — not real content drift. |
+| **No `cup doc-fix` command** | Drift is detected but not auto-repaired. You have to manually update each hash. A `cup doc-fix` that rewrites stale hashes in place would close the loop. |
+| **`sync_docs.py` is a static map** | New root `.md` files require a manual edit to `_FILE_MAP`. Should discover root `.md` files or be config-driven via `mkdocs.yml`. |
+| **No scaffolding for docs** | `cup new filter` creates a filter + test, but doesn't touch docs. A `--doc` flag or automatic `cup:ref` injection would keep docs in sync from the start. |
+| **Pre-commit blocks on cosmetic drift** | The pre-commit hook fails on *any* drift, including harmless re-export changes. Needs a severity tier: error (missing symbol) vs. warning (hash-only drift). |
+
+**Goal:** Building a new feature should automatically produce wired-up documentation. Write the filter, the test scaffolds, *and* the doc wiring should follow — or at minimum, `cup doc-fix` should close any gaps in one command.
+
 ### Expand the Connector Catalog
 
 More connectors follow the exact same pattern. Each is an independent package.
