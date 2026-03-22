@@ -71,25 +71,108 @@
     <section id="install-section" class="cup-section">
       <div class="cup-install-section">
         <h3>📦 Get the CUP Bridge Extension</h3>
-        <p style="color: var(--muted); font-size: .85rem; margin-bottom: 1rem;">
-          The extension bridges this platform to your local machine.
-          It enables native compute, GPU training, and desktop services —
-          all from a browser tab.
+        <p style="color: var(--muted); font-size: .85rem; margin-bottom: .75rem;">
+          Works on any Chromium-based browser — Chrome, Edge, Brave, Arc, Opera.
         </p>
-        <ol>
-          <li>Download the extension package below</li>
-          <li>Unzip and open <code>chrome://extensions</code></li>
-          <li>Enable <strong>Developer mode</strong> (top right toggle)</li>
-          <li>Click <strong>Load unpacked</strong> → select the unzipped folder</li>
-          <li>Return here — the dashboard will auto-detect the extension</li>
-        </ol>
-        <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
-          <a href="cup-bridge-extension.zip" class="cup-btn cup-btn-primary" download>
-            ⬇️ Download Extension (.zip)
-          </a>
-          <a href="https://github.com/codeuchain/codeupipe" class="cup-btn cup-btn-secondary" target="_blank">
-            📖 Documentation
-          </a>
+        <div class="cup-browser-badges">
+          <span class="cup-badge cup-badge-edge">Edge ✓</span>
+          <span class="cup-badge cup-badge-chrome">Chrome ✓</span>
+          <span class="cup-badge cup-badge-brave">Brave ✓</span>
+          <span class="cup-badge cup-badge-arc">Arc ✓</span>
+        </div>
+
+        <!-- Desktop install -->
+        <div class="cup-install-tab" id="install-desktop">
+          <h4>🖥️ Desktop</h4>
+          <ol>
+            <li>Download the extension package below</li>
+            <li>Unzip and open <code>chrome://extensions</code> (or <code>edge://extensions</code>)</li>
+            <li>Enable <strong>Developer mode</strong> (top right toggle)</li>
+            <li>Click <strong>Load unpacked</strong> → select the unzipped folder</li>
+            <li>Return here — the dashboard will auto-detect the extension</li>
+          </ol>
+          <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
+            <a href="cup-bridge-extension.zip" class="cup-btn cup-btn-primary" download>
+              ⬇️ Download Extension (.zip)
+            </a>
+            <a href="https://github.com/codeuchain/codeupipe" class="cup-btn cup-btn-secondary" target="_blank">
+              📖 Documentation
+            </a>
+          </div>
+        </div>
+
+        <!-- Mobile install -->
+        <div class="cup-install-tab" id="install-mobile">
+          <h4>📱 Mobile (Edge Android/iOS)</h4>
+          <p style="color: var(--muted); font-size: .85rem; margin-bottom: .5rem;">
+            Edge mobile supports extensions on Android. Sideloading on iOS requires TestFlight or MDM.
+          </p>
+          <ol>
+            <li>Install <strong>Microsoft Edge</strong> from your app store</li>
+            <li>Open Edge → <code>edge://flags</code> → enable <strong>Extensions on Edge</strong></li>
+            <li>Navigate to <code>edge://extensions</code></li>
+            <li>Enable <strong>Developer mode</strong></li>
+            <li>Tap <strong>Load unpacked</strong> or install from a shared CRX URL</li>
+          </ol>
+          <p style="color: var(--yellow); font-size: .8rem; margin-top: .5rem;">
+            ⚠️ Mobile extension support is experimental. The WASM tier (Tier 2)
+            provides CPU-only compute without an extension installed.
+          </p>
+        </div>
+
+        <!-- Future: store listing -->
+        <div class="cup-install-tab cup-coming-soon" id="install-store">
+          <h4>🏪 Browser Extension Stores <span class="cup-badge cup-badge-soon">Coming Soon</span></h4>
+          <p style="color: var(--muted); font-size: .85rem;">
+            One-click install from the Chrome Web Store and Edge Add-ons.
+            No zip files, no developer mode — just install and go.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CUP Products ────────────────────────────────────────── -->
+    <section class="cup-section">
+      <h2>CUP Products</h2>
+      <p style="color: var(--muted); font-size: .85rem; margin-bottom: 1rem;">
+        CUP is the architecture. These are the products built on it — each
+        a CUP Pipeline that solves a real problem.
+      </p>
+      <div class="cup-products-grid">
+        <div class="cup-product-card">
+          <span class="cup-product-icon">🌉</span>
+          <h3>CUP Bridge</h3>
+          <span class="cup-badge cup-badge-live">Live</span>
+          <p>Browser ↔ Desktop bridge. Extension + Native Messaging + HTTP fallback.
+             Run GPU training from a browser tab.</p>
+        </div>
+        <div class="cup-product-card">
+          <span class="cup-product-icon">🦴</span>
+          <h3>Bird Bone AI</h3>
+          <span class="cup-badge cup-badge-live">Live</span>
+          <p>Lightweight on-device AI. LoRA dream training, cryogenics,
+             gentle pruning — all as CUP Filters.</p>
+        </div>
+        <div class="cup-product-card">
+          <span class="cup-product-icon">🌐</span>
+          <h3>CUP Browser</h3>
+          <span class="cup-badge cup-badge-live">Live</span>
+          <p>Programmatic browser automation. PlaywrightBridge SDK with
+             Chrome, Edge, Firefox, WebKit support.</p>
+        </div>
+        <div class="cup-product-card">
+          <span class="cup-product-icon">📱</span>
+          <h3>CUP Mobile</h3>
+          <span class="cup-badge cup-badge-soon">Planned</span>
+          <p>Android via ADB, iOS via libimobiledevice. Control mobile
+             devices the same way CUP Browser controls browsers.</p>
+        </div>
+        <div class="cup-product-card">
+          <span class="cup-product-icon">🏪</span>
+          <h3>CUP Marketplace</h3>
+          <span class="cup-badge cup-badge-live">Live</span>
+          <p>Shareable pipeline components. Publish, discover, and install
+             Filters and Pipelines from the community.</p>
         </div>
       </div>
     </section>

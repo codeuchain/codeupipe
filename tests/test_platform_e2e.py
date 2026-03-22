@@ -536,3 +536,91 @@ class TestPlatformCupBrowser:
                 assert count >= 6, f"dash card count={{count}}"
                 print("PASS: full_lifecycle")
         """)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# TIER 4 — Edge Browser (cross-browser compatibility)
+#
+# Validates the platform works on Microsoft Edge specifically.
+# Skipped when Edge is not installed on the test machine.
+# Uses PlaywrightBridge(channel='msedge') to launch the real Edge binary.
+# ═══════════════════════════════════════════════════════════════════════
+
+def _edge_available() -> bool:
+    """Return True if Microsoft Edge is installed."""
+    import platform as _plat
+    if _plat.system() == "Darwin":
+        return Path("/Applications/Microsoft Edge.app").exists()
+    if _plat.system() == "Linux":
+        import shutil
+        return shutil.which("microsoft-edge") is not None or shutil.which("msedge") is not None
+    if _plat.system() == "Windows":
+        return Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe").exists()
+    return False
+
+
+_skip_no_edge = pytest.mark.skipif(
+    not _edge_available(),
+    reason="Microsoft Edge not installed on this machine",
+)
+
+
+@pw
+@_skip_no_edge
+class TestPlatformEdge:
+    """Cross-browser: validate platform on Microsoft Edge.
+
+    Uses a single subprocess to run all checks — Edge's browser.close()
+    takes ~10s so we avoid spawning multiple processes.
+    """
+
+    def test_edge_full_validation(self, platform_url):
+        """All Edge checks in one subprocess to avoid repeated cold-start + close overhead."""
+        _run_browser_test(f"""
+            import json
+            from codeupipe import Payload
+            from codeupipe.browser.playwright_bridge import PlaywrightBridge
+            from codeupipe.browser import BrowserOpen, BrowserEval
+
+            with PlaywrightBridge(headless=True, channel="msedge") as bridge:
+                p = Payload()
+                p = BrowserOpen(bridge=bridge, url="{platform_url}").call(p)
+                assert p.get("browser_ok") is True
+                print("1. Open: OK")
+
+                # Check UA is Edge
+                p = BrowserEval(bridge=bridge, expression="navigator.userAgent").call(p)
+                ua = p.get("browser_eval", "")
+                assert "Edg/" in ua, f"Not Edge UA: {{ua}}"
+                print(f"2. Edge UA: {{ua[:60]}}")
+
+                # Check platform init
+                p = BrowserEval(
+                    bridge=bridge,
+                    expression="JSON.stringify({{tier: CupPlatform.tier, detected: CupPlatform.detected, recipesLoaded: CupPlatform.recipes !== null}})",
+                ).call(p)
+                data = json.loads(p.get("browser_eval", "{{}}"))
+                assert data["recipesLoaded"] is True, "Recipes not loaded"
+                assert isinstance(data["tier"], str)
+                print(f"3. Init: tier={{data['tier']}}, recipes loaded")
+
+                # Check store renders
+                p = BrowserEval(
+                    bridge=bridge,
+                    expression="document.querySelectorAll('.cup-store-card').length",
+                ).call(p)
+                store_count = int(float(str(p.get("browser_eval", "0")).strip()))
+                assert store_count >= 5, f"Store cards: {{store_count}}"
+                print(f"4. Store: {{store_count}} cards")
+
+                # Check dashboard renders
+                p = BrowserEval(
+                    bridge=bridge,
+                    expression="document.querySelectorAll('.cup-dash-card').length",
+                ).call(p)
+                dash_count = int(float(str(p.get("browser_eval", "0")).strip()))
+                assert dash_count >= 6, f"Dashboard cards: {{dash_count}}"
+                print(f"5. Dashboard: {{dash_count}} cards")
+
+                print("PASS: All Edge checks passed")
+        """, timeout=120)

@@ -402,6 +402,103 @@ body {
   text-decoration: none;
 }
 
+/* ── Browser Badges ────────────────────────────────────────── */
+
+.cup-browser-badges {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.cup-badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+.cup-badge-edge   { background: rgba(0,120,215,.2); color: #4fc3f7; }
+.cup-badge-chrome  { background: rgba(66,133,244,.2); color: #64b5f6; }
+.cup-badge-brave   { background: rgba(251,84,43,.2); color: #ff8a65; }
+.cup-badge-arc     { background: rgba(188,140,255,.2); color: var(--purple); }
+.cup-badge-live    { background: rgba(63,185,80,.2); color: var(--green); }
+.cup-badge-soon    { background: rgba(210,153,34,.2); color: var(--yellow); }
+
+/* ── Install Tabs ──────────────────────────────────────────── */
+
+.cup-install-tab {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: .75rem;
+}
+
+.cup-install-tab h4 {
+  font-size: .9rem;
+  font-weight: 600;
+  margin-bottom: .5rem;
+}
+
+.cup-install-tab ol {
+  padding-left: 1.25rem;
+  margin-bottom: .75rem;
+}
+
+.cup-install-tab li {
+  font-size: .85rem;
+  margin-bottom: .35rem;
+}
+
+.cup-coming-soon {
+  opacity: .7;
+  border-style: dashed;
+}
+
+/* ── Products Grid ─────────────────────────────────────────── */
+
+.cup-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.cup-product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: border-color .2s;
+}
+
+.cup-product-card:hover {
+  border-color: var(--accent);
+}
+
+.cup-product-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: .5rem;
+}
+
+.cup-product-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: .25rem;
+  display: inline;
+  margin-right: .5rem;
+}
+
+.cup-product-card p {
+  font-size: .85rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: .5rem;
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -409,4 +506,5 @@ body {
   .cup-header { padding: 1rem; }
   .cup-dash-grid { grid-template-columns: 1fr 1fr; }
   .cup-store-grid { grid-template-columns: 1fr; }
+  .cup-products-grid { grid-template-columns: 1fr; }
 }

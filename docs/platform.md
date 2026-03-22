@@ -3,6 +3,10 @@
 The **CUP Platform** connects your browser to local compute — GPU training,
 native services, and desktop automation — through the CUP Bridge Extension.
 
+!!! success "Browser Support"
+    Works on all Chromium-based browsers: **Chrome**, **Edge**, **Brave**, **Arc**, **Opera**.
+    Edge is the recommended browser for mobile (Android extension support).
+
 <div class="cup-platform-link" style="margin: 1.5rem 0;">
   <a href="../platform/" class="md-button md-button--primary" target="_blank">
     🚀 Launch CUP Platform
@@ -169,17 +173,21 @@ with PlaywrightBridge(headless=True) as bridge:
 
 ## Testing
 
-The platform is validated at three tiers:
+The platform is validated at four tiers:
 
 | Tier | What | Tests |
 |------|------|-------|
 | 1 — Serving | Static files (HTML, JS, CSS, recipes) via stdlib HTTP | 9 |
 | 2 — Playwright | Real Chromium — DOM structure, JS globals, interactions | 28 |
 | 3 — CUP Browser | Dogfood — CUP Browser Filters + PlaywrightBridge | 6 |
+| 4 — Edge | Cross-browser — Microsoft Edge via `channel='msedge'` | 4 |
 
 ```bash
 # Run all platform E2E tests
 python3 -m pytest tests/test_platform_e2e.py -v
+
+# Run just the Edge tier (skips if Edge not installed)
+python3 -m pytest tests/test_platform_e2e.py::TestPlatformEdge -v
 
 # Run just the CUP Browser dogfood tier
 python3 -m pytest tests/test_platform_e2e.py::TestPlatformCupBrowser -v

@@ -60,6 +60,10 @@ class PlaywrightBridge:
         Default timeout in milliseconds for page operations.
     browser_type : str
         One of 'chromium', 'firefox', 'webkit' (default 'chromium').
+    channel : str or None
+        Browser channel — 'msedge', 'chrome', 'chrome-beta', etc.
+        When set, Playwright launches the *installed* browser instead of
+        its bundled Chromium.  Use ``channel='msedge'`` for Edge.
     """
 
     def __init__(
@@ -68,11 +72,13 @@ class PlaywrightBridge:
         slow_mo: int = 0,
         timeout: int = 30000,
         browser_type: str = "chromium",
+        channel: Optional[str] = None,
     ) -> None:
         self._headless = headless
         self._slow_mo = slow_mo
         self._timeout = timeout
         self._browser_type = browser_type
+        self._channel = channel
 
         # Lazy — initialized on __enter__ or first use
         self._pw = None
@@ -97,10 +103,13 @@ class PlaywrightBridge:
         self._pw = sync_playwright().start()
 
         launcher = getattr(self._pw, self._browser_type)
-        self._browser = launcher.launch(
-            headless=self._headless,
-            slow_mo=self._slow_mo,
-        )
+        launch_kwargs = {
+            "headless": self._headless,
+            "slow_mo": self._slow_mo,
+        }
+        if self._channel:
+            launch_kwargs["channel"] = self._channel
+        self._browser = launcher.launch(**launch_kwargs)
         self._context = self._browser.new_context()
         self._page = self._context.new_page()
         self._page.set_default_timeout(self._timeout)
@@ -173,8 +182,12 @@ class PlaywrightBridge:
         self._ensure_started()
         try:
             self._page.goto(url, wait_until="domcontentloaded")
-            # Wait for any init scripts
-            self._page.wait_for_load_state("networkidle", timeout=10000)
+            # Best-effort wait for init scripts — don't block on Edge's
+            # background sync / update traffic
+            try:
+                self._page.wait_for_load_state("networkidle", timeout=5000)
+            except Exception:
+                pass  # network not idle is fine — page is already loaded
             return BrowserResult(
                 stdout=f"Navigated to {url}",
                 stderr="",
