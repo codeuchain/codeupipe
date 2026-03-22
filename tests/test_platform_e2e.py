@@ -577,7 +577,7 @@ class TestPlatformEdge:
     def test_edge_full_validation(self, platform_url):
         """All Edge checks in one subprocess to avoid repeated cold-start + close overhead."""
         _run_browser_test(f"""
-            import json
+            import json, time
             from codeupipe import Payload
             from codeupipe.browser.playwright_bridge import PlaywrightBridge
             from codeupipe.browser import BrowserOpen, BrowserEval
@@ -594,33 +594,38 @@ class TestPlatformEdge:
                 assert "Edg/" in ua, f"Not Edge UA: {{ua}}"
                 print(f"2. Edge UA: {{ua[:60]}}")
 
-                # Check platform init
+                # Wait for platform to fully initialize (detect + loadRecipes + render)
+                # The page auto-runs CupPlatform.detect() and the dashboard/store
+                # render asynchronously after recipes load.
                 p = BrowserEval(
                     bridge=bridge,
-                    expression="JSON.stringify({{tier: CupPlatform.tier, detected: CupPlatform.detected, recipesLoaded: CupPlatform.recipes !== null}})",
+                    expression='''(async () => {{
+                        await CupPlatform.loadRecipes();
+                        await CupPlatform.detect();
+                        // Wait for store cards to render (up to 5s)
+                        for (let i = 0; i < 50; i++) {{
+                            if (document.querySelectorAll('.cup-store-card').length >= 5) break;
+                            await new Promise(r => setTimeout(r, 100));
+                        }}
+                        return JSON.stringify({{
+                            tier: CupPlatform.tier,
+                            detected: CupPlatform.detected,
+                            recipesLoaded: CupPlatform.recipes !== null,
+                            storeCards: document.querySelectorAll('.cup-store-card').length,
+                            dashCards: document.querySelectorAll('.cup-dash-card').length,
+                        }});
+                    }})()''',
                 ).call(p)
                 data = json.loads(p.get("browser_eval", "{{}}"))
                 assert data["recipesLoaded"] is True, "Recipes not loaded"
                 assert isinstance(data["tier"], str)
                 print(f"3. Init: tier={{data['tier']}}, recipes loaded")
 
-                # Check store renders
-                p = BrowserEval(
-                    bridge=bridge,
-                    expression="document.querySelectorAll('.cup-store-card').length",
-                ).call(p)
-                store_count = int(float(str(p.get("browser_eval", "0")).strip()))
-                assert store_count >= 5, f"Store cards: {{store_count}}"
-                print(f"4. Store: {{store_count}} cards")
+                assert data["storeCards"] >= 5, f"Store cards: {{data['storeCards']}}"
+                print(f"4. Store: {{data['storeCards']}} cards")
 
-                # Check dashboard renders
-                p = BrowserEval(
-                    bridge=bridge,
-                    expression="document.querySelectorAll('.cup-dash-card').length",
-                ).call(p)
-                dash_count = int(float(str(p.get("browser_eval", "0")).strip()))
-                assert dash_count >= 6, f"Dashboard cards: {{dash_count}}"
-                print(f"5. Dashboard: {{dash_count}} cards")
+                assert data["dashCards"] >= 6, f"Dashboard cards: {{data['dashCards']}}"
+                print(f"5. Dashboard: {{data['dashCards']}} cards")
 
                 print("PASS: All Edge checks passed")
         """, timeout=120)

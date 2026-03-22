@@ -24,6 +24,16 @@
       ],
       "js": ["content-script.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://codeuchain.github.io/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
+      ],
+      "js": ["cup-bridge-api.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
 

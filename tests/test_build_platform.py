@@ -163,6 +163,25 @@ class TestExtensionZip:
         with zipfile.ZipFile(str(z)) as zf:
             assert "popup.html" in zf.namelist()
 
+    def test_zip_contains_cup_bridge_api(self, fake_config):
+        """MAIN world script must be in the zip for CSP bypass."""
+        on_post_build(fake_config)
+        z = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-extension.zip"
+        with zipfile.ZipFile(str(z)) as zf:
+            assert "cup-bridge-api.js" in zf.namelist()
+
+    def test_zip_manifest_declares_main_world(self, fake_config):
+        """Manifest must have a content_scripts entry with world=MAIN for cup-bridge-api.js."""
+        on_post_build(fake_config)
+        z = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-extension.zip"
+        with zipfile.ZipFile(str(z)) as zf:
+            manifest = json.loads(zf.read("manifest.json"))
+            entries = manifest.get("content_scripts", [])
+            assert len(entries) == 2, f"Expected 2 content_scripts entries, got {len(entries)}"
+            main_entry = entries[1]
+            assert main_entry.get("world") == "MAIN"
+            assert "cup-bridge-api.js" in main_entry.get("js", [])
+
     def test_zip_contains_icons_in_correct_path(self, fake_config):
         on_post_build(fake_config)
         z = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-extension.zip"
@@ -219,3 +238,112 @@ class TestBuildExtensionZipDirect:
         with zipfile.ZipFile(str(zip_path)) as zf:
             assert "manifest.json" in zf.namelist()
             assert len(zf.namelist()) >= 10
+
+
+# ── Tests: Extension JS contract verification ────────────────────────
+
+_EXT_SRC = _PROJECT_ROOT / "codeupipe" / "connect" / "extension"
+
+
+class TestContentScriptContract:
+    """Verify content-script.js has the expected structure."""
+
+    def test_has_inject_extension_status(self):
+        code = (_EXT_SRC / "content-script.js").read_text()
+        assert "function injectExtensionStatus" in code
+
+    def test_has_cup_ext_status_dom_id(self):
+        code = (_EXT_SRC / "content-script.js").read_text()
+        assert "cup-ext-status" in code
+
+    def test_has_message_relay(self):
+        """Content script must relay cup-request messages to service worker."""
+        code = (_EXT_SRC / "content-script.js").read_text()
+        assert "cup-request" in code
+        assert "chrome.runtime.sendMessage" in code
+
+    def test_does_not_inject_inline_script(self):
+        """CSP fix: no inline <script> injection — that's handled by cup-bridge-api.js."""
+        code = (_EXT_SRC / "content-script.js").read_text()
+        assert "apiScript" not in code
+        assert "document.createElement('script')" not in code
+
+    def test_badge_probes_service_worker(self):
+        code = (_EXT_SRC / "content-script.js").read_text()
+        assert "badge-probe-" in code
+
+
+class TestCupBridgeApiContract:
+    """Verify cup-bridge-api.js defines the full window.cupBridge API."""
+
+    def test_file_exists(self):
+        assert (_EXT_SRC / "cup-bridge-api.js").is_file()
+
+    def test_defines_window_cupbridge(self):
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        assert "window.cupBridge" in code
+
+    def test_fires_cup_bridge_ready_event(self):
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        assert "cup-bridge-ready" in code
+
+    def test_has_detected_property(self):
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        assert "get detected()" in code
+        assert "return true" in code
+
+    def test_has_all_13_methods(self):
+        """cupBridge must expose all 13 API surface methods."""
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        expected = [
+            "ping", "status", "delegate", "fetch", "provision",
+            "exec", "start", "stop", "getConfig", "setConfig",
+            "onStatus", "probe", "detected",
+        ]
+        for method in expected:
+            assert method in code, f"Missing cupBridge method: {method}"
+
+    def test_uses_post_message_relay(self):
+        """API sends cup-request messages via window.postMessage."""
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        assert "cup-request" in code
+        assert "window.postMessage" in code
+
+    def test_main_world_iife(self):
+        """Must be wrapped in IIFE for MAIN world injection."""
+        code = (_EXT_SRC / "cup-bridge-api.js").read_text()
+        assert code.strip().startswith("/**") or code.strip().startswith("(function")
+        assert "})();" in code
+
+
+class TestManifestContract:
+    """Verify manifest.json has correct MV3 structure."""
+
+    def test_two_content_script_entries(self):
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+        entries = manifest.get("content_scripts", [])
+        assert len(entries) == 2
+
+    def test_first_entry_isolated_world(self):
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+        first = manifest["content_scripts"][0]
+        assert "content-script.js" in first["js"]
+        assert first.get("world", "ISOLATED") == "ISOLATED"
+
+    def test_second_entry_main_world(self):
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+        second = manifest["content_scripts"][1]
+        assert "cup-bridge-api.js" in second["js"]
+        assert second["world"] == "MAIN"
+
+    def test_run_at_document_start(self):
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+        for entry in manifest["content_scripts"]:
+            assert entry.get("run_at") == "document_start"
+
+    def test_matches_codeuchain_and_localhost(self):
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+        for entry in manifest["content_scripts"]:
+            matches = entry.get("matches", [])
+            assert any("codeuchain.github.io" in m for m in matches)
+            assert any("localhost" in m for m in matches)

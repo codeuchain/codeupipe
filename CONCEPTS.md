@@ -974,7 +974,7 @@ All tiers work identically with `cup connect --list`. The marketplace only affec
 
 ## Quick Reference
 
-<!-- cup:ref file=codeupipe/__init__.py hash=71142af -->
+<!-- cup:ref file=codeupipe/__init__.py hash=84f5c61 -->
 ```python
 from codeupipe import (
     Payload,           # immutable data container

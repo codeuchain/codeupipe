@@ -60,142 +60,137 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-// ── Inject cupBridge API into page context ──────────────────────────
+// ── NOTE: window.cupBridge API is now injected by cup-bridge-api.js ──
+// Registered in manifest.json with "world": "MAIN" to bypass CSP.
+// The old inline <script> injection was blocked by GitHub Pages CSP.
 
-const apiScript = document.createElement('script');
-apiScript.textContent = `
-(function() {
-  'use strict';
+// ── Extension-owned status injection ────────────────────────────────
+// The extension renders its own status into the page DOM so the site
+// does not need to detect the extension — the extension announces itself.
 
-  // Pending response callbacks
-  const _pending = new Map();
-  let _statusCallback = null;
-  let _detected = false;
+function injectExtensionStatus() {
+  // Only inject on CUP platform pages
+  const isCupSite = location.hostname === 'codeuchain.github.io'
+    || location.hostname === 'localhost'
+    || location.hostname === '127.0.0.1';
+  if (!isCupSite) return;
 
-  // Listen for responses from content script
-  window.addEventListener('message', function(event) {
-    if (event.source !== window) return;
-    if (!event.data) return;
+  // Wait for DOM to be ready
+  function doInject() {
+    // Don't double-inject
+    if (document.getElementById('cup-ext-status')) return;
 
-    if (event.data.type === 'cup-response') {
-      const cb = _pending.get(event.data.id);
-      if (cb) {
-        _pending.delete(event.data.id);
-        cb(event.data);
-      }
-    }
+    // Create the status badge
+    const badge = document.createElement('div');
+    badge.id = 'cup-ext-status';
+    badge.innerHTML = `
+      <style>
+        #cup-ext-status {
+          position: fixed;
+          bottom: 16px;
+          right: 16px;
+          z-index: 99999;
+          background: #1e1e2e;
+          border: 1px solid #7c4dff;
+          border-radius: 10px;
+          padding: 12px 16px;
+          color: #cdd6f4;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 13px;
+          box-shadow: 0 4px 20px rgba(124, 77, 255, 0.3);
+          min-width: 220px;
+          transition: opacity 0.3s;
+        }
+        #cup-ext-status .cup-badge-title {
+          font-weight: 600;
+          margin-bottom: 6px;
+          color: #7c4dff;
+          font-size: 14px;
+        }
+        #cup-ext-status .cup-badge-row {
+          display: flex;
+          justify-content: space-between;
+          margin: 3px 0;
+        }
+        #cup-ext-status .cup-badge-label { color: #a6adc8; }
+        #cup-ext-status .cup-badge-value { font-weight: 500; }
+        #cup-ext-status .cup-badge-ok { color: #a6e3a1; }
+        #cup-ext-status .cup-badge-warn { color: #f9e2af; }
+        #cup-ext-status .cup-badge-err { color: #f38ba8; }
+        #cup-ext-status .cup-badge-close {
+          position: absolute; top: 6px; right: 10px;
+          cursor: pointer; color: #6c7086; font-size: 16px;
+          background: none; border: none; padding: 0;
+        }
+        #cup-ext-status .cup-badge-close:hover { color: #cdd6f4; }
+      </style>
+      <button class="cup-badge-close" title="Dismiss">&times;</button>
+      <div class="cup-badge-title">🔌 CUP Bridge Extension</div>
+      <div class="cup-badge-row">
+        <span class="cup-badge-label">Extension</span>
+        <span class="cup-badge-value cup-badge-ok">✅ Active</span>
+      </div>
+      <div class="cup-badge-row">
+        <span class="cup-badge-label">Tier</span>
+        <span class="cup-badge-value" id="cup-ext-tier">⏳ Probing…</span>
+      </div>
+      <div class="cup-badge-row">
+        <span class="cup-badge-label">Native Host</span>
+        <span class="cup-badge-value" id="cup-ext-native">⏳ …</span>
+      </div>
+      <div class="cup-badge-row">
+        <span class="cup-badge-label">HTTP Server</span>
+        <span class="cup-badge-value" id="cup-ext-http">⏳ …</span>
+      </div>
+    `;
+    document.body.appendChild(badge);
 
-    if (event.data.type === 'cup-status' && _statusCallback) {
-      _statusCallback(event.data);
-    }
-  });
-
-  function _send(action, opts) {
-    opts = opts || {};
-    return new Promise(function(resolve, reject) {
-      var id = 'cup-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-      var timeout = opts.timeout || 30000;
-
-      var timer = setTimeout(function() {
-        _pending.delete(id);
-        reject(new Error('CUP bridge timeout'));
-      }, timeout);
-
-      _pending.set(id, function(response) {
-        clearTimeout(timer);
-        resolve(response);
-      });
-
-      window.postMessage({
-        type: 'cup-request',
-        id: id,
-        action: action,
-        path: opts.path || '',
-        body: opts.body || null,
-        method: opts.method || 'GET',
-        capability: opts.capability || '',
-        preferTier: opts.preferTier || '',
-      }, '*');
+    // Dismiss button
+    badge.querySelector('.cup-badge-close').addEventListener('click', () => {
+      badge.style.opacity = '0';
+      setTimeout(() => badge.remove(), 300);
     });
+
+    // Probe the service worker for status
+    chrome.runtime.sendMessage(
+      { type: 'cup-request', action: 'status', id: 'badge-probe-' + Date.now() },
+      (response) => {
+        const tierEl = document.getElementById('cup-ext-tier');
+        const nativeEl = document.getElementById('cup-ext-native');
+        const httpEl = document.getElementById('cup-ext-http');
+
+        if (chrome.runtime.lastError || !response || !response.result) {
+          if (tierEl) tierEl.innerHTML = '<span class="cup-badge-warn">🟡 WASM fallback</span>';
+          if (nativeEl) nativeEl.innerHTML = '<span class="cup-badge-err">❌ Unreachable</span>';
+          if (httpEl) httpEl.innerHTML = '<span class="cup-badge-err">❌ Unreachable</span>';
+          return;
+        }
+
+        const r = response.result;
+        const tier = r.tier || 'unknown';
+        const tierLabels = {
+          'extension-native': '<span class="cup-badge-ok">🟢 Native</span>',
+          'extension-http': '<span class="cup-badge-ok">🔵 HTTP</span>',
+          'extension-wasm': '<span class="cup-badge-warn">🟡 WASM</span>',
+          'wasm': '<span class="cup-badge-warn">🟡 WASM</span>',
+          'disconnected': '<span class="cup-badge-err">🔴 Disconnected</span>',
+        };
+        if (tierEl) tierEl.innerHTML = tierLabels[tier] || `<span class="cup-badge-warn">❓ ${tier}</span>`;
+        if (nativeEl) nativeEl.innerHTML = r.nativeAlive
+          ? '<span class="cup-badge-ok">✅ Connected</span>'
+          : '<span class="cup-badge-err">❌ Not running</span>';
+        if (httpEl) httpEl.innerHTML = r.httpAlive
+          ? '<span class="cup-badge-ok">✅ Connected</span>'
+          : '<span class="cup-badge-err">❌ Not running</span>';
+      }
+    );
   }
 
-  /**
-   * window.cupBridge — the public API exposed to the platform site.
-   *
-   * CUP Filter pattern: each method takes input, returns a Promise
-   * of the result.  The extension pipeline handles routing.
-   */
-  window.cupBridge = {
-    /** Check if extension is present. */
-    get detected() { return true; },
+  if (document.body) {
+    doInject();
+  } else {
+    document.addEventListener('DOMContentLoaded', doInject);
+  }
+}
 
-    /** Ping the extension. */
-    ping: function() { return _send('ping'); },
-
-    /** Get full platform status. */
-    status: function() { return _send('status'); },
-
-    /** Delegate work to best available compute tier. */
-    delegate: function(path, body, opts) {
-      opts = opts || {};
-      return _send('delegate', {
-        path: path,
-        body: body,
-        method: opts.method || 'POST',
-        preferTier: opts.preferTier || '',
-      });
-    },
-
-    /** HTTP proxy through extension (bypasses CORS). */
-    fetch: function(path, opts) {
-      opts = opts || {};
-      return _send('proxy', {
-        path: path,
-        body: opts.body || null,
-        method: opts.method || 'GET',
-      });
-    },
-
-    /** Provision a capability (download + install). */
-    provision: function(recipe) {
-      return _send('provision', { body: { recipe: recipe } });
-    },
-
-    /** Execute a command via native host. */
-    exec: function(command, cwd) {
-      return _send('exec', { body: { command: command, cwd: cwd || '' } });
-    },
-
-    /** Start spore_runner. */
-    start: function(port, args) {
-      return _send('start', { body: { port: port || 8089, args: args || [] } });
-    },
-
-    /** Stop spore_runner. */
-    stop: function(pid) {
-      return _send('stop', { body: { pid: pid } });
-    },
-
-    /** Get/set extension configuration. */
-    getConfig: function() { return _send('get-config'); },
-    setConfig: function(config) {
-      return _send('set-config', { body: config });
-    },
-
-    /** Register a status change callback. */
-    onStatus: function(callback) {
-      _statusCallback = callback;
-    },
-
-    /** Trigger a manual probe/health check. */
-    probe: function() { return _send('health'); },
-  };
-
-  // Signal to the page that cupBridge is ready
-  window.dispatchEvent(new CustomEvent('cup-bridge-ready', {
-    detail: { version: '1.0.0' }
-  }));
-})();
-`;
-(document.head || document.documentElement).appendChild(apiScript);
-apiScript.remove();
+injectExtensionStatus();

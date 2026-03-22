@@ -53,15 +53,19 @@ const CupPlatform = (function() {
       } catch {
         _state.tier = 'extension-error';
       }
+      _notifyStatus();
       return;
     }
 
-    // Filter 2: Wait briefly for content script injection
-    await new Promise(r => setTimeout(r, 500));
-    if (window.cupBridge && window.cupBridge.detected) {
-      _state.extensionDetected = true;
-      _state.tier = 'extension-pending';
-      return;
+    // Filter 2: Wait for content script injection (up to 2s with retries)
+    for (let i = 0; i < 4; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      if (window.cupBridge && window.cupBridge.detected) {
+        _state.extensionDetected = true;
+        _state.tier = 'extension-pending';
+        _notifyStatus();
+        return;
+      }
     }
 
     // Filter 3: Try direct HTTP to localhost (no extension)
@@ -214,7 +218,7 @@ if (typeof window !== 'undefined') {
   window.CupPlatform = CupPlatform;
 
   // Listen for late extension injection
-  window.addEventListener('cup-bridge-ready', () => {
-    CupPlatform.detect();
+  window.addEventListener('cup-bridge-ready', async () => {
+    await CupPlatform.detect();
   });
 }

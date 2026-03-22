@@ -8,7 +8,7 @@ import asyncio
 import json
 import logging
 import sys
-from typing import List
+from typing import List, Optional
 
 
 # ── helpers ──────────────────────────────────────────────────────────
@@ -548,7 +548,7 @@ def _handle_keys(args):
         return 1
 
 
-def _print_keys_result(action: str, result: dict, name: str | None) -> None:
+def _print_keys_result(action: str, result: dict, name: "Optional[str]") -> None:
     """Pretty-print a key management result."""
     if action == "save":
         verb = "Updated" if result.get("replaced") else "Saved"

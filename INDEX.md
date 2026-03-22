@@ -22,7 +22,7 @@ Quick-reference map of the project. Every path listed here is verified by `cup d
 
 ## Package Structure
 
-<!-- cup:ref file=codeupipe/__init__.py hash=71142af -->
+<!-- cup:ref file=codeupipe/__init__.py hash=84f5c61 -->
 ```
 codeupipe/
 ├── __init__.py              # Public API re-exports
@@ -45,10 +45,24 @@ codeupipe/
 │   ├── encrypt_filter.py    # EncryptFilter — symmetric encryption
 │   └── decrypt_filter.py    # DecryptFilter — symmetric decryption
 │
-├── connect/                 # Service connectors (Ring 8)
+├── connect/                 # Service connectors (Ring 8) + Bridge Platform (Ring 13)
 │   ├── config.py            # ConnectorConfig, load_connector_configs
 │   ├── discovery.py         # discover_connectors, check_health
-│   └── http.py              # HttpConnector — built-in REST connector
+│   ├── http.py              # HttpConnector — built-in REST connector
+│   ├── bridge_config.py     # BridgeConfig, BridgeTier, load_bridge_configs
+│   ├── bridge_discovery.py  # discover_bridges, scan_localhost, scan_lan
+│   ├── bridge_launcher.py   # BridgeLauncher, install_service, uninstall_service
+│   ├── local_bridge.py      # LocalBridge — HTTP bridge to localhost compute
+│   └── extension/           # MV3 browser extension + native messaging
+│       ├── manifest.json    # Extension manifest (MAIN + ISOLATED worlds)
+│       ├── service-worker.js# CUP pipeline (12 filters) in SW
+│       ├── content-script.js# Page↔Extension relay + status badge
+│       ├── cup-bridge-api.js# window.cupBridge API (MAIN world)
+│       ├── popup.html       # Extension popup
+│       ├── native/          # Native messaging host
+│       │   └── native_host.py # NM protocol + CUP filter pipeline
+│       ├── platform/        # GitHub Pages SPA
+│       └── recipes/         # Capability recipes (JSON)
 │
 ├── deploy/                  # Deployment adapters (Ring 7)
 │   ├── adapter.py           # DeployTarget, DeployAdapter ABC
@@ -106,6 +120,7 @@ codeupipe/
 │
 ├── browser/                 # Browser control via agent-browser (Ring 13)
 │   ├── bridge.py            # BrowserBridge subprocess wrapper, BrowserResult
+│   ├── playwright_bridge.py # PlaywrightBridge — Playwright SDK wrapper
 │   ├── browser_open.py      # BrowserOpen — navigate to URL
 │   ├── browser_close.py     # BrowserClose — close session
 │   ├── browser_snapshot.py  # BrowserSnapshot — accessibility tree with @refs
@@ -288,10 +303,15 @@ codeupipe/
 
 ## Connect (Ring 8)
 
-<!-- cup:ref file=codeupipe/connect/__init__.py hash=5c80122 -->
+<!-- cup:ref file=codeupipe/connect/__init__.py hash=2a94b61 -->
 <!-- cup:ref file=codeupipe/connect/config.py symbols=ConfigError,ConnectorConfig,load_connector_configs hash=693d3be -->
 <!-- cup:ref file=codeupipe/connect/discovery.py symbols=discover_connectors,check_health hash=e9fe17c -->
 <!-- cup:ref file=codeupipe/connect/http.py symbols=HttpConnector hash=2bf804b -->
+<!-- cup:ref file=codeupipe/connect/bridge_config.py symbols=BridgeConfigError,BridgeCapability,BridgeTier,BridgeConfig,load_bridge_configs hash=822c951 -->
+<!-- cup:ref file=codeupipe/connect/bridge_discovery.py symbols=discover_bridges,scan_localhost,scan_lan hash=0c0e69d -->
+<!-- cup:ref file=codeupipe/connect/bridge_launcher.py symbols=LaunchResult,BridgeLauncher,install_service,uninstall_service hash=9aa33a3 -->
+<!-- cup:ref file=codeupipe/connect/local_bridge.py symbols=BridgeError,BridgeEndpoint,LocalBridge hash=74de7b7 -->
+<!-- cup:ref file=codeupipe/connect/extension/native/native_host.py symbols=nm_read,nm_write,NativePayload,ReadMessageFilter,RouteActionFilter hash=7220c23 -->
 | Type | Source | Role |
 |------|--------|------|
 | `ConnectorConfig` | connect/config.py | Parse `[connectors.*]` from cup.toml |
@@ -299,6 +319,23 @@ codeupipe/
 | `discover_connectors` | connect/discovery.py | Entry-point discovery + registration |
 | `check_health` | connect/discovery.py | Pre-flight health checks |
 | `HttpConnector` | connect/http.py | Built-in REST connector (urllib, zero deps) |
+| `BridgeConfig` | connect/bridge_config.py | Bridge tier + capability config |
+| `BridgeTier` | connect/bridge_config.py | Enum: native / http / wasm |
+| `load_bridge_configs` | connect/bridge_config.py | Load all bridge configurations |
+| `discover_bridges` | connect/bridge_discovery.py | Scan for available bridges |
+| `scan_localhost` | connect/bridge_discovery.py | Probe localhost for bridge servers |
+| `BridgeLauncher` | connect/bridge_launcher.py | Launch + manage bridge processes |
+| `install_service` | connect/bridge_launcher.py | Install bridge as system service |
+| `LocalBridge` | connect/local_bridge.py | HTTP bridge to localhost compute |
+| `nm_read` / `nm_write` | extension/native/native_host.py | Chrome NM protocol I/O |
+| `NativePayload` | extension/native/native_host.py | Minimal Payload for native host |
+| `ReadMessageFilter` | extension/native/native_host.py | Read NM message filter |
+| `RouteActionFilter` | extension/native/native_host.py | Route actions to handler filters |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -780,8 +817,9 @@ my-agent/
 
 ## Browser Control
 
-<!-- cup:ref file=codeupipe/browser/__init__.py hash=d1f0f80 -->
+<!-- cup:ref file=codeupipe/browser/__init__.py hash=23a630d -->
 <!-- cup:ref file=codeupipe/browser/bridge.py symbols=BrowserBridge,BrowserResult hash=835c568 -->
+<!-- cup:ref file=codeupipe/browser/playwright_bridge.py symbols=PlaywrightBridge hash=cbd5a80 -->
 <!-- cup:ref file=codeupipe/browser/browser_open.py symbols=BrowserOpen hash=4d137e3 -->
 <!-- cup:ref file=codeupipe/browser/browser_close.py symbols=BrowserClose hash=ac04eb5 -->
 <!-- cup:ref file=codeupipe/browser/browser_snapshot.py symbols=BrowserSnapshot hash=77768a3 -->
@@ -799,6 +837,7 @@ Programmatic browser control via `agent-browser`. Each filter wraps a single bro
 |--------|------|
 | `BrowserBridge` | Subprocess wrapper — single contact point with `agent-browser` CLI |
 | `BrowserResult` | Frozen dataclass: `stdout`, `stderr`, `returncode`, `.ok`, `.output` |
+| `PlaywrightBridge` | Playwright SDK wrapper — headless/headed automation, Edge/Chrome/Firefox |
 | `BrowserOpen` | Navigate to a URL |
 | `BrowserClose` | Close the browser session |
 | `BrowserSnapshot` | Accessibility tree with `@ref` annotations for agent interaction |
@@ -857,6 +896,7 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 > **For agents:** `bridge.run()` + `--json` turns the browser into a structured-output tool. Combine `snapshot -i` for element discovery with `find role` for semantic queries, `set viewport` for responsive testing, and `diff snapshot` for change detection. The 10 Filters handle 90% of agent loops; `bridge.run()` handles the other 100%.
 
 > **Demo:** See `examples/browser_demo.py` for a working tour of all 11 tiers.
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->

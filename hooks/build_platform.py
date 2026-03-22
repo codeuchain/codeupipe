@@ -46,6 +46,7 @@ _EXTENSION_FILES = [
     "manifest.json",
     "service-worker.js",
     "content-script.js",
+    "cup-bridge-api.js",
     "popup.html",
 ]
 
