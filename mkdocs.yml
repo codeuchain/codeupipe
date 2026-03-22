@@ -49,6 +49,7 @@ nav:
       - Deploy Guide: deploy-guide.md
   - Reference:
       - Module Index: module-index.md
+      - Architecture Diagram: architecture-diagram.md
       - Roadmap: roadmap.md
   - Blueprints:
       - "Ring 7 — Deploy": blueprints/ring7.md
