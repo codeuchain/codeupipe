@@ -54,6 +54,22 @@ hide:
 
     [:octicons-arrow-right-24: Deploy Guide](deploy-guide.md)
 
+-   :material-devices:{ .lg .middle } **Connect Platform**
+
+    ---
+
+    Device mesh — mobile → browser extension → desktop compute. CUP pipelines at every hop.
+
+    [:octicons-arrow-right-24: Platform](platform.md)
+
+-   :material-map-marker-path:{ .lg .middle } **Roadmap**
+
+    ---
+
+    13 completed rings and open directions — from pipeline framework to connected device mesh.
+
+    [:octicons-arrow-right-24: Roadmap](roadmap.md)
+
 </div>
 
 ---
@@ -72,6 +88,17 @@ hide:
 | **State** | Execution metadata — tracks what ran, skipped, errors |
 | **Hook** | Lifecycle — `before()` / `after()` / `on_error()` |
 | **RetryFilter** | Resilience — retries a Filter up to N times |
+
+## The Device Mesh
+
+codeupipe connects every device into a single pipeline mesh.
+
+```
+Mobile  ──▶  Platform SPA  ──▶  Browser Extension  ──▶  Desktop / Servers
+  (phone)     (static page)       (MV3 bridge)          (DB, GPU, files)
+```
+
+A phone triggers a static web page. The page talks to a browser extension. The extension relays to a native host on the physical machine — with full access to databases, GPU compute, and local files. Every hop is a CUP pipeline. The same mesh works in reverse. [:octicons-arrow-right-24: Learn more](platform.md)
 
 ## Minimal Example
 

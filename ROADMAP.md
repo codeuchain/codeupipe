@@ -284,6 +284,67 @@ Full AI agent framework absorbed from the orchie project. Everything under `code
 
 ---
 
+### Ring 13 — Connect Platform ✅ (v0.13.0)
+
+Device mesh — mobile → browser extension → desktop compute → servers. Any device, any direction, one pipeline.
+
+The Extension-as-Platform architecture turns a browser extension into a universal bridge that connects every device a user touches into a single CUP pipeline mesh. A phone triggers a static web page, the page talks to a browser extension, the extension relays to a native host running on the physical machine — which has access to databases, GPU compute, local files, and anything else on the box. The same mesh works in reverse: a server pushes data down to the browser, the extension routes it to a mobile device via the platform page. Every hop is a CUP pipeline.
+
+- **Browser Extension** (MV3, Chrome / Edge / Brave / Arc):
+  - `service-worker.js` — 5-filter CUP pipeline: ParseRequest → SelectTier → [NativeRelay | HttpProxy | WasmFallback] → FormatResponse
+  - `content-script.js` — injects `window.cupBridge` into every page for web ↔ extension messaging
+  - `manifest.json` — native messaging, activeTab, storage permissions
+  - 5 bundled recipes: page-to-pdf, form-fill, tab-manager, page-summary, dom-audit
+
+- **Native Messaging Host** (`codeupipe/connect/native_host.py`):
+  - 12 CUP Filters: ReadStdin → ParseLength → ParseJSON → Validate → RouteCommand → [RunPipeline | ListFilters | HealthCheck | Discover] → FormatResult → PackLength → WriteStdout → FlushStdout
+  - Bridges extension ↔ local Python runtime — full access to local machine resources
+  - Registration: `install-bridge.sh` auto-registers the NM host manifest for Chrome/Edge/Brave
+
+- **PlaywrightBridge SDK** (`codeupipe/browser/playwright_bridge.py`):
+  - `channel` param for system browsers (chrome, msedge) — test on the user's actual browser
+  - Auto-injects `--no-first-run`, `--disable-sync`, `--disable-background-networking` for system browser stability
+  - Best-effort `networkidle` (5s non-blocking) — works around browser background traffic
+  - Context manager pattern: `async with PlaywrightBridge(channel="msedge") as bridge:`
+
+- **Platform Site** (GitHub Pages SPA):
+  - Dashboard: 6 live capability cards wired to extension messaging
+  - Capability Store: 5 downloadable recipes with one-click install
+  - Tabbed install: Desktop (3 steps) / Mobile (Add-to-Home-Screen PWA) / Store (coming soon)
+  - Browser badges: Chrome, Edge, Brave, Arc — with install verification
+  - CUP Products grid: Bridge, Bird Bone AI, Browser, Mobile, Marketplace
+  - Live at: [codeuchain.github.io/codeupipe/platform/](https://codeuchain.github.io/codeupipe/platform/)
+
+- **Device Mesh Architecture**:
+  ```
+  ┌─────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
+  │  Mobile  │────▶│ Platform SPA │────▶│  Extension   │────▶│ Desktop  │
+  │  Device  │◀────│ (Static Page)│◀────│ (MV3 Bridge) │◀────│ Compute  │
+  └─────────┘     └──────────────┘     └──────────────┘     └──────────┘
+       │                                      │                    │
+       │            CUP Pipelines             │                    │
+       │          at every hop ──────────────▶│                    │
+       │                                      ▼                    ▼
+       │                               ┌──────────┐        ┌──────────┐
+       └──────────────────────────────▶│  Native  │───────▶│ Servers  │
+                                       │   Host   │        │ DB / GPU │
+                                       └──────────┘        └──────────┘
+  ```
+
+- **Mobile Bridge Roadmap** (`docs/mobile-roadmap.md`):
+  - `AdbBridge` — Android device automation via ADB (filter-per-action pattern)
+  - `IosBridge` — iOS device automation via libimobiledevice / Xcode instruments
+  - Same API as PlaywrightBridge: `async with AdbBridge(serial="...") as bridge:`
+
+- **MkDocs Build Integration**:
+  - `hooks/build_platform.py` — copies SPA + builds extension zip into site/platform/ on `mkdocs build`
+  - `docs/platform.md` — architecture docs, install guide, developer API, 4-tier testing
+  - Workflow trigger: `docs.yml` fires on `codeupipe/connect/extension/**` changes
+
+- 119 new tests (53 native host + 44 platform E2E + 22 build hook)
+
+---
+
 ## What's Next — Open Directions
 
 Everything below is **unscheduled**. These are the natural next moves given what exists, not commitments. Pick what creates the most value and build it.
@@ -353,7 +414,7 @@ Write pipeline configs once, run them in any language. The codeuchain vision.
 
 ---
 
-## Architecture Snapshot (v0.12.0)
+## Architecture Snapshot (v0.13.0)
 
 ```
 codeupipe/
@@ -361,12 +422,16 @@ codeupipe/
 │                              Pipeline, State, Event, Govern, Secure
 ├── distribute/     Ring 5     RemoteFilter, Checkpoint, Source, WorkerPool
 ├── deploy/         Ring 7,10  Adapters, Recipes, Init, Contracts (25 platforms)
-├── connect/        Ring 8     ConnectorConfig, discover_connectors, HttpConnector
+├── connect/        Ring 8,13  ConnectorConfig, discover_connectors, HttpConnector,
+│   ├── extension/             MV3 browser extension (service-worker, content-script),
+│   │   └── platform/          Platform SPA (dashboard, store, install)
+│   └── native_host.py         Native Messaging Host (12 CUP Filters)
 ├── marketplace/    Ring 9     fetch_index, search, info, marketplace CLI
 ├── auth/           Ring 8     Credential, AuthProvider, TokenVault, ProxyToken
 ├── ai/             Ring 12    Agent SDK, Providers, Filters, Pipelines, Hooks,
 │                              Hub, Discovery, TUI, Eval (optional extras)
-├── browser/        Ring 13    BrowserBridge, 10 Filters (Open, Close, Snapshot,
+├── browser/        Ring 13    BrowserBridge, PlaywrightBridge (channel, system
+│                              browsers), 10 Filters (Open, Close, Snapshot,
 │                              Click, Fill, Eval, Screenshot, Tabs, Raw, Get)
 ├── linter/         Ring 1     Dogfooded lint/coverage/doc-check pipelines
 ├── converter/      Ring 2     Config pipeline assembly helpers

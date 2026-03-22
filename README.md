@@ -26,6 +26,40 @@ Experimental successor to [codeuchain](https://github.com/codeuchain/codeuchain)
 | **CircuitOpenError** | Raised when a pipeline circuit breaker is open and rejecting calls |
 <!-- /cup:ref -->
 
+## CUP Products — The Device Mesh
+
+codeupipe isn't just a framework — it's the architecture underneath a mesh of connected devices. Every product below is built from the same Payload → Filter → Pipeline primitives.
+
+```
+┌─────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
+│  Mobile  │────▶│ Platform SPA │────▶│  Extension   │────▶│ Desktop  │
+│  Device  │◀────│ (Static Page)│◀────│ (MV3 Bridge) │◀────│ Compute  │
+└─────────┘     └──────────────┘     └──────────────┘     └──────────┘
+      │                                      │                    │
+      │           CUP Pipelines              │                    │
+      │         at every hop ───────────────▶│                    │
+      │                                      ▼                    ▼
+      │                               ┌──────────┐        ┌──────────┐
+      └──────────────────────────────▶│  Native  │───────▶│ Servers  │
+                                      │   Host   │        │ DB / GPU │
+                                      └──────────┘        └──────────┘
+```
+
+A phone triggers a static web page. The page talks to a browser extension. The extension relays to a native host running on the physical machine — with full access to databases, GPU compute, local files, and anything else on the box. Every hop is a CUP pipeline. The same mesh works in reverse.
+
+| Product | What It Does | Status |
+|---------|-------------|--------|
+| **CUP Core** | Payload → Filter → Pipeline framework (Python, TS, Rust, Go) | ✅ Live |
+| **CUP Bridge** | Generic browser bridge — 3 tiers (Native Messaging, HTTP, WASM) | ✅ Live |
+| **CUP Browser** | 10 browser automation filters + PlaywrightBridge SDK | ✅ Live |
+| **CUP Extension** | MV3 browser extension — Chrome, Edge, Brave, Arc | ✅ Live |
+| **CUP Platform** | GitHub Pages SPA — dashboard, capability store, recipe install | ✅ [Live](https://codeuchain.github.io/codeupipe/platform/) |
+| **CUP AI** | Agent SDK, providers, discovery, TUI, eval | ✅ Live |
+| **CUP Marketplace** | Community connector index — `cup marketplace search` | ✅ Live |
+| **CUP Mobile** | AdbBridge (Android) + IosBridge (iOS) device automation | 🔜 Planned |
+
+> **Why this matters:** Because codeupipe is modular, every product is a set of filters. Combine them freely — a single pipeline can read a phone sensor, process it in WASM, store it in Postgres, and push a notification back to the device. The architecture is the product.
+
 ## Install
 
 ```bash
