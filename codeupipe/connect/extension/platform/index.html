@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CUP Platform — CodeUPipe</title>
+  <link rel="stylesheet" href="platform.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <header class="cup-header">
+    <h1><span>☕</span> CUP Platform</h1>
+    <span id="header-tier" class="cup-header-tier">Checking…</span>
+  </header>
+
+  <main class="cup-main">
+
+    <!-- ── Live Dashboard ──────────────────────────────────────── -->
+    <section class="cup-section">
+      <h2>System Status</h2>
+      <div class="cup-dash-grid">
+        <div class="cup-dash-card">
+          <label>Extension</label>
+          <div id="dash-extension" class="value dash-status dead">Checking…</div>
+        </div>
+        <div class="cup-dash-card">
+          <label>Tier</label>
+          <div id="dash-tier" class="value dash-tier">—</div>
+        </div>
+        <div class="cup-dash-card">
+          <label>Device</label>
+          <div id="dash-device" class="value">—</div>
+        </div>
+        <div class="cup-dash-card">
+          <label>Native Host</label>
+          <div id="dash-native" class="value dash-status dead">—</div>
+        </div>
+        <div class="cup-dash-card">
+          <label>HTTP Bridge</label>
+          <div id="dash-http" class="value dash-status dead">—</div>
+        </div>
+        <div class="cup-dash-card">
+          <label>Capabilities</label>
+          <div id="dash-capabilities" class="value">
+            <span class="dash-empty">None</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 1rem; display: flex; gap: .75rem;">
+        <button id="btn-probe" class="cup-btn cup-btn-secondary cup-btn-small">
+          🔄 Re-probe
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Capability Store ────────────────────────────────────── -->
+    <section class="cup-section">
+      <h2>Capability Store</h2>
+      <p style="color: var(--muted); font-size: .85rem; margin-bottom: 1rem;">
+        Toggle capabilities to provision them on your device.
+        The extension handles downloads, installation, and service startup — zero manual steps.
+      </p>
+      <div id="cup-store" class="cup-store-grid">
+        <!-- Populated by store.js -->
+      </div>
+    </section>
+
+    <!-- ── Extension Install ───────────────────────────────────── -->
+    <section id="install-section" class="cup-section">
+      <div class="cup-install-section">
+        <h3>📦 Get the CUP Bridge Extension</h3>
+        <p style="color: var(--muted); font-size: .85rem; margin-bottom: 1rem;">
+          The extension bridges this platform to your local machine.
+          It enables native compute, GPU training, and desktop services —
+          all from a browser tab.
+        </p>
+        <ol>
+          <li>Download the extension package below</li>
+          <li>Unzip and open <code>chrome://extensions</code></li>
+          <li>Enable <strong>Developer mode</strong> (top right toggle)</li>
+          <li>Click <strong>Load unpacked</strong> → select the unzipped folder</li>
+          <li>Return here — the dashboard will auto-detect the extension</li>
+        </ol>
+        <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
+          <a href="cup-bridge-extension.zip" class="cup-btn cup-btn-primary" download>
+            ⬇️ Download Extension (.zip)
+          </a>
+          <a href="https://github.com/codeuchain/codeupipe" class="cup-btn cup-btn-secondary" target="_blank">
+            📖 Documentation
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Quick Start ─────────────────────────────────────────── -->
+    <section class="cup-section">
+      <h2>For Developers</h2>
+      <div class="cup-install-section">
+        <h3>Using the CUP Bridge in your page</h3>
+        <pre style="background: var(--bg); padding: 1rem; border-radius: var(--radius); overflow-x: auto; font-family: var(--mono); font-size: .8rem; line-height: 1.6; color: var(--muted); margin-top: .75rem;">
+<span style="color: var(--accent)">// Wait for bridge</span>
+window.addEventListener('cup-bridge-ready', async () => {
+  <span style="color: var(--accent)">// Ping the native host</span>
+  const pong = await window.cupBridge.ping();
+  console.log(pong);  <span style="color: var(--muted)">// {result: {action: 'pong', ts: ...}}</span>
+
+  <span style="color: var(--accent)">// Check system status</span>
+  const status = await window.cupBridge.status();
+
+  <span style="color: var(--accent)">// Delegate to spore_runner</span>
+  const health = await window.cupBridge.delegate('/health');
+
+  <span style="color: var(--accent)">// Provision a capability</span>
+  const recipe = await fetch('recipes/dream-training.json').then(r => r.json());
+  await window.cupBridge.provision(recipe);
+});
+</pre>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────── -->
+  <footer class="cup-footer">
+    <p>
+      <strong>CUP Platform</strong> · Built with
+      <a href="https://github.com/codeuchain/codeupipe">codeupipe</a>
+      · Every component is a CUP Pipeline
+    </p>
+  </footer>
+
+  <!-- ── Scripts (order matters: platform → store → dashboard → init) ── -->
+  <script src="platform.js"></script>
+  <script src="store.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    (async function init() {
+      // CUP Pipeline: detect → load recipes → render store → start dashboard
+
+      // Filter 1: Detect extension / bridge
+      await CupPlatform.detect();
+
+      // Filter 2: Load recipe manifest
+      await CupPlatform.loadRecipes();
+
+      // Filter 3: Render capability store
+      await CupStore.render('#cup-store');
+
+      // Filter 4: Start live dashboard
+      CupDashboard.start(5000);
+
+      // Filter 5: Update header tier badge
+      const tierEl = document.getElementById('header-tier');
+      function updateHeaderTier() {
+        const tier = CupPlatform.tier;
+        tierEl.textContent = tier;
+        tierEl.className = 'cup-header-tier';
+        if (tier === 'native' || tier.includes('native'))
+          tierEl.style.background = 'rgba(63,185,80,.2)', tierEl.style.color = '#3fb950';
+        else if (tier.includes('http'))
+          tierEl.style.background = 'rgba(88,166,255,.2)', tierEl.style.color = '#58a6ff';
+        else if (tier.includes('wasm'))
+          tierEl.style.background = 'rgba(210,153,34,.2)', tierEl.style.color = '#d29922';
+        else
+          tierEl.style.background = 'rgba(139,148,158,.2)', tierEl.style.color = '#8b949e';
+      }
+      updateHeaderTier();
+      CupPlatform.onStatus(updateHeaderTier);
+
+      // Filter 6: Hide install section if extension detected
+      if (CupPlatform.detected) {
+        document.getElementById('install-section').style.display = 'none';
+      }
+
+      // Wire up probe button
+      document.getElementById('btn-probe').addEventListener('click', async () => {
+        await CupPlatform.probe();
+        setTimeout(() => CupDashboard.refresh(), 500);
+        updateHeaderTier();
+      });
+
+    })();
+  </script>
+
+</body>
+</html>

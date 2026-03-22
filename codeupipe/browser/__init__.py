@@ -34,6 +34,7 @@ from .browser_screenshot import BrowserScreenshot
 from .browser_tabs import BrowserTabs
 from .browser_raw import BrowserRaw
 from .browser_get import BrowserGet
+from .playwright_bridge import PlaywrightBridge
 
 __all__ = [
     "BrowserBridge",
@@ -48,4 +49,5 @@ __all__ = [
     "BrowserScreenshot",
     "BrowserSnapshot",
     "BrowserTabs",
+    "PlaywrightBridge",
 ]

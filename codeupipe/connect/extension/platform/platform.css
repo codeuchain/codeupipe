@@ -1,0 +1,412 @@
+/* platform.css — CUP Platform dark theme */
+
+:root {
+  --bg:       #0d1117;
+  --surface:  #161b22;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --muted:    #8b949e;
+  --accent:   #58a6ff;
+  --green:    #3fb950;
+  --red:      #f85149;
+  --yellow:   #d29922;
+  --purple:   #bc8cff;
+  --radius:   8px;
+  --font:     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:     'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Layout ────────────────────────────────────────────────── */
+
+.cup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.cup-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.cup-header h1 span { font-size: 1.5rem; }
+
+.cup-header-tier {
+  padding: .25rem .75rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.cup-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cup-section { margin-bottom: 1rem; }
+
+.cup-section h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .85rem;
+}
+
+/* ── Dashboard Grid ────────────────────────────────────────── */
+
+.cup-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cup-dash-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+.cup-dash-card label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: .35rem;
+}
+
+.cup-dash-card .value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.dash-status.alive { color: var(--green); }
+.dash-status.dead  { color: var(--red); }
+
+.dash-tier { font-weight: 600; }
+
+.dash-chip {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  background: rgba(88,166,255,.15);
+  color: var(--accent);
+  margin: .15rem .25rem .15rem 0;
+}
+
+.dash-empty { color: var(--muted); font-style: italic; font-size: .85rem; }
+
+/* ── Store Cards ───────────────────────────────────────────── */
+
+.cup-store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.cup-store-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.cup-store-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.cup-store-card.installed {
+  border-color: var(--green);
+}
+
+.cup-store-card.installing {
+  border-color: var(--yellow);
+}
+
+.cup-store-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+}
+
+.cup-store-icon { font-size: 1.5rem; }
+
+.tier-badge {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: var(--border);
+  color: var(--muted);
+}
+
+.tier-badge.tier-native { background: rgba(63,185,80,.2); color: var(--green); }
+.tier-badge.tier-http   { background: rgba(88,166,255,.2); color: var(--accent); }
+.tier-badge.tier-wasm   { background: rgba(210,153,34,.2); color: var(--yellow); }
+
+.cup-store-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+
+.cup-store-desc {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.cup-store-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.cup-store-status {
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* Toggle switch */
+.cup-store-toggle {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+}
+
+.cup-store-toggle input { opacity: 0; width: 0; height: 0; }
+
+.cup-store-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background .3s;
+}
+
+.cup-store-slider::before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--text);
+  border-radius: 50%;
+  transition: transform .3s;
+}
+
+.cup-store-toggle input:checked + .cup-store-slider {
+  background: var(--green);
+}
+
+.cup-store-toggle input:checked + .cup-store-slider::before {
+  transform: translateX(18px);
+}
+
+/* Progress */
+.cup-store-progress {
+  margin-top: .75rem;
+}
+
+.cup-store-progress-bar {
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width .5s;
+}
+
+.cup-store-progress-text {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-top: .25rem;
+  display: block;
+}
+
+/* ── Extension Install Section ─────────────────────────────── */
+
+.cup-install-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.cup-install-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: .75rem;
+}
+
+.cup-install-section ol {
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.cup-install-section li {
+  margin-bottom: .35rem;
+  font-size: .9rem;
+}
+
+.cup-install-section code {
+  background: var(--bg);
+  padding: .1rem .35rem;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: .85rem;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+
+.cup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .2s;
+  font-family: var(--font);
+}
+
+.cup-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.cup-btn-primary:hover {
+  background: #79c0ff;
+}
+
+.cup-btn-secondary {
+  background: transparent;
+  color: var(--text);
+}
+
+.cup-btn-secondary:hover {
+  background: var(--border);
+}
+
+.cup-btn-small {
+  padding: .3rem .65rem;
+  font-size: .75rem;
+}
+
+/* ── Modal Overlay ─────────────────────────────────────────── */
+
+.cup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.cup-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+}
+
+.cup-modal h2 {
+  font-size: 1.1rem;
+  margin-bottom: .75rem;
+}
+
+.cup-modal p {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-bottom: 1rem;
+}
+
+.cup-modal ol {
+  padding-left: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.cup-modal li {
+  margin-bottom: .35rem;
+  font-size: .85rem;
+}
+
+.cup-modal-actions {
+  display: flex;
+  gap: .75rem;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+
+.cup-footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-size: .75rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+.cup-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .cup-main { padding: 1rem; }
+  .cup-header { padding: 1rem; }
+  .cup-dash-grid { grid-template-columns: 1fr 1fr; }
+  .cup-store-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,186 @@
+# CUP Platform — Browser ↔ Desktop Bridge
+
+The **CUP Platform** connects your browser to local compute — GPU training,
+native services, and desktop automation — through the CUP Bridge Extension.
+
+<div class="cup-platform-link" style="margin: 1.5rem 0;">
+  <a href="../platform/" class="md-button md-button--primary" target="_blank">
+    🚀 Launch CUP Platform
+  </a>
+  <a href="../platform/cup-bridge-extension.zip" class="md-button" download>
+    ⬇️ Download Extension
+  </a>
+</div>
+
+## How It Works
+
+The extension creates a three-tier bridge between any web page and your
+local machine:
+
+```
+Browser Tab                    Extension                    Desktop
+┌──────────┐    content     ┌────────────┐   native     ┌───────────┐
+│ Platform  │───script──────│  Service   │───messaging──│  Native   │
+│   SPA     │  (cupBridge)  │  Worker    │   (NM host)  │   Host    │
+└──────────┘                └────────────┘              └───────────┘
+                                 │                           │
+                            HTTP fallback              spore_runner
+                                 │                      GPU / CPU
+                          localhost:8089                 compute
+```
+
+| Tier | Label | Transport | Latency | Capability |
+|------|-------|-----------|---------|------------|
+| 0 | **Native** | Chrome Native Messaging | ~5 ms | Full GPU, filesystem, process control |
+| 1 | **HTTP** | localhost fetch | ~10 ms | HTTP API (spore_runner) |
+| 2 | **WASM** | In-browser | 0 ms | CPU-only inference, no filesystem |
+
+The extension auto-detects the best available tier and falls back
+gracefully.  Every request flows through a CUP Pipeline in the service
+worker:
+
+```
+ParseRequest → SelectTier → [NativeRelay | HttpProxy | WasmFallback] → FormatResponse
+```
+
+## Architecture
+
+### Extension Components
+
+| File | Role |
+|------|------|
+| `manifest.json` | Chrome MV3 manifest — permissions, content script matches |
+| `service-worker.js` | Background pipeline — tier selection, native messaging, HTTP proxy |
+| `content-script.js` | Page ↔ Extension relay — injects `window.cupBridge` API |
+| `popup.html` | Extension popup — live tier status, probe button |
+| `native/native_host.py` | Native Messaging host — 12 CUP Filters, subprocess bridge |
+| `native/install-native.sh` | Registers the NM host with Chrome |
+
+### Platform SPA
+
+The platform site is a standalone single-page app that:
+
+- **Detects** the extension automatically via `window.cupBridge`
+- **Loads recipes** from a manifest — each recipe describes a capability
+  (dream training, ONNX inference, job queue, swarm training, etc.)
+- **Provisions** capabilities by sending recipes to the native host
+- **Displays** a live dashboard with tier, device, and connection status
+
+| File | Role |
+|------|------|
+| `platform.js` | Core library — detection, Payload micro-port, recipe loading |
+| `store.js` | Capability Store — renders recipe cards, handles provisioning |
+| `dashboard.js` | Live dashboard — polls status, renders connection indicators |
+| `platform.css` | Dark theme matching the codeupipe design language |
+
+### Recipes
+
+Recipes are JSON files describing installable capabilities:
+
+```json
+{
+  "id": "dream-training",
+  "name": "Dream Training (LoRA)",
+  "tier": "native",
+  "icon": "🧠",
+  "description": "Low-rank adaptation training during idle periods",
+  "provision": {
+    "steps": [
+      { "action": "check", "command": "python3 -c \"import torch\"" },
+      { "action": "exec", "command": "pip3 install torch --quiet" },
+      { "action": "start", "command": "python3 -m spore.dream_runner" }
+    ]
+  }
+}
+```
+
+Available recipes: `dream-training`, `onnx-inference`, `browser-training`,
+`swarm-training`, `job-queue`.
+
+## Installation
+
+### 1. Install the Extension
+
+1. Download `cup-bridge-extension.zip` from the button above (or from the
+   platform page)
+2. Unzip the archive
+3. Open `chrome://extensions` in Chrome/Edge
+4. Enable **Developer mode** (top-right toggle)
+5. Click **Load unpacked** → select the unzipped folder
+6. The extension icon (☕) appears in your toolbar
+
+### 2. Install the Native Host (optional — enables Tier 0)
+
+```bash
+# From the codeupipe repo root:
+bash codeupipe/connect/extension/native/install-native.sh
+```
+
+This registers `com.codeupipe.bridge` with Chrome so the extension can
+communicate with your desktop Python environment.
+
+### 3. Launch the Platform
+
+Visit the [CUP Platform](../platform/) page.  The dashboard will
+auto-detect your extension and display your tier.
+
+## Developer API
+
+The extension injects `window.cupBridge` into matched pages:
+
+```javascript
+// Wait for the bridge
+window.addEventListener('cup-bridge-ready', async () => {
+
+  // Ping — verify extension is alive
+  const pong = await window.cupBridge.ping();
+
+  // Status — full tier, device, capabilities
+  const status = await window.cupBridge.status();
+
+  // Delegate — route to best available compute
+  const result = await window.cupBridge.delegate('/health');
+
+  // Provision a capability
+  await window.cupBridge.provision(recipe);
+
+  // Execute a command on the native host
+  await window.cupBridge.exec('python3 -c "print(42)"');
+
+  // Start spore_runner
+  await window.cupBridge.start(8089);
+});
+```
+
+### Programmatic Access (Python)
+
+The `PlaywrightBridge` SDK enables the same automation from Python:
+
+```python
+from codeupipe.browser.playwright_bridge import PlaywrightBridge
+from codeupipe.browser import BrowserOpen, BrowserEval
+
+with PlaywrightBridge(headless=True) as bridge:
+    p = Payload()
+    p = BrowserOpen(bridge=bridge, url="https://codeuchain.github.io/codeupipe/platform/").call(p)
+    p = BrowserEval(bridge=bridge, expression="CupPlatform.tier").call(p)
+    print(p.get("browser_eval"))  # → "no-extension" or "native"
+```
+
+## Testing
+
+The platform is validated at three tiers:
+
+| Tier | What | Tests |
+|------|------|-------|
+| 1 — Serving | Static files (HTML, JS, CSS, recipes) via stdlib HTTP | 9 |
+| 2 — Playwright | Real Chromium — DOM structure, JS globals, interactions | 28 |
+| 3 — CUP Browser | Dogfood — CUP Browser Filters + PlaywrightBridge | 6 |
+
+```bash
+# Run all platform E2E tests
+python3 -m pytest tests/test_platform_e2e.py -v
+
+# Run just the CUP Browser dogfood tier
+python3 -m pytest tests/test_platform_e2e.py::TestPlatformCupBrowser -v
+```

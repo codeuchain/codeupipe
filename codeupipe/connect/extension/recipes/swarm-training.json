@@ -1,0 +1,39 @@
+{
+  "id": "swarm-training",
+  "name": "Swarm Training",
+  "description": "Wave-sequential distributed training with browser drones",
+  "version": "1.0.0",
+  "tier": "native",
+  "requires": ["dream-training"],
+  "steps": [
+    {
+      "type": "check-python",
+      "minVersion": "3.9"
+    },
+    {
+      "type": "pip-install",
+      "packages": ["torch", "transformers"]
+    },
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/spore_runner.py",
+      "dest": "~/.cup-bridge/spore_runner.py"
+    },
+    {
+      "type": "start-service",
+      "command": "python3 ~/.cup-bridge/spore_runner.py --port 8089 --queue-local --swarm",
+      "healthCheck": "http://localhost:8089/health"
+    }
+  ],
+  "healthCheck": {
+    "url": "http://localhost:8089/health",
+    "interval": 15000,
+    "expect": { "status": "alive", "swarm": true }
+  },
+  "endpoints": [
+    "/swarm-init",
+    "/swarm-status",
+    "/browser-work",
+    "/browser-result"
+  ]
+}

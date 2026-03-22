@@ -156,7 +156,7 @@ codeupipe/
         ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
         ├── distribute_cmds.py # distribute checkpoint/remote/worker
         ├── auth_cmds.py     # auth login/status/revoke/list
-        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub, ai-hub-manage
+        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
         └── browser_cmds.py  # browser-open/close/snapshot/click/fill/eval/screenshot/tabs/raw/get
 ```
 <!-- /cup:ref -->
@@ -609,71 +609,15 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 ### Hub & Discovery
 
 <!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub -->
-<!-- cup:ref file=codeupipe/ai/hub/registry.py symbols=ServerRegistry hash=c54b7a9 -->
 <!-- cup:ref file=codeupipe/ai/discovery/registry.py symbols=CapabilityRegistry -->
-<!-- cup:ref file=codeupipe/ai/servers/mcp_manager.py symbols=list_servers,add_server,remove_server,enable_server,disable_server,server_status,discover_tools -->
-<!-- cup:ref file=codeupipe/ai/servers/api_keys.py symbols=save_api_key,list_api_keys,remove_api_key,set_active_provider,get_active_provider,get_provider_details -->
 | Type | Source | Role |
 |------|--------|------|
-| `ServerRegistry` | ai/hub/registry.py | MCP server lifecycle management (register, enable, disable, tool mapping) |
-| `create_default_hub()` | ai/hub/server.py | Default hub with echo + mcp-manager + api-keys servers |
+| `ServerRegistry` | ai/hub/server.py | MCP server lifecycle management |
+| `create_default_hub()` | ai/hub/server.py | Default hub with echo server |
 | `CapabilityRegistry` | ai/discovery/registry.py | SQLite-backed capability store |
 | `SnowflakeArcticEmbedder` | ai/discovery/embedder.py | Local embedding model (requires torch) |
-| `mcp_manager` | ai/servers/mcp_manager.py | Agent-driven hub management (tool-for-tools pattern) |
-| `api_keys` | ai/servers/api_keys.py | Encrypted LLM provider API key management |
 <!-- /cup:ref -->
 <!-- /cup:ref -->
-<!-- /cup:ref -->
-<!-- /cup:ref -->
-<!-- /cup:ref -->
-
-#### MCP Manager — Agent-Driven Hub Management
-
-The MCP Manager is itself an MCP server docked in the hub. Its tools let the agent
-manage servers on the user's behalf — no manual configuration required.
-
-**Tools exposed to the agent:**
-
-| Tool | Description |
-|------|-------------|
-| `mcp_list_servers` | List all docked MCP servers |
-| `mcp_add_server` | Add a new server (name, command, args, env, tools) |
-| `mcp_remove_server` | Remove a server from the hub |
-| `mcp_enable_server` | Re-enable a disabled server |
-| `mcp_disable_server` | Disable a server (stays docked, tools hidden) |
-| `mcp_server_status` | Inspect a server's status, command, and tools |
-| `mcp_server_config` | Get full configuration for a server |
-| `mcp_discover_tools` | List all tools mapped to a server |
-
-**Architecture:**
-- Pure functions (`add_server`, `remove_server`, …) are testable with zero deps
-- FastMCP `@server.tool()` decorators are just the transport layer
-- `set_hub_registry()` wires the hub's `ServerRegistry` at startup
-
-#### API Keys — Encrypted Provider Key Management
-
-The API Keys server manages encrypted LLM provider credentials. The agent (or CLI)
-can save, list, remove, and switch between providers — all keys encrypted at rest
-via `codeupipe.core.secure`.
-
-**Tools exposed to the agent:**
-
-| Tool | Description |
-|------|-------------|
-| `mcp_save_api_key` | Save/update an LLM provider key (encrypted at rest) |
-| `mcp_list_api_keys` | List all saved provider names and active marker |
-| `mcp_remove_api_key` | Remove a provider from the encrypted store |
-| `mcp_set_active_provider` | Set which provider to use by default |
-| `mcp_get_active_provider` | Get the active provider's config (key redacted) |
-| `mcp_get_provider_details` | Inspect a specific provider (key redacted) |
-
-**CLI equivalent:** `cup ai-keys save|list|remove|active|show`
-
-**Architecture:**
-- Pure functions are testable without FastMCP
-- `ApiKeyStore` encrypts the entire key collection to `~/.codeupipe/api_keys.enc`
-- API keys are never exposed in tool output — always redacted
-- Provider resolution: if a stored key exists, `build_agent_session_chain()` uses it
 
 ### AI Hooks
 
@@ -817,12 +761,15 @@ my-agent/
 <!-- cup:ref file=codeupipe/linter/coverage_pipeline.py symbols=build_coverage_pipeline hash=004f7b8 -->
 <!-- cup:ref file=codeupipe/linter/report_pipeline.py symbols=build_report_pipeline hash=15f61c5 -->
 <!-- cup:ref file=codeupipe/linter/doc_check_pipeline.py symbols=build_doc_check_pipeline hash=00e62dc -->
+<!-- cup:ref file=codeupipe/linter/agent_docs_pipeline.py symbols=build_agent_docs_pipeline hash=e955c10 -->
 | Pipeline | Command | Purpose |
 |----------|---------|---------|
 | `build_lint_pipeline()` | `cup lint` | Standards violations (CUP000–CUP008) |
 | `build_coverage_pipeline()` | `cup coverage` | Component↔test coverage gaps |
 | `build_report_pipeline()` | `cup report` | Health report with scores |
 | `build_doc_check_pipeline()` | `cup doc-check` | Doc freshness verification |
+| `build_agent_docs_pipeline()` | `cup agent-docs` | Agent doc generation + validation |
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -1003,19 +950,6 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 | `cup ai-sync` | Sync local file-based capabilities |
 | `cup ai-register --server-name N` | Register MCP server capabilities |
 | `cup ai-hub` | Show default hub server registry |
-| `cup ai-hub-manage list` | List all docked MCP servers |
-| `cup ai-hub-manage add -n NAME -c CMD` | Add a server to the hub |
-| `cup ai-hub-manage remove -n NAME` | Remove a server from the hub |
-| `cup ai-hub-manage enable -n NAME` | Re-enable a disabled server |
-| `cup ai-hub-manage disable -n NAME` | Disable a server (tools hidden) |
-| `cup ai-hub-manage status -n NAME` | Inspect server status and tools |
-| `cup ai-hub-manage config -n NAME` | Show full server configuration |
-| `cup ai-hub-manage tools -n NAME` | List tools mapped to a server |
-| `cup ai-keys save -n NAME -u URL -k KEY -m MODEL` | Save an API key (encrypted) |
-| `cup ai-keys list` | List all saved providers |
-| `cup ai-keys remove -n NAME` | Remove a saved provider |
-| `cup ai-keys active [-n NAME]` | Get or set the active provider |
-| `cup ai-keys show -n NAME` | Show provider details (key redacted) |
 | `cup init agent-loop <name>` | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
 | `cup browser-open <url>` | Open URL in headless browser |
 | `cup browser-close` | Close browser session |

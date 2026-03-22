@@ -45,6 +45,11 @@ from .deploy import (
 from .connect import (
     ConnectorConfig, load_connector_configs, ConfigError,
     discover_connectors, check_health, HttpConnector,
+    BridgeConfig, BridgeTier, BridgeCapability,
+    load_bridge_configs, BridgeConfigError,
+    LocalBridge, BridgeEndpoint, BridgeError,
+    discover_bridges, scan_localhost, scan_lan,
+    BridgeLauncher, LaunchResult, install_service, uninstall_service,
 )
 from .observe import CaptureTap, InsightTap, MetricsTap, PushTap, RunRecord, file_sink, stdout_sink
 from .graph import pipeline_to_mermaid
@@ -91,6 +96,12 @@ __all__ = [
     # Connect
     "ConnectorConfig", "load_connector_configs", "ConfigError",
     "discover_connectors", "check_health", "HttpConnector",
+    # Bridge
+    "BridgeConfig", "BridgeTier", "BridgeCapability",
+    "load_bridge_configs", "BridgeConfigError",
+    "LocalBridge", "BridgeEndpoint", "BridgeError",
+    "discover_bridges", "scan_localhost", "scan_lan",
+    "BridgeLauncher", "LaunchResult", "install_service", "uninstall_service",
     # Observe
     "CaptureTap", "InsightTap", "MetricsTap", "PushTap", "RunRecord",
     "file_sink", "stdout_sink",

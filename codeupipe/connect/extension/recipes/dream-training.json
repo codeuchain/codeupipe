@@ -1,0 +1,52 @@
+{
+  "id": "dream-training",
+  "name": "Dream Training",
+  "description": "Full GPU dream training via spore_runner",
+  "version": "1.0.0",
+  "tier": "native",
+  "requires": [],
+  "steps": [
+    {
+      "type": "check-python",
+      "minVersion": "3.9"
+    },
+    {
+      "type": "pip-install",
+      "packages": ["torch", "transformers"]
+    },
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/spore_runner.py",
+      "dest": "~/.cup-bridge/spore_runner.py"
+    },
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/identity.py",
+      "dest": "~/.cup-bridge/identity.py"
+    },
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/sheets_queue.py",
+      "dest": "~/.cup-bridge/sheets_queue.py"
+    },
+    {
+      "type": "register-native-host",
+      "manifest": "com.codeupipe.bridge"
+    },
+    {
+      "type": "start-service",
+      "command": "python3 ~/.cup-bridge/spore_runner.py --port 8089 --queue-local",
+      "healthCheck": "http://localhost:8089/health"
+    }
+  ],
+  "healthCheck": {
+    "url": "http://localhost:8089/health",
+    "interval": 30000,
+    "expect": { "status": "alive" }
+  },
+  "endpoints": [
+    "/dream-train",
+    "/health",
+    "/download"
+  ]
+}

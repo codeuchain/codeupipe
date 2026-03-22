@@ -1,0 +1,22 @@
+{
+  "id": "onnx-inference",
+  "name": "ONNX Model Inference",
+  "version": "1.0.0",
+  "description": "Run ONNX models directly in-browser via WASM. No install needed — uses onnxruntime-web.",
+  "tier": "wasm",
+  "requires": [],
+  "configRequired": {},
+  "steps": [],
+  "health": {
+    "type": "wasm-check",
+    "expect": { "onnx": true }
+  },
+  "assets": [
+    {
+      "type": "script",
+      "src": "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js",
+      "integrity": ""
+    }
+  ],
+  "notes": "WASM-tier capability. The platform site loads onnxruntime-web on demand. No native installation required."
+}

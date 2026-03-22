@@ -1,0 +1,38 @@
+{
+  "id": "job-queue",
+  "name": "Job Queue",
+  "description": "Google Sheets-backed distributed job queue",
+  "version": "1.0.0",
+  "tier": "native",
+  "requires": ["dream-training"],
+  "steps": [
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/sheets_queue.py",
+      "dest": "~/.cup-bridge/sheets_queue.py"
+    },
+    {
+      "type": "download",
+      "url": "https://codeuchain.github.io/cup-platform/scripts/queue_cli.py",
+      "dest": "~/.cup-bridge/queue_cli.py"
+    }
+  ],
+  "healthCheck": {
+    "url": "http://localhost:8089/health",
+    "interval": 30000,
+    "expect": { "queue": true }
+  },
+  "endpoints": [
+    "/queue-list",
+    "/queue-next",
+    "/queue-submit",
+    "/queue-claim",
+    "/queue-complete",
+    "/queue-cancel",
+    "/queue-pull"
+  ],
+  "configRequired": {
+    "queue_sheet_id": "Google Sheet ID for the queue",
+    "queue_script_url": "Google Apps Script URL (optional)"
+  }
+}
