@@ -109,6 +109,16 @@ class PlaywrightBridge:
         }
         if self._channel:
             launch_kwargs["channel"] = self._channel
+            # System-installed browsers (Edge, Chrome) may run OOBE,
+            # sync, and background updates that stall automation.
+            # Suppress all of that.
+            launch_kwargs.setdefault("args", [])
+            launch_kwargs["args"].extend([
+                "--no-first-run",
+                "--no-default-browser-check",
+                "--disable-background-networking",
+                "--disable-sync",
+            ])
         self._browser = launcher.launch(**launch_kwargs)
         self._context = self._browser.new_context()
         self._page = self._context.new_page()
