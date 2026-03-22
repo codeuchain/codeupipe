@@ -1,0 +1,59 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
+# Privacy Policy — CUP Platform Bridge Extension
+
+**Effective Date:** March 22, 2026
+**Last Updated:** March 22, 2026
+
+## Overview
+
+CUP Platform Bridge is an open-source browser extension that connects web pages to local compute resources via codeupipe pipelines. This extension is built and maintained by the [codeuchain](https://github.com/codeuchain) project.
+
+## Data Collection
+
+**CUP Platform Bridge does not collect, transmit, or store any personal data on external servers.**
+
+All processing happens locally on your machine.
+
+## What the Extension Accesses
+
+| Permission | Why | What Happens to Data |
+|---|---|---|
+| **nativeMessaging** | Communicate with the local codeupipe Python runtime installed on your machine | Messages stay between your browser and your local machine. Nothing is sent externally. |
+| **storage** | Save your installed recipes and connection preferences | Stored in Chrome's local extension storage on your device. |
+| **activeTab** | Read page content when you explicitly trigger a recipe | Page content is processed locally. It is not transmitted anywhere. |
+
+## Third-Party Services
+
+This extension does not use any third-party analytics, tracking, advertising, or data collection services.
+
+## Where Data Goes
+
+```
+Your Browser  ↔  Extension  ↔  Your Local Machine (Native Host)
+                     ↕
+              Local Storage Only
+```
+
+- The extension communicates with `codeuchain.github.io` (the open-source project's GitHub Pages site) to display the Platform dashboard.
+- The extension communicates with `localhost` / `127.0.0.1` for local development servers.
+- No data is sent to any other domain.
+
+## Open Source
+
+The complete source code for this extension is publicly available:
+[github.com/codeuchain/codeupipe](https://github.com/codeuchain/codeupipe/tree/main/codeupipe/connect/extension)
+
+You can inspect exactly what the extension does at any time.
+
+## Changes to This Policy
+
+If this policy changes, the updated version will be posted at this URL. The "Last Updated" date at the top will reflect the change.
+
+## Contact
+
+For questions about this privacy policy, open an issue on the [codeupipe repository](https://github.com/codeuchain/codeupipe/issues).

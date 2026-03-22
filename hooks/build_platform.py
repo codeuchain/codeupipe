@@ -117,9 +117,11 @@ def _build_extension_zip(extension_src: Path, zip_path: Path):
             if src.exists():
                 zf.write(str(src), name)
 
-        # Icons — source files are icon-N.png, manifest expects icons/icon-N.png
-        for icon_file in sorted(extension_src.glob("icon-*.png")):
-            zf.write(str(icon_file), f"icons/{icon_file.name}")
+        # Icons — source files are in icons/ subdirectory
+        icons_dir = extension_src / "icons"
+        if icons_dir.exists():
+            for icon_file in sorted(icons_dir.glob("icon-*.png")):
+                zf.write(str(icon_file), f"icons/{icon_file.name}")
 
         # Recipes
         recipes_dir = extension_src / "recipes"

@@ -58,6 +58,7 @@ nav:
   - Platform:
       - CUP Bridge Extension: platform.md
       - Mobile Roadmap: mobile-roadmap.md
+      - Privacy Policy: privacy-policy.md
   - Agent Docs:
       - Skill Index: agents.md
       - Core: agents/core.md
