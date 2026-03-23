@@ -144,7 +144,7 @@ const CupPlatform = (function() {
     if (onProgress) onProgress({ phase: 'start', recipe: recipe.id });
 
     // Send to extension for execution
-    const result = await window.cupBridge.provision(recipe);
+    const result = await window.cupBridge.provision(recipe, recipe.tier);
 
     if (onProgress) onProgress({ phase: 'complete', result: result.result });
 

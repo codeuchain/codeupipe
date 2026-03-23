@@ -97,8 +97,11 @@
     },
 
     /** Provision a capability (download + install). */
-    provision: function(recipe) {
-      return _send('provision', { body: { recipe: recipe } });
+    provision: function(recipe, preferTier) {
+      return _send('provision', {
+        body: { recipe: recipe },
+        preferTier: preferTier || '',
+      });
     },
 
     /** Execute a command via native host. */

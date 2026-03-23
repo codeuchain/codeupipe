@@ -66,6 +66,10 @@ function parseRequest(payload) {
 
 /**
  * SelectTierFilter — determine best available tier for this request.
+ *
+ * For provision requests the recipe may specify its own tier (native,
+ * http, or wasm).  We honour that hint when the preferred transport is
+ * available, and fall through gracefully otherwise.
  */
 function selectTier(payload) {
   const action = payload.get('action');
@@ -76,8 +80,24 @@ function selectTier(payload) {
     return payload.insert('tier', 'internal');
   }
 
+  // Provision / exec — respect the recipe's preferred tier, then
+  // auto-select the best *available* transport.
   if (['provision', 'exec', 'start', 'stop', 'configure'].includes(action)) {
-    return payload.insert('tier', 'native');
+    // Caller can set prefer_tier to the recipe's tier field
+    if (preferTier === 'native' && state.nativeAlive) {
+      return payload.insert('tier', 'native');
+    }
+    if (preferTier === 'http' && state.httpAlive) {
+      return payload.insert('tier', 'http');
+    }
+    if (preferTier === 'wasm') {
+      return payload.insert('tier', 'wasm');
+    }
+
+    // Auto-select best available
+    if (state.nativeAlive) return payload.insert('tier', 'native');
+    if (state.httpAlive) return payload.insert('tier', 'http');
+    return payload.insert('tier', 'wasm');
   }
 
   // Prefer native messaging if alive
@@ -164,21 +184,14 @@ async function nativeRelay(payload) {
       .insert('response', response)
       .insert('response_tier', 'extension-native');
   } catch (err) {
-    // Native messaging failed — mark as dead, fall through to HTTP
+    // Native messaging failed — mark as dead, fall through to HTTP/WASM
     state.nativeAlive = false;
     state.tier = state.httpAlive ? 'extension-http' : 'wasm';
 
-    // Try HTTP fallback for proxy-type requests
-    if (['proxy', 'health', 'delegate'].includes(action)) {
-      return payload
-        .insert('tier', state.httpAlive ? 'http' : 'wasm')
-        .insert('native_error', err.message);
-    }
-
-    return payload.insert('response', {
-      error: `Native messaging failed: ${err.message}`,
-      fallback: 'http',
-    });
+    // Fall through to next filter for any action (HTTP or WASM can handle it)
+    return payload
+      .insert('tier', state.httpAlive ? 'http' : 'wasm')
+      .insert('native_error', err.message);
   }
 }
 

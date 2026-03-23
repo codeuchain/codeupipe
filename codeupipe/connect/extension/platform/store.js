@@ -108,8 +108,22 @@ const CupStore = (function () {
         statusEl.textContent = 'Installed ✓';
         card.classList.remove('installing');
         card.classList.add('installed');
+      } else if (result.result && result.result.status === 'wasm-fallback') {
+        // WASM fallback — capability is available in-browser
+        if (cap.tier === 'wasm') {
+          statusEl.textContent = 'Available (WASM) ✓';
+          card.classList.remove('installing');
+          card.classList.add('installed');
+        } else {
+          statusEl.textContent = 'Requires native host';
+          event.target.checked = false;
+          card.classList.remove('installing');
+        }
       } else {
-        statusEl.textContent = 'Failed';
+        // Provide actionable error based on capability tier
+        statusEl.textContent = cap.tier === 'native'
+          ? 'Requires native host'
+          : 'Provision failed';
         event.target.checked = false;
         card.classList.remove('installing');
       }
