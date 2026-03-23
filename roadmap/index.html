@@ -1,0 +1,3138 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python pipeline framework — composable Payload → Filter → Pipeline pattern with streaming. Zero dependencies.">
+      
+      
+      
+        <link rel="canonical" href="https://codeuchain.github.io/codeupipe/roadmap/">
+      
+      
+        <link rel="prev" href="../architecture-diagram/">
+      
+      
+        <link rel="next" href="../blueprints/ring7/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Roadmap - codeupipe</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <!-- Agent navigation guide: https://codeuchain.github.io/codeupipe/agents.txt -->
+  <meta name="agent-guide" content="https://codeuchain.github.io/codeupipe/agents.txt">
+  
+  <meta name="plain-text" content="https://codeuchain.github.io/codeupipe/roadmap.txt">
+  
+  <style>
+    /* ── Marketplace Hero Banner ───────────────────────────── */
+    .marketplace-banner {
+      position: relative;
+      margin: 1.5em 0 2em;
+      padding: 1.5em 2em;
+      background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(255,171,0,0.10) 100%);
+      border: 1px solid rgba(124,77,255,0.30);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .marketplace-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(124,77,255,0.08), transparent 70%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,171,0,0.06), transparent 70%);
+      pointer-events: none;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 1;
+    }
+    .banner-content > p:first-of-type {
+      font-size: 1.1em;
+      margin-bottom: 0.8em;
+    }
+    .banner-icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin-right: 0.15em;
+    }
+    .banner-actions {
+      display: flex;
+      gap: 0.75em;
+      flex-wrap: wrap;
+    }
+    .banner-actions .md-button {
+      font-size: 0.85em;
+      padding: 0.5em 1.3em;
+    }
+    /* Accent the primary button with project colors */
+    .banner-actions .md-button--primary {
+      background-color: #7c4dff;
+      border-color: #7c4dff;
+    }
+    .banner-actions .md-button--primary:hover {
+      background-color: #651fff;
+      border-color: #651fff;
+    }
+    /* Subtle shimmer animation on hover */
+    .marketplace-banner:hover {
+      border-color: rgba(124,77,255,0.50);
+      box-shadow: 0 0 24px rgba(124,77,255,0.08);
+      transition: border-color 300ms ease, box-shadow 300ms ease;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#codeupipe-roadmap" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="codeupipe" class="md-header__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            codeupipe
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Roadmap
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../best-practices/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../module-index/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../blueprints/ring7/" class="md-tabs__link">
+          
+  
+  
+  Blueprints
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../platform/" class="md-tabs__link">
+          
+  
+  
+  Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../agents/" class="md-tabs__link">
+          
+  
+  
+  Agent Docs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Marketplace
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="codeupipe" class="md-nav__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    codeupipe
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../module-index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-are" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Are
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#completed-rings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completed Rings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Completed Rings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ring-1-ship-v010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 1 — Ship ✅ (v0.1.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-2-compose-v020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 2 — Compose ✅ (v0.2.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-3-execute-v030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 3 — Execute ✅ (v0.3.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-4-observe-v040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 4 — Observe ✅ (v0.4.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-5-distribute-v040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 5 — Distribute ✅ (v0.4.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-6-govern-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 6 — Govern ✅ (v0.5.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7-accelerate-v070" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7 — Accelerate ✅ (v0.7.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-8-connect-v080" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 8 — Connect ✅ (v0.8.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-9-marketplace-v090" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 9 — Marketplace ✅ (v0.9.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-10-secure-config-v0100" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 10 — Secure Config ✅ (v0.10.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-11-polyglot-core-v0110" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 11 — Polyglot Core ✅ (v0.11.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-12-ai-suite-v0120" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 12 — AI Suite ✅ (v0.12.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-13-connect-platform-v0130" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 13 — Connect Platform ✅ (v0.13.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-open-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next — Open Directions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s Next — Open Directions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#harden-ship-v10-candidate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Harden &amp; Ship (v1.0 candidate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doc-pipeline-overhaul-todo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doc Pipeline Overhaul (TODO)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-the-connector-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expand the Connector Catalog
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-deploy-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cloud Deploy Adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglot-runtime-in-progress-ring-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglot Runtime (In Progress → Ring 11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-snapshot-v0130" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Snapshot (v0.13.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-we-will-not-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Will NOT Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-we-always-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Always Do
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blueprints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blueprints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 7 — Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 8 — Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 9 — Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CUP Bridge Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mobile-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/deploy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/connect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-are" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Are
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#completed-rings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completed Rings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Completed Rings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ring-1-ship-v010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 1 — Ship ✅ (v0.1.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-2-compose-v020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 2 — Compose ✅ (v0.2.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-3-execute-v030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 3 — Execute ✅ (v0.3.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-4-observe-v040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 4 — Observe ✅ (v0.4.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-5-distribute-v040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 5 — Distribute ✅ (v0.4.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-6-govern-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 6 — Govern ✅ (v0.5.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7-accelerate-v070" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7 — Accelerate ✅ (v0.7.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-8-connect-v080" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 8 — Connect ✅ (v0.8.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-9-marketplace-v090" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 9 — Marketplace ✅ (v0.9.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-10-secure-config-v0100" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 10 — Secure Config ✅ (v0.10.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-11-polyglot-core-v0110" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 11 — Polyglot Core ✅ (v0.11.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-12-ai-suite-v0120" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 12 — AI Suite ✅ (v0.12.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-13-connect-platform-v0130" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 13 — Connect Platform ✅ (v0.13.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-open-directions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next — Open Directions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s Next — Open Directions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#harden-ship-v10-candidate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Harden &amp; Ship (v1.0 candidate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#doc-pipeline-overhaul-todo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doc Pipeline Overhaul (TODO)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-the-connector-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expand the Connector Catalog
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cloud-deploy-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cloud Deploy Adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglot-runtime-in-progress-ring-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglot Runtime (In Progress → Ring 11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-snapshot-v0130" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Snapshot (v0.13.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-we-will-not-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Will NOT Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-we-always-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Always Do
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="codeupipe-roadmap">codeupipe Roadmap<a class="headerlink" href="#codeupipe-roadmap" title="Permanent link">&para;</a></h1>
+<p>The expansion plan for codeupipe — from pipeline framework to full-stack production accelerator.</p>
+<p>The guiding principle: <strong>zero to production in moments.</strong> Every ring we add should shrink the distance between an idea and a running, monitored, monetizable system.</p>
+<hr />
+<h2 id="where-we-are">Where We Are<a class="headerlink" href="#where-we-are" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Ring 1  Ship           ████████████  v0.1.0  ✅
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Ring 2  Compose        ████████████  v0.2.0  ✅
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Ring 3  Execute        ████████████  v0.3.0  ✅
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Ring 4  Observe        ████████████  v0.4.0  ✅
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Ring 5  Distribute     ████████████  v0.4.0  ✅
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Ring 6  Govern         ████████████  v0.5.0  ✅  (no tag — bundled into v0.4.0 release)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Ring 7  Accelerate     ████████████  v0.7.0  ✅
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>Ring 8  Connect        ████████████  v0.8.0  ✅
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Ring 9  Marketplace    ████████████  v0.9.0  ✅
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>Ring 10 Secure Config  ████████████  v0.10.0 ✅
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>Ring 11 Polyglot Core  ████████████  v0.11.0 ✅
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>Ring 12 AI Suite       ████████████  v0.12.0 ✅  ← YOU ARE HERE
+</code></pre></div>
+<p><strong>3351 total tests: 2130 core Python + 1221 AI suite Python + 88 TypeScript + 59 Rust + 68 Go = 3566 across all languages. 236 doc refs verified. Zero external dependencies in core.</strong></p>
+<hr />
+<h2 id="completed-rings">Completed Rings<a class="headerlink" href="#completed-rings" title="Permanent link">&para;</a></h2>
+<h3 id="ring-1-ship-v010">Ring 1 — Ship ✅ (v0.1.0)<a class="headerlink" href="#ring-1-ship-v010" title="Permanent link">&para;</a></h3>
+<p>Automated release pipeline. Push to main, tag, publish to PyPI.</p>
+<ul>
+<li>CI workflow (Python 3.9–3.13 matrix, pytest, lint)</li>
+<li>Release workflow (tag <code>v*</code> → build → publish to PyPI)</li>
+<li><code>cup</code> CLI with 9 commands (scaffold, lint, bundle, coverage, report, doc-check, run)</li>
+<li><code>cup:ref</code> doc verification system + pre-commit hook enforcement</li>
+</ul>
+<h3 id="ring-2-compose-v020">Ring 2 — Compose ✅ (v0.2.0)<a class="headerlink" href="#ring-2-compose-v020" title="Permanent link">&para;</a></h3>
+<p>Name-based component catalog and config-driven pipeline assembly.</p>
+<ul>
+<li><code>Registry</code> — register, get, discover, <code>cup_component</code> decorator</li>
+<li><code>Pipeline.from_config()</code> — build pipelines from TOML/JSON configs</li>
+<li><code>cup run</code> — execute config-driven pipelines from CLI</li>
+<li>AST-based auto-discovery of filter/tap/hook/stream-filter components</li>
+</ul>
+<h3 id="ring-3-execute-v030">Ring 3 — Execute ✅ (v0.3.0)<a class="headerlink" href="#ring-3-execute-v030" title="Permanent link">&para;</a></h3>
+<p>Execution modes, parallelism, nesting, and resilience.</p>
+<ul>
+<li><code>run_sync()</code> — synchronous convenience (no manual <code>asyncio.run()</code>)</li>
+<li><code>add_parallel()</code> — fan-out/fan-in with <code>asyncio.gather</code></li>
+<li><code>add_pipeline()</code> — nest pipelines as steps, arbitrary depth</li>
+<li><code>with_retry()</code> / <code>with_circuit_breaker()</code> — pipeline-level resilience</li>
+<li>Full config support for parallel, nesting, retry, and circuit breaker</li>
+</ul>
+<h3 id="ring-4-observe-v040">Ring 4 — Observe ✅ (v0.4.0)<a class="headerlink" href="#ring-4-observe-v040" title="Permanent link">&para;</a></h3>
+<p>Know what your pipeline is doing without instrumenting every filter by hand.</p>
+<ul>
+<li><strong>Timing middleware</strong> — automatic per-step duration tracking in <code>State.timings</code></li>
+<li><strong>Payload lineage</strong> — trace ID and step lineage propagate through Payload operations</li>
+<li><strong>Structured event emitter</strong> — <code>PipelineEvent</code> / <code>EventEmitter</code> with <code>pipeline.on()</code> / <code>pipeline.off()</code></li>
+<li>Events: <code>pipeline.start</code>, <code>pipeline.end</code>, <code>step.start</code>, <code>step.end</code>, <code>step.error</code>, <code>pipeline.retry</code>, <code>circuit.open</code></li>
+<li><strong><code>pipeline.describe()</code></strong> — machine-readable tree of pipeline structure</li>
+<li><strong>State diffing</strong> — <code>state.diff(other)</code> compares two pipeline runs</li>
+<li>Config-driven: <code>"pipeline": { "observe": { "timing": true, "lineage": true } }</code></li>
+</ul>
+<h3 id="ring-5-distribute-v040">Ring 5 — Distribute ✅ (v0.4.0)<a class="headerlink" href="#ring-5-distribute-v040" title="Permanent link">&para;</a></h3>
+<p>Cross-process and network boundaries without changing pipeline logic.</p>
+<ul>
+<li><strong>Payload serialization</strong> — <code>payload.serialize()</code> / <code>Payload.deserialize()</code> (JSON)</li>
+<li><strong>RemoteFilter</strong> — HTTP-based filter that sends payloads to remote services (stdlib urllib)</li>
+<li><strong>Checkpoint + CheckpointHook</strong> — persist payload state for crash recovery</li>
+<li><strong>Source adapters</strong> — <code>IterableSource</code>, <code>FileSource</code> for <code>pipeline.stream()</code></li>
+<li><strong>WorkerPool</strong> — thread/process pool for CPU-bound work inside filters</li>
+</ul>
+<h3 id="ring-6-govern-v050">Ring 6 — Govern ✅ (v0.5.0)<a class="headerlink" href="#ring-6-govern-v050" title="Permanent link">&para;</a></h3>
+<p>Guarantees at the pipeline level — shape, time, rate, and failure policy.</p>
+<ul>
+<li><strong>PayloadSchema</strong> — shape validation with key presence + type checking, <code>PayloadSchema.keys()</code> shorthand</li>
+<li><strong>Pipeline contracts</strong> — <code>pipeline.require_input()</code> / <code>pipeline.guarantee_output()</code> for pre/post conditions</li>
+<li><strong>Schema validation</strong> — <code>pipeline.require_input_schema()</code> / <code>pipeline.guarantee_output_schema()</code> on run boundaries</li>
+<li><strong>Timeout policies</strong> — <code>pipeline.with_timeout(seconds=5)</code> with clean cancellation via <code>PipelineTimeoutError</code></li>
+<li><strong>Rate limiting</strong> — <code>pipeline.with_rate_limit(calls_per_second=10)</code> token-bucket throttle</li>
+<li><strong>Dead letter handling</strong> — <code>pipeline.with_dead_letter(handler)</code> routes failures to <code>DeadLetterHandler</code></li>
+<li><strong>Audit trail</strong> — <code>AuditTrail</code> + <code>AuditHook</code> for immutable transformation logging, <code>pipeline.enable_audit()</code></li>
+<li><strong>LogDeadLetterHandler</strong> — built-in dead letter collector for testing and debugging</li>
+<li>Events: <code>pipeline.timeout</code>, <code>dead_letter</code></li>
+<li>Config-driven: <code>timeout</code>, <code>rate_limit</code>, <code>require_input</code>, <code>guarantee_output</code>, <code>dead_letter</code></li>
+</ul>
+<h3 id="ring-7-accelerate-v070">Ring 7 — Accelerate ✅ (v0.7.0)<a class="headerlink" href="#ring-7-accelerate-v070" title="Permanent link">&para;</a></h3>
+<p>Zero to production. Intent → scaffold → deploy.</p>
+<ul>
+<li><code>codeupipe.deploy</code> package — <code>DeployAdapter</code> protocol, <code>DeployTarget</code> metadata, adapter discovery via entry points</li>
+<li><code>DockerAdapter</code> — Dockerfile, entrypoint, requirements.txt (auto-detects http/worker/cli mode)</li>
+<li><code>VercelAdapter</code> / <code>NetlifyAdapter</code> — serverless handler wrappers + frontend scaffolding</li>
+<li><code>cup.toml</code> manifest parser — project metadata, deploy target, dependencies</li>
+<li>Recipe engine — <code>resolve_recipe()</code> with <code>${variable}</code> substitution, 5 bundled templates (saas-signup, api-crud, etl, ai-chat, webhook-handler)</li>
+<li><code>cup init</code> project scaffolding — 4 templates (saas, api, etl, chatbot), generates cup.toml, pyproject.toml, pipelines/, filters/, tests/, CI workflow, README</li>
+<li>CLI: <code>cup deploy</code>, <code>cup recipe</code>, <code>cup init</code></li>
+</ul>
+<h3 id="ring-8-connect-v080">Ring 8 — Connect ✅ (v0.8.0)<a class="headerlink" href="#ring-8-connect-v080" title="Permanent link">&para;</a></h3>
+<p>Connector protocol — standardized way to wire external services into pipelines.</p>
+<ul>
+<li><code>ConnectorConfig</code> — parse <code>[connectors.*]</code> from cup.toml, env-var resolution</li>
+<li><code>discover_connectors()</code> — entry-point discovery + auto-registration into Registry</li>
+<li><code>check_health()</code> — pre-flight health checks for all registered connectors</li>
+<li><code>HttpConnector</code> — built-in REST connector (stdlib urllib, zero deps)</li>
+<li>CLI: <code>cup connect --list</code>, <code>cup describe &lt;connector&gt;</code>, <code>--json</code> global flag</li>
+</ul>
+<h3 id="ring-9-marketplace-v090">Ring 9 — Marketplace ✅ (v0.9.0)<a class="headerlink" href="#ring-9-marketplace-v090" title="Permanent link">&para;</a></h3>
+<p>Connector discoverability + first four production connectors.</p>
+<ul>
+<li><strong>Marketplace infrastructure:</strong></li>
+<li><code>codeupipe.marketplace</code> package — <code>fetch_index</code>, <code>search</code>, <code>info</code>, <code>MarketplaceError</code></li>
+<li>JSON index with cache (1hr TTL, stale-on-error fallback), <code>CUP_MARKETPLACE_URL</code> env override</li>
+<li>CLI: <code>cup marketplace search|info|install</code> with <code>--json</code> support</li>
+<li>Trust tiers: verified (✅) / community (🔷)</li>
+<li>
+<p><code>marketplace/index.json</code> — static index with 4 verified entries</p>
+</li>
+<li>
+<p><strong>First-party connectors</strong> (each a standalone PyPI package in <code>connectors/</code>):</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Filters</th>
+<th>SDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>codeupipe-google-ai</code></td>
+<td>generate, generate_stream, embed, vision</td>
+<td>google-genai</td>
+</tr>
+<tr>
+<td><code>codeupipe-stripe</code></td>
+<td>checkout, subscription, webhook, customer</td>
+<td>stripe</td>
+</tr>
+<tr>
+<td><code>codeupipe-postgres</code></td>
+<td>query, execute, transaction, bulk_insert</td>
+<td>psycopg</td>
+</tr>
+<tr>
+<td><code>codeupipe-resend</code></td>
+<td>email, template</td>
+<td>resend</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>40 marketplace tests + 31 connector tests = 71 new tests</li>
+</ul>
+<hr />
+<h3 id="ring-10-secure-config-v0100">Ring 10 — Secure Config ✅ (v0.10.0)<a class="headerlink" href="#ring-10-secure-config-v0100" title="Permanent link">&para;</a></h3>
+<p>Platform-aware config validation and payload security at pipeline boundaries. Absorbed from the Zero-Trust Deploy Config (ZTDC) prototype.</p>
+<ul>
+<li><strong>Platform contracts:</strong></li>
+<li>23 JSON contract files in <code>deploy/contracts/</code> — AWS Lambda, Kubernetes, Docker, Vercel, and 19 more</li>
+<li><code>load_contract()</code>, <code>list_contracts()</code>, <code>validate_env()</code> — pure stdlib</li>
+<li><code>ContractError</code>, <code>ValidationResult</code> — clean error types</li>
+<li>
+<p>CLI: <code>cup config --list</code>, <code>cup config &lt;contract&gt; --var KEY=VALUE --env-file .env --json</code></p>
+</li>
+<li>
+<p><strong>Secure payload:</strong></p>
+</li>
+<li><code>seal_payload()</code> / <code>verify_payload()</code> — HMAC-SHA256 signing with timestamp + max_age expiry</li>
+<li><code>encrypt_data()</code> / <code>decrypt_data()</code> — PBKDF2 + authenticated encryption (stdlib only)</li>
+<li><code>SignFilter</code> / <code>VerifyFilter</code> — pipeline boundary signing</li>
+<li><code>EncryptFilter</code> / <code>DecryptFilter</code> — pipeline boundary encryption</li>
+<li>
+<p><code>SecurePayloadError</code> — tamper, wrong key, expiry</p>
+</li>
+<li>
+<p><strong>Documentation:</strong></p>
+</li>
+<li>Archived completed blueprints (Ring 7–9) to <code>docs/archive/</code></li>
+<li>
+<p><code>docs/ring10-secure-config-blueprint.md</code> — design decisions, what was absorbed, what was left out</p>
+</li>
+<li>
+<p><strong>SPA obfuscation pipeline:</strong></p>
+</li>
+<li>6-stage CUP pipeline in <code>deploy/obfuscate/</code> — scan → extract → obfuscate → reassemble → minify → write</li>
+<li>Shells out to <code>javascript-obfuscator</code> + <code>html-minifier-terser</code> with graceful fallback</li>
+<li><code>ObfuscateConfig</code> — configurable tool options, reserved names, static copy</li>
+<li>CLI: <code>cup obfuscate &lt;src&gt; &lt;out&gt; [--strict] [--html FILE...] [--static NAME...] [--json]</code></li>
+<li>
+<p>Generalized from ZTDC prototype's <code>build.js</code></p>
+</li>
+<li>
+<p>81 new tests (18 contract + 21 secure + 42 obfuscate)</p>
+</li>
+</ul>
+<hr />
+<h3 id="ring-11-polyglot-core-v0110">Ring 11 — Polyglot Core ✅ (v0.11.0)<a class="headerlink" href="#ring-11-polyglot-core-v0110" title="Permanent link">&para;</a></h3>
+<p>Language ports of the core primitives — same API, same mental model, idiomatic per language.</p>
+<ul>
+<li><strong>TypeScript port</strong> (<code>ports/ts/</code>):</li>
+<li>8 source files: Payload, MutablePayload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook</li>
+<li>Promise-based async, AsyncIterable streaming, generic typing</li>
+<li>Zero dependencies (TypeScript + vitest dev only)</li>
+<li>Fluent builder API, serialize/deserialize, full feature parity with Python core</li>
+<li>88 tests (36 payload + 15 state + 4 valve + 33 pipeline)</li>
+<li>
+<p>Package: <code>@codeupipe/core</code> v0.1.0</p>
+</li>
+<li>
+<p><strong>Rust port</strong> (<code>ports/rs/</code>):</p>
+</li>
+<li>8 source files: Payload, MutablePayload, Value enum, Filter trait, StreamFilter trait, Pipeline, Valve, Tap, State, Hook</li>
+<li>Send + Sync trait bounds — thread-safe by default</li>
+<li>Zero external dependencies — stdlib only, WASM-compatible</li>
+<li>AtomicBool for Valve, hand-rolled JSON serialize/deserialize</li>
+<li>59 tests (inline <code>#[cfg(test)]</code> modules)</li>
+<li>
+<p>Crate: <code>codeupipe-core</code> v0.1.0</p>
+</li>
+<li>
+<p><strong>Go port</strong> (<code>ports/go/</code>):</p>
+</li>
+<li>8 source files: Payload, MutablePayload, Filter, NamedFilter, StreamFilter, Pipeline, Valve, Tap, State, Hook, DefaultHook</li>
+<li>Interfaces for Filter, StreamFilter, Tap, Hook (Go duck-typing)</li>
+<li>Goroutine-based <code>AddParallel()</code> — real concurrency via <code>sync.WaitGroup</code></li>
+<li>Channel-based <code>Stream()</code> — idiomatic Go streaming</li>
+<li>Zero external dependencies — stdlib only</li>
+<li>Value semantics: Payload is a struct, not a pointer</li>
+<li>68 tests (24 payload + 14 state + 30 pipeline/valve)</li>
+<li>
+<p>Module: <code>github.com/codeuchain/codeupipe-core</code> (Go 1.21+)</p>
+</li>
+<li>
+<p>Blueprint: <a href="docs/ring11-ai-frontend-blueprint.md">docs/ring11-ai-frontend-blueprint.md</a></p>
+</li>
+</ul>
+<hr />
+<h3 id="ring-12-ai-suite-v0120">Ring 12 — AI Suite ✅ (v0.12.0)<a class="headerlink" href="#ring-12-ai-suite-v0120" title="Permanent link">&para;</a></h3>
+<p>Full AI agent framework absorbed from the orchie project. Everything under <code>codeupipe.ai</code> — gated behind optional extras (<code>pip install codeupipe[ai]</code>). Zero-dep core untouched.</p>
+<ul>
+<li><strong>Agent SDK</strong> (<code>codeupipe.ai.agent</code>):</li>
+<li><code>Agent</code>, <code>AgentConfig</code>, <code>AgentEvent</code>, <code>EventType</code>, <code>ServerDef</code></li>
+<li>Async generator-based event streaming (TURN_START, RESPONSE, TOOL_CALL, DONE, ERROR)</li>
+<li>Inject, steer, and push directives for multi-turn conversations</li>
+<li>
+<p>Billing event tracking in verbose mode</p>
+</li>
+<li>
+<p><strong>Providers</strong> (<code>codeupipe.ai.providers</code>):</p>
+</li>
+<li><code>LanguageModelProvider</code> ABC — pluggable LLM backends</li>
+<li><code>CopilotProvider</code> — GitHub Copilot integration via copilot-sdk</li>
+<li>
+<p>Provider lifecycle: init → create_session → chat → cleanup</p>
+</li>
+<li>
+<p><strong>AI Filters</strong> (<code>codeupipe.ai.filters</code>):</p>
+</li>
+<li><code>InitProviderLink</code> — configure LLM provider from payload</li>
+<li><code>LanguageModelLink</code> — send messages to LLM, handle tool calls</li>
+<li><code>RegisterServersLink</code> — register MCP servers with the hub</li>
+<li><code>DiscoverByIntentLink</code> — intent-based capability discovery</li>
+<li>Loop filters: <code>AgentLoopLink</code>, <code>ToolContinuationLink</code>, <code>ManageStateLink</code>, <code>BackchannelLink</code>, <code>ContextPruningLink</code>, <code>ContextAttributionLink</code>, <code>ConversationRevisionLink</code>, <code>UpdateIntentLink</code>, <code>RediscoverLink</code>, <code>ResumeSessionLink</code>, <code>SaveCheckpointLink</code></li>
+<li>Discovery filters: <code>EmbedQueryLink</code>, <code>CoarseSearchLink</code>, <code>FineRankLink</code>, <code>ValidateAvailabilityLink</code>, <code>FetchDefinitionsLink</code>, <code>GroupResultsLink</code></li>
+<li>
+<p>Registration filters: <code>ScanFilesLink</code>, <code>ParseCapabilitiesLink</code>, <code>SyncRegistryLink</code></p>
+</li>
+<li>
+<p><strong>AI Pipelines</strong> (<code>codeupipe.ai.pipelines</code>):</p>
+</li>
+<li><code>build_agent_session_chain()</code> — full agent lifecycle</li>
+<li><code>build_intent_discovery_chain()</code> — intent → capabilities</li>
+<li><code>build_capability_registration_chain()</code> — MCP server → registry</li>
+<li>
+<p><code>build_file_registration_chain()</code> — local files → registry</p>
+</li>
+<li>
+<p><strong>Hooks</strong> (<code>codeupipe.ai.hooks</code>):</p>
+</li>
+<li><code>LoggingMiddleware</code> — per-step logging</li>
+<li><code>TimingMiddleware</code> — per-step elapsed time</li>
+<li>
+<p><code>AuditProducer</code> — audit trail for AI operations</p>
+</li>
+<li>
+<p><strong>Hub</strong> (<code>codeupipe.ai.hub</code>):</p>
+</li>
+<li><code>ServerRegistry</code> / <code>create_default_hub()</code> — MCP server lifecycle management</li>
+<li>
+<p><code>IOWrapper</code> — stdio/SSE transport abstraction</p>
+</li>
+<li>
+<p><strong>Discovery</strong> (<code>codeupipe.ai.discovery</code>):</p>
+</li>
+<li><code>CapabilityRegistry</code> — SQLite-backed capability store</li>
+<li><code>SnowflakeArcticEmbedder</code> — local embedding model (requires torch)</li>
+<li>
+<p>Capability types: tool, skill, instruction, plan, prompt, resource</p>
+</li>
+<li>
+<p><strong>TUI</strong> (<code>codeupipe.ai.tui</code>):</p>
+</li>
+<li><code>CopilotApp</code> — Textual-based rich terminal interface</li>
+<li>Screens: chat, events, history</li>
+<li>
+<p>Widgets: input bar, message panel, event panel</p>
+</li>
+<li>
+<p><strong>Eval</strong> (<code>codeupipe.ai.eval</code>):</p>
+</li>
+<li>Experiment runner, scenario management, metric computation</li>
+<li>Baseline management, A/B comparisons, statistical analysis</li>
+<li>
+<p>SQLite storage, export, scoring, validation, reporting</p>
+</li>
+<li>
+<p><strong>CLI</strong> — 7 new <code>cup ai-*</code> commands:</p>
+</li>
+<li><code>cup ai-ask</code>, <code>cup ai-interactive</code>, <code>cup ai-tui</code></li>
+<li>
+<p><code>cup ai-discover</code>, <code>cup ai-sync</code>, <code>cup ai-register</code>, <code>cup ai-hub</code></p>
+</li>
+<li>
+<p><strong>Extras</strong> — optional dependency groups:</p>
+</li>
+<li><code>codeupipe[ai]</code> — core AI deps (copilot-sdk, mcp, pydantic, numpy)</li>
+<li><code>codeupipe[ai-discovery]</code> — torch + transformers for embedding</li>
+<li><code>codeupipe[ai-tui]</code> — textual for TUI</li>
+<li>
+<p><code>codeupipe[ai-full]</code> — everything</p>
+</li>
+<li>
+<p>1221 AI tests (1221 pass without extras, remainder needs torch/textual/API keys)</p>
+</li>
+<li>
+<p><strong>Agent-Loop Template</strong> (<code>cup init agent-loop</code>):</p>
+</li>
+<li>Full project scaffold for agentic turn-loop pattern (Claude Code / orchie flow)</li>
+<li><code>cup init agent-loop &lt;name&gt; --ai Copilot</code> → providers/, tools/, skills/, prompts/, sessions/, config/</li>
+<li>Recipe: <code>agent-loop.json</code> — 5 session steps + 14-filter turn pipeline + 3 hooks</li>
+<li>4-layer system prompt, MCP hub config, context budget management, <code>__follow_up__</code> convention</li>
+<li><code>main.py</code> entry point with one-shot and interactive modes</li>
+<li>
+<p>32 template-specific tests in <code>tests/test_agent_loop_template.py</code></p>
+</li>
+<li>
+<p>Blueprint: <a href="docs/ring12-ai-suite-blueprint.md">docs/ring12-ai-suite-blueprint.md</a></p>
+</li>
+</ul>
+<hr />
+<h3 id="ring-13-connect-platform-v0130">Ring 13 — Connect Platform ✅ (v0.13.0)<a class="headerlink" href="#ring-13-connect-platform-v0130" title="Permanent link">&para;</a></h3>
+<p>Device mesh — mobile → browser extension → desktop compute → servers. Any device, any direction, one pipeline.</p>
+<p>The Extension-as-Platform architecture turns a browser extension into a universal bridge that connects every device a user touches into a single CUP pipeline mesh. A phone triggers a static web page, the page talks to a browser extension, the extension relays to a native host running on the physical machine — which has access to databases, GPU compute, local files, and anything else on the box. The same mesh works in reverse: a server pushes data down to the browser, the extension routes it to a mobile device via the platform page. Every hop is a CUP pipeline.</p>
+<ul>
+<li><strong>Browser Extension</strong> (MV3, Chrome / Edge / Brave / Arc):</li>
+<li><code>service-worker.js</code> — 5-filter CUP pipeline: ParseRequest → SelectTier → [NativeRelay | HttpProxy | WasmFallback] → FormatResponse</li>
+<li><code>content-script.js</code> — injects <code>window.cupBridge</code> into every page for web ↔ extension messaging</li>
+<li><code>manifest.json</code> — native messaging, activeTab, storage permissions</li>
+<li>
+<p>5 bundled recipes: page-to-pdf, form-fill, tab-manager, page-summary, dom-audit</p>
+</li>
+<li>
+<p><strong>Native Messaging Host</strong> (<code>codeupipe/connect/native_host.py</code>):</p>
+</li>
+<li>12 CUP Filters: ReadStdin → ParseLength → ParseJSON → Validate → RouteCommand → [RunPipeline | ListFilters | HealthCheck | Discover] → FormatResult → PackLength → WriteStdout → FlushStdout</li>
+<li>Bridges extension ↔ local Python runtime — full access to local machine resources</li>
+<li>
+<p>Registration: <code>install-bridge.sh</code> auto-registers the NM host manifest for Chrome/Edge/Brave</p>
+</li>
+<li>
+<p><strong>PlaywrightBridge SDK</strong> (<code>codeupipe/browser/playwright_bridge.py</code>):</p>
+</li>
+<li><code>channel</code> param for system browsers (chrome, msedge) — test on the user's actual browser</li>
+<li>Auto-injects <code>--no-first-run</code>, <code>--disable-sync</code>, <code>--disable-background-networking</code> for system browser stability</li>
+<li>Best-effort <code>networkidle</code> (5s non-blocking) — works around browser background traffic</li>
+<li>
+<p>Context manager pattern: <code>async with PlaywrightBridge(channel="msedge") as bridge:</code></p>
+</li>
+<li>
+<p><strong>Platform Site</strong> (GitHub Pages SPA):</p>
+</li>
+<li>Dashboard: 6 live capability cards wired to extension messaging</li>
+<li>Capability Store: 5 downloadable recipes with one-click install</li>
+<li>Tabbed install: Desktop (3 steps) / Mobile (Add-to-Home-Screen PWA) / Store (coming soon)</li>
+<li>Browser badges: Chrome, Edge, Brave, Arc — with install verification</li>
+<li>CUP Products grid: Bridge, Bird Bone AI, Browser, Mobile, Marketplace</li>
+<li>
+<p>Live at: <a href="https://codeuchain.github.io/codeupipe/platform/">codeuchain.github.io/codeupipe/platform/</a></p>
+</li>
+<li>
+<p><strong>Device Mesh Architecture</strong>:
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌─────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│  Mobile  │────▶│ Platform SPA │────▶│  Extension   │────▶│ Desktop  │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│  Device  │◀────│ (Static Page)│◀────│ (MV3 Bridge) │◀────│ Compute  │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>└─────────┘     └──────────────┘     └──────────────┘     └──────────┘
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>     │                                      │                    │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>     │            CUP Pipelines             │                    │
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>     │          at every hop ──────────────▶│                    │
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>     │                                      ▼                    ▼
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>     │                               ┌──────────┐        ┌──────────┐
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>     └──────────────────────────────▶│  Native  │───────▶│ Servers  │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>                                     │   Host   │        │ DB / GPU │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                                     └──────────┘        └──────────┘
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Mobile Bridge Roadmap</strong> (<code>docs/mobile-roadmap.md</code>):</p>
+</li>
+<li><code>AdbBridge</code> — Android device automation via ADB (filter-per-action pattern)</li>
+<li><code>IosBridge</code> — iOS device automation via libimobiledevice / Xcode instruments</li>
+<li>
+<p>Same API as PlaywrightBridge: <code>async with AdbBridge(serial="...") as bridge:</code></p>
+</li>
+<li>
+<p><strong>MkDocs Build Integration</strong>:</p>
+</li>
+<li><code>hooks/build_platform.py</code> — copies SPA + builds extension zip into site/platform/ on <code>mkdocs build</code></li>
+<li><code>docs/platform.md</code> — architecture docs, install guide, developer API, 4-tier testing</li>
+<li>
+<p>Workflow trigger: <code>docs.yml</code> fires on <code>codeupipe/connect/extension/**</code> changes</p>
+</li>
+<li>
+<p>119 new tests (53 native host + 44 platform E2E + 22 build hook)</p>
+</li>
+</ul>
+<hr />
+<h2 id="whats-next-open-directions">What's Next — Open Directions<a class="headerlink" href="#whats-next-open-directions" title="Permanent link">&para;</a></h2>
+<p>Everything below is <strong>unscheduled</strong>. These are the natural next moves given what exists, not commitments. Pick what creates the most value and build it.</p>
+<h3 id="harden-ship-v10-candidate">Harden &amp; Ship (v1.0 candidate)<a class="headerlink" href="#harden-ship-v10-candidate" title="Permanent link">&para;</a></h3>
+<p>The framework has 12 rings, 3351 Python tests + 215 polyglot tests, and a connector ecosystem. A v1.0 signals stability.</p>
+<table>
+<thead>
+<tr>
+<th>Work</th>
+<th>What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API stability audit</strong></td>
+<td>Lock down public interfaces — breaking changes are versioned after this</td>
+</tr>
+<tr>
+<td><strong>Documentation site</strong></td>
+<td>Real docs (mkdocs/sphinx), not just INDEX.md. Tutorials, API reference, connector authoring guide</td>
+</tr>
+<tr>
+<td><strong>PyPI presence for connectors</strong></td>
+<td>Actually publish codeupipe-google-ai, codeupipe-stripe, etc. to PyPI</td>
+</tr>
+<tr>
+<td><strong>Integration test suite</strong></td>
+<td>Real SDK calls against sandbox accounts (Stripe test mode, Resend test domain, etc.)</td>
+</tr>
+<tr>
+<td><strong>Error message polish</strong></td>
+<td>Every user-facing error should guide them to the fix</td>
+</tr>
+</tbody>
+</table>
+<h3 id="doc-pipeline-overhaul-todo">Doc Pipeline Overhaul (TODO)<a class="headerlink" href="#doc-pipeline-overhaul-todo" title="Permanent link">&para;</a></h3>
+<p>The <code>cup doc-check</code> pipeline (<code>ScanDocs → ResolveRefs → CheckSymbols → DetectDrift → CheckIndex → AssembleDocReport</code>) and the MkDocs build hooks (<code>sync_docs.py</code>, <code>copy_raw.py</code>, <code>build_platform.py</code>) work, but the workflow is clunky when building new features. The pain points:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What Happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New modules aren't auto-wired</strong></td>
+<td>Adding a new package/module doesn't automatically get <code>cup:ref</code> markers, nav entries, or index coverage. You manually wire docs after writing code.</td>
+</tr>
+<tr>
+<td><strong>Hash drift is noisy</strong></td>
+<td>Any change to an <code>__init__.py</code> (even re-exports) drifts <em>every</em> doc that references it. 11+ stale warnings at once, most of which are cosmetic — not real content drift.</td>
+</tr>
+<tr>
+<td><strong>No <code>cup doc-fix</code> command</strong></td>
+<td>Drift is detected but not auto-repaired. You have to manually update each hash. A <code>cup doc-fix</code> that rewrites stale hashes in place would close the loop.</td>
+</tr>
+<tr>
+<td><strong><code>sync_docs.py</code> is a static map</strong></td>
+<td>New root <code>.md</code> files require a manual edit to <code>_FILE_MAP</code>. Should discover root <code>.md</code> files or be config-driven via <code>mkdocs.yml</code>.</td>
+</tr>
+<tr>
+<td><strong>No scaffolding for docs</strong></td>
+<td><code>cup new filter</code> creates a filter + test, but doesn't touch docs. A <code>--doc</code> flag or automatic <code>cup:ref</code> injection would keep docs in sync from the start.</td>
+</tr>
+<tr>
+<td><strong>Pre-commit blocks on cosmetic drift</strong></td>
+<td>The pre-commit hook fails on <em>any</em> drift, including harmless re-export changes. Needs a severity tier: error (missing symbol) vs. warning (hash-only drift).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Goal:</strong> Building a new feature should automatically produce wired-up documentation. Write the filter, the test scaffolds, <em>and</em> the doc wiring should follow — or at minimum, <code>cup doc-fix</code> should close any gaps in one command.</p>
+<h3 id="expand-the-connector-catalog">Expand the Connector Catalog<a class="headerlink" href="#expand-the-connector-catalog" title="Permanent link">&para;</a></h3>
+<p>More connectors follow the exact same pattern. Each is an independent package.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Candidates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI</strong></td>
+<td>Anthropic, Ollama, Hugging Face</td>
+</tr>
+<tr>
+<td><strong>Payments</strong></td>
+<td>PayPal, LemonSqueezy</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Auth0, Clerk, Supabase Auth, Firebase Auth, JWT validation</td>
+</tr>
+<tr>
+<td><strong>Email</strong></td>
+<td>SendGrid, Postmark, SES, Mailgun</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>S3, GCS, Azure Blob, Supabase Storage</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>MySQL, SQLite, DynamoDB, MongoDB</td>
+</tr>
+<tr>
+<td><strong>Cache</strong></td>
+<td>Redis, Memcached</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>Algolia, Meilisearch, Elasticsearch</td>
+</tr>
+<tr>
+<td><strong>Notifications</strong></td>
+<td>Twilio (SMS), Pusher, OneSignal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cloud-deploy-adapters">Cloud Deploy Adapters<a class="headerlink" href="#cloud-deploy-adapters" title="Permanent link">&para;</a></h3>
+<p>The deploy protocol exists (Ring 7). These are new adapters plugging into it.</p>
+<table>
+<thead>
+<tr>
+<th>Adapter</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AWS Lambda</strong></td>
+<td>Pipeline → Lambda handler + SAM/CDK template</td>
+</tr>
+<tr>
+<td><strong>AWS ECS/Fargate</strong></td>
+<td>Long-running/streaming pipelines → task definition</td>
+</tr>
+<tr>
+<td><strong>Azure Functions</strong></td>
+<td>Pipeline → Azure Function trigger</td>
+</tr>
+<tr>
+<td><strong>Azure Container Apps</strong></td>
+<td>Streaming pipelines → ACA deployment</td>
+</tr>
+<tr>
+<td><strong>GCP Cloud Run</strong></td>
+<td>Pipeline → containerized Cloud Run service</td>
+</tr>
+<tr>
+<td><strong>Fly.io / Railway</strong></td>
+<td>Indie/startup speed deploys</td>
+</tr>
+</tbody>
+</table>
+<h3 id="developer-experience">Developer Experience<a class="headerlink" href="#developer-experience" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>cup studio</code></strong></td>
+<td>Visual pipeline builder — local web UI or VS Code extension</td>
+</tr>
+<tr>
+<td><strong>Pipeline hub</strong></td>
+<td>Shareable pipeline configs: <code>cup install recipe-name</code></td>
+</tr>
+<tr>
+<td><strong>Organization registries</strong></td>
+<td>Private Registry servers for enterprise teams</td>
+</tr>
+<tr>
+<td><strong>Richer recipes</strong></td>
+<td>Recipes that auto-resolve connector dependencies from the marketplace</td>
+</tr>
+</tbody>
+</table>
+<h3 id="polyglot-runtime-in-progress-ring-11">Polyglot Runtime (In Progress → Ring 11)<a class="headerlink" href="#polyglot-runtime-in-progress-ring-11" title="Permanent link">&para;</a></h3>
+<p>Write pipeline configs once, run them in any language. The codeuchain vision.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>What It Does</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TypeScript runtime</strong></td>
+<td>Browser/edge pipelines (GH Pages, CF Workers, Deno)</td>
+<td>✅ <code>ports/ts/</code> — 88 tests</td>
+</tr>
+<tr>
+<td><strong>Rust runtime</strong></td>
+<td>WASM, desktop, performance-critical workloads</td>
+<td>✅ <code>ports/rs/</code> — 59 tests</td>
+</tr>
+<tr>
+<td><strong>Go runtime</strong></td>
+<td>Concurrent executor for cloud infrastructure</td>
+<td>✅ <code>ports/go/</code> — 68 tests</td>
+</tr>
+<tr>
+<td><strong>Wire protocol spec</strong></td>
+<td>Language-agnostic Payload/Filter/Pipeline serialization</td>
+<td>🔜 Planned</td>
+</tr>
+<tr>
+<td><strong>Cross-runtime orchestration</strong></td>
+<td>Python + Rust + Go + TS filters in one pipeline</td>
+<td>🔜 Planned</td>
+</tr>
+<tr>
+<td><strong>WASM filter support</strong></td>
+<td>Compile Rust filters to WASM, run in any runtime</td>
+<td>🔜 Planned</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="architecture-snapshot-v0130">Architecture Snapshot (v0.13.0)<a class="headerlink" href="#architecture-snapshot-v0130" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>codeupipe/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── core/           Ring 1-4,10 Payload, Filter, Tap, Hook, StreamFilter, Valve,
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│                              Pipeline, State, Event, Govern, Secure
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── distribute/     Ring 5     RemoteFilter, Checkpoint, Source, WorkerPool
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── deploy/         Ring 7,10  Adapters, Recipes, Init, Contracts (25 platforms)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>├── connect/        Ring 8,13  ConnectorConfig, discover_connectors, HttpConnector,
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── extension/             MV3 browser extension (service-worker, content-script),
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   │   └── platform/          Platform SPA (dashboard, store, install)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   └── native_host.py         Native Messaging Host (12 CUP Filters)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>├── marketplace/    Ring 9     fetch_index, search, info, marketplace CLI
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>├── auth/           Ring 8     Credential, AuthProvider, TokenVault, ProxyToken
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>├── ai/             Ring 12    Agent SDK, Providers, Filters, Pipelines, Hooks,
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│                              Hub, Discovery, TUI, Eval (optional extras)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>├── browser/        Ring 13    BrowserBridge, PlaywrightBridge (channel, system
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│                              browsers), 10 Filters (Open, Close, Snapshot,
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│                              Click, Fill, Eval, Screenshot, Tabs, Raw, Get)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>├── linter/         Ring 1     Dogfooded lint/coverage/doc-check pipelines
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>├── converter/      Ring 2     Config pipeline assembly helpers
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>├── registry.py     Ring 2     Registry, cup_component, default_registry
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>├── testing.py      Ring 1     run_filter, run_pipeline, assert_payload, mock_filter
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>└── cli/            Ring 1+    32+ commands: new, list, bundle, lint, coverage,
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>                               report, doc-check, run, deploy, recipe, init,
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>                               connect, describe, marketplace, config,
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>                               ai-ask, ai-interactive, ai-tui, ai-discover,
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>                               ai-sync, ai-register, ai-hub,
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>                               browser-open, browser-close, browser-snapshot,
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>                               browser-click, browser-fill, browser-eval,
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>                               browser-screenshot, browser-tabs, browser-raw,
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>                               browser-get
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>connectors/                    Ring 9 — standalone PyPI packages
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>├── codeupipe-google-ai/       4 filters (generate, stream, embed, vision)
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>├── codeupipe-stripe/          4 filters (checkout, subscription, webhook, customer)
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>├── codeupipe-postgres/        4 filters (query, execute, transaction, bulk_insert)
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>└── codeupipe-resend/          2 filters (email, template)
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>ports/                         Ring 11 — polyglot core implementations
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>├── ts/                        TypeScript — @codeupipe/core (88 tests)
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>│   └── src/                   Payload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>├── rs/                        Rust — codeupipe-core (59 tests)
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>│   └── src/                   Payload, Value, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>└── go/                        Go — github.com/codeuchain/codeupipe-core (68 tests)
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>    └── codeupipe/             Payload, Filter, StreamFilter, Pipeline, Valve, Tap, State, Hook
+</code></pre></div>
+<hr />
+<h2 id="principles">Principles<a class="headerlink" href="#principles" title="Permanent link">&para;</a></h2>
+<h3 id="what-we-will-not-build">What We Will NOT Build<a class="headerlink" href="#what-we-will-not-build" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Not a scheduler.</strong> Airflow/Prefect/Dagster schedule tasks. codeupipe is the logic <em>inside</em> the task.</li>
+<li><strong>Not a message broker.</strong> Kafka/RabbitMQ move messages. codeupipe <em>consumes from</em> them via source adapters.</li>
+<li><strong>Not an ORM.</strong> Database filters are thin wrappers, not a query builder.</li>
+<li><strong>Not a web framework.</strong> Flask/FastAPI serve HTTP. codeupipe pipelines are the handler logic behind a route.</li>
+<li><strong>Zero-dep core, always.</strong> Connectors have their SDK deps. The core stays zero dependencies in every language — Python stdlib, TS no npm deps, Rust no crates, Go no modules.</li>
+</ul>
+<h3 id="what-we-always-do">What We Always Do<a class="headerlink" href="#what-we-always-do" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every ring is tested, documented, and shipped before the next starts.</li>
+<li><code>cup doc-check</code> + <code>cup lint</code> enforced by pre-commit hook.</li>
+<li>Trust but verify — tests hit real services where possible, mocks where necessary.</li>
+<li>Each ring builds on the previous. No skipping.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+  
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/codeuchain/codeupipe" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+  
+  <div style="text-align:center;padding:0.5em 0;font-size:0.72em;opacity:0.55;font-family:monospace;">
+    AI agent? &rarr;
+    <a href="https://codeuchain.github.io/codeupipe/agents.txt" style="opacity:0.8;">agents.txt</a>
+    &nbsp;|&nbsp; plain text:
+    <a href="https://codeuchain.github.io/codeupipe/roadmap.txt" style="opacity:0.8;">roadmap.txt</a>
+  </div>
+  
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

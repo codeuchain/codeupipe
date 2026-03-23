@@ -1,0 +1,3116 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python pipeline framework — composable Payload → Filter → Pipeline pattern with streaming. Zero dependencies.">
+      
+      
+      
+        <link rel="canonical" href="https://codeuchain.github.io/codeupipe/archive/shipping-exploration/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Shipping to Production: Where We Are, Where We're Going - codeupipe</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <!-- Agent navigation guide: https://codeuchain.github.io/codeupipe/agents.txt -->
+  <meta name="agent-guide" content="https://codeuchain.github.io/codeupipe/agents.txt">
+  
+  <meta name="plain-text" content="https://codeuchain.github.io/codeupipe/archive/shipping-exploration.txt">
+  
+  <style>
+    /* ── Marketplace Hero Banner ───────────────────────────── */
+    .marketplace-banner {
+      position: relative;
+      margin: 1.5em 0 2em;
+      padding: 1.5em 2em;
+      background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(255,171,0,0.10) 100%);
+      border: 1px solid rgba(124,77,255,0.30);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .marketplace-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(124,77,255,0.08), transparent 70%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,171,0,0.06), transparent 70%);
+      pointer-events: none;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 1;
+    }
+    .banner-content > p:first-of-type {
+      font-size: 1.1em;
+      margin-bottom: 0.8em;
+    }
+    .banner-icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin-right: 0.15em;
+    }
+    .banner-actions {
+      display: flex;
+      gap: 0.75em;
+      flex-wrap: wrap;
+    }
+    .banner-actions .md-button {
+      font-size: 0.85em;
+      padding: 0.5em 1.3em;
+    }
+    /* Accent the primary button with project colors */
+    .banner-actions .md-button--primary {
+      background-color: #7c4dff;
+      border-color: #7c4dff;
+    }
+    .banner-actions .md-button--primary:hover {
+      background-color: #651fff;
+      border-color: #651fff;
+    }
+    /* Subtle shimmer animation on hover */
+    .marketplace-banner:hover {
+      border-color: rgba(124,77,255,0.50);
+      box-shadow: 0 0 24px rgba(124,77,255,0.08);
+      transition: border-color 300ms ease, box-shadow 300ms ease;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shipping-to-production-where-we-are-where-were-going" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="codeupipe" class="md-header__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            codeupipe
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shipping to Production: Where We Are, Where We're Going
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../best-practices/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../module-index/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../blueprints/ring7/" class="md-tabs__link">
+          
+  
+  
+  Blueprints
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../platform/" class="md-tabs__link">
+          
+  
+  
+  Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../agents/" class="md-tabs__link">
+          
+  
+  
+  Agent Docs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Marketplace
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="codeupipe" class="md-nav__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    codeupipe
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../module-index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blueprints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blueprints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 7 — Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 8 — Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 9 — Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CUP Bridge Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mobile-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/deploy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/connect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-insight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Core Insight
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-we-are-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where We Are Today
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Where We Are Today">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Missing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-prototype-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Prototype Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-two-tier-architecture-static-shell-api-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Two-Tier Architecture: Static Shell + API Backend
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Two-Tier Architecture: Static Shell + API Backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-this-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-public-repos-are-fine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Public Repos Are Fine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oracle-cloud-free-tier-as-default-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oracle Cloud Free Tier as Default Compute
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-this-means-for-cup-ship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What This Means for cup ship
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#product-types-we-need-to-ship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Product Types We Need to Ship
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Product Types We Need to Ship">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-web-application-backend-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Web Application (Backend + Frontend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-api-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. API Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cli-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. CLI Tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-desktop-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Desktop Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-mobile-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Mobile Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-serverless-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Serverless Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-background-worker-scheduled-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Background Worker / Scheduled Job
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-vision-cup-ship" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Vision: cup ship
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Vision: cup ship">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-if" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What If
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-default-path-vs-platform-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Default Path vs. Platform Adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#product-type-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Product Type Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-ship-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Ship Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progressive-disclosure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Disclosure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-product-type-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Product-Type Breakdown
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Product-Type Breakdown">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#web-applications-static-shell-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Web Applications (Static Shell + API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desktop-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serverless-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serverless Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-cup-ship-implementation-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The cup ship Implementation Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The cup ship Implementation Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-github-pages-adapter-days-not-weeks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: GitHub Pages Adapter (days, not weeks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-oci-compute-adapter-the-other-half" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: OCI Compute Adapter (the other half)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-full-cup-ship-phases-1-2-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Full cup ship (Phases 1 + 2 combined)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-secret-forwarding-to-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Secret Forwarding to OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-desktop-cli-publishing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Desktop + CLI Publishing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-end-user-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The End User Experience
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The End User Experience">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-the-developer-orchestrates-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For the Developer (Orchestrate's customer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-the-end-user-developers-customer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For the End User (developer's customer)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Points
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision Points">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-should-cup-ship-be-one-command-or-two" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Should cup ship be one command or two?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-public-repo-for-static-shells-is-that-really-okay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Public repo for static shells — is that really okay?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-one-oci-instance-or-multiple" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. One OCI instance or multiple?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-which-desktop-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Which desktop runtime?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-how-do-we-handle-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. How do we handle secrets?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-what-about-obfuscation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What about obfuscation?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-means-for-our-product-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What This Means for Our Product Surface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What This Means for Our Product Surface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-9010-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 90/10 Split
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="shipping-to-production-where-we-are-where-were-going">Shipping to Production: Where We Are, Where We're Going<a class="headerlink" href="#shipping-to-production-where-we-are-where-were-going" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-10<br />
+<strong>Status</strong>: Exploration / RFC<br />
+<strong>Author</strong>: Orchestrate LLC</p>
+<hr />
+<h2 id="the-core-insight">The Core Insight<a class="headerlink" href="#the-core-insight" title="Permanent link">&para;</a></h2>
+<p>Most web applications are <strong>static shells that make API calls</strong>. The app isn't the HTML/JS/CSS — it's the data and the compute behind the API. The shell is a commodity.</p>
+<p>This means:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Where It Lives</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Static shell</strong> (HTML/JS/CSS)</td>
+<td>GitHub Pages — public repo, free</td>
+<td>$0</td>
+</tr>
+<tr>
+<td><strong>Dynamic data</strong></td>
+<td>API calls to serverless OR OCI free tier</td>
+<td>$0 – minimal</td>
+</tr>
+<tr>
+<td><strong>Secrets / Auth</strong></td>
+<td>Environment variables on compute layer only</td>
+<td>Protected</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The code being public doesn't matter.</strong> Obfuscated/minified JS in a public repo reveals nothing meaningful. The value is in the <strong>data</strong>, the <strong>API keys</strong>, and the <strong>business logic running server-side</strong>. GitHub Pages handles 90% of our hosting needs for free.</p>
+<p>For the other 10% — the compute — we either go serverless (AWS Lambda, Vercel Functions, Cloudflare Workers) or run on an always-on instance (Oracle Cloud free tier: 4 ARM cores, 24 GB RAM — enough for dozens of lightweight Python backends).</p>
+<p>This collapses the shipping problem from "12 adapters for 7 product types" into two tiers:</p>
+<ol>
+<li><strong>Static shell</strong> → GitHub Pages (free, instant, zero ops)</li>
+<li><strong>Compute backend</strong> → OCI free tier (always-on) or serverless (per-request)</li>
+</ol>
+<hr />
+<h2 id="the-problem-statement">The Problem Statement<a class="headerlink" href="#the-problem-statement" title="Permanent link">&para;</a></h2>
+<p>Getting code from "it works on my machine" to "a customer is using it" is still too many steps. We've built a powerful framework — 10 rings, 1846 tests, marketplace, connectors, deploy adapters — but the last mile is still friction.</p>
+<p>The question: <strong>Can <code>cup ship</code> be the last command you type?</strong></p>
+<hr />
+<h2 id="where-we-are-today">Where We Are Today<a class="headerlink" href="#where-we-are-today" title="Permanent link">&para;</a></h2>
+<h3 id="what-exists">What Exists<a class="headerlink" href="#what-exists" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>CLI Command</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scaffold a project</td>
+<td><code>cup init saas my-app --frontend react</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Docker artifacts</td>
+<td><code>cup deploy docker cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Vercel artifacts</td>
+<td><code>cup deploy vercel cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Netlify artifacts</td>
+<td><code>cup deploy netlify cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Render blueprint</td>
+<td><code>cup deploy render cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Fly.io config</td>
+<td><code>cup deploy fly cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Railway config</td>
+<td><code>cup deploy railway cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate Cloud Run config</td>
+<td><code>cup deploy cloudrun cup.toml</code></td>
+<td>✅ Works</td>
+</tr>
+<tr>
+<td>Generate CI workflow</td>
+<td><code>cup init ... --ci github</code></td>
+<td>✅ Works (14 CI providers)</td>
+</tr>
+<tr>
+<td>Ship prototype to customer</td>
+<td><code>./ship.sh org/repo</code></td>
+<td>✅ Works (manual)</td>
+</tr>
+<tr>
+<td>Install marketplace components</td>
+<td><code>cup marketplace install &lt;name&gt;</code></td>
+<td>✅ Works</td>
+</tr>
+</tbody>
+</table>
+<h3 id="whats-missing">What's Missing<a class="headerlink" href="#whats-missing" title="Permanent link">&para;</a></h3>
+<p>The existing <code>cup deploy</code> <strong>generates</strong> artifacts. It does not <strong>deploy</strong> them. After <code>cup deploy render cup.toml</code>, you still need to:</p>
+<ol>
+<li>Push to a GitHub repo</li>
+<li>Log into Render/Vercel/Fly dashboard</li>
+<li>Connect the repo</li>
+<li>Set environment variables manually</li>
+<li>Wait for build</li>
+<li>Verify the URL</li>
+</ol>
+<p>That's 6 steps of human-driven context switching. It's not hard, but it's not <code>cup ship</code> either.</p>
+<h3 id="the-prototype-pattern">The Prototype Pattern<a class="headerlink" href="#the-prototype-pattern" title="Permanent link">&para;</a></h3>
+<p>Our three prototypes reveal the current "ship" workflow:</p>
+<table>
+<thead>
+<tr>
+<th>Prototype</th>
+<th>Type</th>
+<th>How You Ship It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>google-auth</code></td>
+<td>CLI + browser flow</td>
+<td><code>./ship.sh acme-corp/google-auth</code> → pushes to customer GitHub repo</td>
+</tr>
+<tr>
+<td><code>vault-manager</code></td>
+<td>Local web UI (server + SPA)</td>
+<td><code>./ship.sh acme-corp/vault-ui</code> → pushes to customer GitHub repo</td>
+</tr>
+<tr>
+<td><code>social-login</code></td>
+<td>Local web UI (server + SPA)</td>
+<td><code>./ship.sh acme-corp/social-login</code> → pushes to customer GitHub repo</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>ship.sh</code> pattern is clever — it isolates the prototype from the monorepo, creates a fresh git repo, and pushes to the customer's GitHub. But it's still:</p>
+<ul>
+<li><strong>Manual</strong> — you run a bash script</li>
+<li><strong>Git-only</strong> — no actual deployment to a running environment</li>
+<li><strong>No secrets</strong> — customer still has to create <code>.env</code> from <code>.env.example</code></li>
+<li><strong>No health check</strong> — no verification that it's actually running</li>
+</ul>
+<hr />
+<h2 id="the-two-tier-architecture-static-shell-api-backend">The Two-Tier Architecture: Static Shell + API Backend<a class="headerlink" href="#the-two-tier-architecture-static-shell-api-backend" title="Permanent link">&para;</a></h2>
+<h3 id="why-this-works">Why This Works<a class="headerlink" href="#why-this-works" title="Permanent link">&para;</a></h3>
+<p>Look at our existing prototypes. <code>social-login</code> is a 706-line <code>index.html</code> that makes <code>fetch()</code> calls to <code>/api/*</code>. The server is 638 lines of Python. The SPA could run <em>anywhere</em> — it has zero server-side rendering, zero build step, zero dependencies. It's pure client-side JavaScript talking to a REST API.</p>
+<p>This is already the pattern. We just haven't recognized it as the <em>default</em> shipping architecture.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│            GitHub Pages (free)           │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌────────────────────────────────────┐  │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │    Static HTML/JS/CSS (public)     │  │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │    • Minified / obfuscated         │  │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  │    • Zero secrets in code          │  │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │    • SPA routing via 404.html      │  │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  └──────────────┬─────────────────────┘  │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└─────────────────┼────────────────────────┘
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                  │ fetch(&quot;https://api.myapp.com/...&quot;)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                  ▼
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>┌──────────────────────────────────────────┐
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│        Compute Backend (private)         │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  ┌────────────────────────────────────┐  │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  │  Option A: OCI Free Tier           │  │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│  │  • 4 ARM cores, 24 GB RAM         │  │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│  │  • Always-on, $0/month            │  │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  │  • Multiple apps via reverse proxy │  │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│  │  • Handles 90% of use cases       │  │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  ├────────────────────────────────────┤  │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  │  Option B: Serverless              │  │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  │  • Vercel Functions / AWS Lambda   │  │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│  │  • Per-request, scale to zero      │  │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│  │  • Better for spiky/unpredictable  │  │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│  └────────────────────────────────────┘  │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│                                          │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│  Secrets live HERE (env vars, vault)     │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│  Business logic lives HERE (codeupipe)   │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│  Data lives HERE (DB, file store)        │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>└──────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="why-public-repos-are-fine">Why Public Repos Are Fine<a class="headerlink" href="#why-public-repos-are-fine" title="Permanent link">&para;</a></h3>
+<p>The static shell is just a UI rendering layer:
+- <strong>Minified JS</strong> — unreadable, no intellectual property exposed
+- <strong>API endpoints are URLs</strong> — visible in browser devtools anyway
+- <strong>Auth tokens are per-session</strong> — not baked into the code
+- <strong>Business logic is server-side</strong> — never shipped to the browser</p>
+<p>Publishing the shell to a <strong>public</strong> GitHub repo means:
+- <strong>Free GitHub Pages hosting</strong> (private repos require Pro or organization)
+- <strong>Free CDN</strong> via GitHub's edge network
+- <strong>Free SSL</strong> via GitHub's automatic HTTPS
+- <strong>Git-based deploys</strong> — <code>git push</code> = live in seconds</p>
+<h3 id="oracle-cloud-free-tier-as-default-compute">Oracle Cloud Free Tier as Default Compute<a class="headerlink" href="#oracle-cloud-free-tier-as-default-compute" title="Permanent link">&para;</a></h3>
+<p>OCI's Always Free tier is absurdly generous for our use case:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Free Tier Allocation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ampere A1 Compute</td>
+<td>4 ARM cores, 24 GB RAM (split across up to 4 VMs)</td>
+</tr>
+<tr>
+<td>Boot Volume</td>
+<td>200 GB total</td>
+</tr>
+<tr>
+<td>Object Storage</td>
+<td>20 GB</td>
+</tr>
+<tr>
+<td>Bandwidth</td>
+<td>10 TB/month outbound</td>
+</tr>
+</tbody>
+</table>
+<p>A single ARM instance running Python backends behind Caddy (auto-SSL reverse proxy) can host <strong>dozens</strong> of lightweight codeupipe apps simultaneously. Each app is a Python process on a different port, Caddy routes by subdomain.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>api.vault-manager.orchestrate.dev  → localhost:8420
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>api.social-login.orchestrate.dev   → localhost:8421
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>api.google-auth.orchestrate.dev    → localhost:8422
+</code></pre></div>
+<p>For apps that don't need always-on compute (webhooks, event handlers, scheduled jobs), serverless is cheaper and simpler. But for most of our prototypes — lightweight Python HTTP servers with minimal traffic — OCI free tier is the obvious choice.</p>
+<h3 id="what-this-means-for-cup-ship">What This Means for <code>cup ship</code><a class="headerlink" href="#what-this-means-for-cup-ship" title="Permanent link">&para;</a></h3>
+<p>Instead of 12 deploy adapters each implementing their own <code>deploy()</code> method, the happy path becomes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># 1. Build/minify static assets → push to GitHub Pages repo</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># 2. Deploy backend to OCI instance (or serverless target)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 3. Configure reverse proxy / domain routing</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># 4. Set env vars on the compute layer</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># 5. Health check the API endpoint</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># 6. Done — prints both URLs</span>
+</code></pre></div>
+<p>The 12 adapters still exist for teams that want Render, Fly, Railway, etc. But the <em>default</em> path — the one that costs $0 and requires no platform account — is GitHub Pages + OCI.</p>
+<hr />
+<h2 id="product-types-we-need-to-ship">Product Types We Need to Ship<a class="headerlink" href="#product-types-we-need-to-ship" title="Permanent link">&para;</a></h2>
+<p>With the two-tier architecture as our default, "production" becomes much simpler for each product shape:</p>
+<h3 id="1-web-application-backend-frontend">1. Web Application (Backend + Frontend)<a class="headerlink" href="#1-web-application-backend-frontend" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: SaaS dashboards, admin panels, customer portals<br />
+<strong>Current prototype</strong>: <code>vault-manager</code>, <code>social-login</code></p>
+<p><strong>Two-tier approach</strong>:
+- <strong>Static shell</strong> → <code>static/</code> directory → GitHub Pages (public repo, free)
+- <strong>API backend</strong> → <code>server.py</code> → OCI free tier or serverless
+- HTTPS automatic on both tiers (GitHub Pages + Caddy)
+- Secrets live only on the compute layer (<code>.env</code> on OCI, env vars on serverless)</p>
+<p><strong>What used to be hard</strong> (provisioning, DNS, SSL, secrets) becomes:
+1. <code>git push</code> the static shell → live on <code>myapp.github.io</code>
+2. Deploy the backend to OCI → reverse proxy routes <code>api.myapp.com</code>
+3. Env vars are set once on the instance, persist across deploys</p>
+<p><strong>Current gap</strong>: We generate Docker/Render artifacts but don't push them. No automated GitHub Pages deploy. No OCI deployment script.</p>
+<h3 id="2-api-service">2. API Service<a class="headerlink" href="#2-api-service" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: REST endpoints, webhook receivers, data pipelines<br />
+<strong>Current prototype</strong>: <code>google-auth</code> (partially)</p>
+<p><strong>Two-tier approach</strong>: No static shell needed — this is <strong>compute only</strong>.
+- Deploy Python server to OCI free tier (systemd service + Caddy)
+- Or deploy as a serverless function (Vercel/Lambda) for spiky workloads</p>
+<p><strong>What "shipped" means</strong>:
+- Running on a URL with versioned endpoints
+- API key or OAuth2 authentication
+- Rate limiting enabled
+- Health check endpoint responsive
+- Logging and monitoring connected</p>
+<p><strong>Current gap</strong>: <code>cup deploy</code> generates the entrypoint server, but it's a bare HTTP server. No auth middleware, no rate limiting in the generated handler. The <em>pipeline</em> has these features (Ring 6 — Govern), but the generated <em>server wrapper</em> doesn't surface them.</p>
+<h3 id="3-cli-tool">3. CLI Tool<a class="headerlink" href="#3-cli-tool" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: Developer tools, data processing scripts, automation<br />
+<strong>Current prototype</strong>: None explicitly, but <code>cup</code> itself is one</p>
+<p><strong>What "shipped" means</strong>:
+- Installable via <code>pip install</code> or <code>brew install</code> or downloadable binary
+- Entry point registered in <code>pyproject.toml</code>
+- <code>--help</code> and <code>--version</code> work
+- Published to PyPI or GitHub Releases
+- Cross-platform (macOS, Linux, Windows)</p>
+<p><strong>Current gap</strong>: <code>cup init cli my-tool</code> scaffolds the project and generates a <code>pyproject.toml</code> with an entry point. But there's no <code>cup ship</code> that builds a wheel, tests it, and publishes it. No binary bundling (PyInstaller/Nuitka/PyOxidizer). No Homebrew formula generation.</p>
+<h3 id="4-desktop-application">4. Desktop Application<a class="headerlink" href="#4-desktop-application" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: Token vault manager (local), developer dashboards<br />
+<strong>Current prototype</strong>: <code>vault-manager</code> <em>is</em> this, but runs as a local server</p>
+<p><strong>What "shipped" means</strong>:
+- <code>.dmg</code> on macOS, <code>.msi</code> on Windows, <code>.AppImage</code> on Linux
+- Native window (Tauri, Electron, or system webview)
+- Auto-update mechanism
+- Code signing for distribution
+- No command-line required to launch</p>
+<p><strong>Current gap</strong>: Nothing exists. Our prototypes are "desktop-ish" (local server + browser tab), but they're not real desktop apps. The user has to run <code>python3 server.py</code> and open <code>localhost:8421</code>. That's fine for developers, terrible for end users.</p>
+<h3 id="5-mobile-application">5. Mobile Application<a class="headerlink" href="#5-mobile-application" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: Not our immediate focus, but worth acknowledging</p>
+<p><strong>What "shipped" means</strong>: App store submission, signing, API backend deployed separately.</p>
+<p><strong>Current gap</strong>: Entirely out of scope for now. Mobile frontends would consume codeupipe APIs, not run codeupipe directly.</p>
+<h3 id="6-serverless-function">6. Serverless Function<a class="headerlink" href="#6-serverless-function" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: Webhook handlers, event processors, scheduled jobs<br />
+<strong>Current prototype</strong>: None, but <code>cup deploy vercel</code> generates serverless handlers</p>
+<p><strong>Two-tier approach</strong>: These <em>are</em> the compute tier — no static shell needed.
+- Vercel Functions, Cloudflare Workers, or AWS Lambda for truly ephemeral workloads
+- Alternatively, a long-running process on OCI with a cron trigger (systemd timer or Python <code>schedule</code> library)</p>
+<p><strong>Current gap</strong>: Vercel/Netlify adapters generate handlers but don't deploy them. Lambda adapter generates SAM templates but doesn't <code>sam deploy</code>.</p>
+<h3 id="7-background-worker-scheduled-job">7. Background Worker / Scheduled Job<a class="headerlink" href="#7-background-worker-scheduled-job" title="Permanent link">&para;</a></h3>
+<p><strong>Examples</strong>: Data sync, report generation, cleanup tasks<br />
+<strong>Current prototype</strong>: None, but recipe exists (<code>scheduled-job</code>)</p>
+<p><strong>Two-tier approach</strong>: A Python script on OCI with a systemd timer. $0. No Lambda, no CloudWatch, no third-party cron service.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># On OCI instance:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># /etc/systemd/system/my-job.timer → runs every 6 hours</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># /etc/systemd/system/my-job.service → python3 /opt/apps/my-job/run.py</span>
+</code></pre></div>
+<p><strong>Current gap</strong>: No systemd unit generator. No OCI deployment script. The <code>scheduled-job</code> recipe exists but targets Docker, not bare-metal.</p>
+<hr />
+<h2 id="the-vision-cup-ship">The Vision: <code>cup ship</code><a class="headerlink" href="#the-vision-cup-ship" title="Permanent link">&para;</a></h2>
+<h3 id="what-if">What If<a class="headerlink" href="#what-if" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># One command. That&#39;s it.</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cup<span class="w"> </span>ship
+</code></pre></div>
+<p>Reads <code>cup.toml</code>, determines the product type, and applies the two-tier default:</p>
+<ol>
+<li><strong>Validates</strong> — checks secrets are set, dependencies are installed, tests pass</li>
+<li><strong>Builds</strong> — minifies/obfuscates frontend (if any), bundles backend</li>
+<li><strong>Ships static</strong> — pushes <code>static/</code> or <code>dist/</code> to a GitHub Pages repo (public, free)</li>
+<li><strong>Ships compute</strong> — deploys backend to OCI instance (or serverless target)</li>
+<li><strong>Routes</strong> — configures reverse proxy (Caddy) to point domain → backend</li>
+<li><strong>Verifies</strong> — hits the health endpoint, confirms it's live</li>
+<li><strong>Reports</strong> — prints the frontend URL + API URL</li>
+</ol>
+<h3 id="the-default-path-vs-platform-adapters">The Default Path vs. Platform Adapters<a class="headerlink" href="#the-default-path-vs-platform-adapters" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cup ship                                    # → GitHub Pages + OCI (default, $0)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cup ship --target render                    # → Render (paid platform, managed)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>cup ship --target fly                       # → Fly.io (paid, edge compute)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>cup ship --target vercel --serverless       # → Vercel Functions (serverless)
+</code></pre></div>
+<p>The 12 existing adapters are still there for teams that want managed platforms. But the <strong>default</strong> — the path of least resistance — is free and requires only a GitHub account and an OCI free-tier instance.</p>
+<h3 id="product-type-detection">Product Type Detection<a class="headerlink" href="#product-type-detection" title="Permanent link">&para;</a></h3>
+<p><code>cup.toml</code> already declares enough to infer the product type:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Web app with frontend → static shell + API backend</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">[frontend]</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">framework</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vanilla&quot;</span><span class="w">     </span><span class="c1"># or &quot;react&quot;, &quot;vue&quot; — doesn&#39;t matter, it&#39;s all static at the end</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">static_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;static&quot;</span><span class="w">     </span><span class="c1"># for SPAs that need no build step</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">[deploy]</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pages+oci&quot;</span><span class="w">      </span><span class="c1"># default: GitHub Pages for frontend, OCI for backend</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># API only → compute only, no static shell</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">[deploy]</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;oci&quot;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># CLI tool → PyPI publish</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="k">[project]</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="n">entry_point</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_tool.cli:main&quot;</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c1"># Desktop app → pywebview bundle</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="k">[desktop]</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;webview&quot;</span>
+</code></pre></div>
+<h3 id="the-ship-pipeline">The Ship Pipeline<a class="headerlink" href="#the-ship-pipeline" title="Permanent link">&para;</a></h3>
+<p>Here's the elegant part — <strong><code>cup ship</code> is itself a codeupipe pipeline</strong>. Dogfooding all the way down.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Payload(cup.toml)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  → ReadManifest         # parse cup.toml
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  → DetectProductType    # web | api | cli | desktop | serverless | worker
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  → ValidateSecrets      # check .env exists, required keys present
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  → RunTests             # pytest -q (fail fast)
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  → MinifyFrontend       # uglify/obfuscate static assets (Valve: skip if no frontend)
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  → PushToPages          # git push to GitHub Pages repo (Valve: skip if no frontend)
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  → DeployBackend        # ssh + rsync to OCI, restart systemd service
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  → ConfigureProxy       # update Caddy config for subdomain routing
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  → HealthCheck          # GET /health on the API URL, verify 200
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>  → ReportSuccess        # print both URLs
+</code></pre></div>
+<p>Each step is a Filter. The pipeline uses Valves for conditional steps (skip frontend if API-only). Hooks for timing and audit logging. Taps for progress reporting.</p>
+<h3 id="progressive-disclosure">Progressive Disclosure<a class="headerlink" href="#progressive-disclosure" title="Permanent link">&para;</a></h3>
+<p>Not every user wants the full pipeline. The command should layer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Minimal — just validate and build</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>cup<span class="w"> </span>ship<span class="w"> </span>--dry-run
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Normal — deploy to GitHub Pages + OCI (default)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Just the static shell (no backend deploy)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>cup<span class="w"> </span>ship<span class="w"> </span>--frontend-only
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1"># Just the backend (no static deploy)</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>cup<span class="w"> </span>ship<span class="w"> </span>--backend-only
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c1"># Override target for teams on paid platforms</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>cup<span class="w"> </span>ship<span class="w"> </span>--target<span class="w"> </span>render
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="c1"># Ship to a customer&#39;s repo (prototype pattern)</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>cup<span class="w"> </span>ship<span class="w"> </span>--to<span class="w"> </span>acme-corp/my-app
+</code></pre></div>
+<hr />
+<h2 id="per-product-type-breakdown">Per-Product-Type Breakdown<a class="headerlink" href="#per-product-type-breakdown" title="Permanent link">&para;</a></h2>
+<h3 id="web-applications-static-shell-api">Web Applications (Static Shell + API)<a class="headerlink" href="#web-applications-static-shell-api" title="Permanent link">&para;</a></h3>
+<p><strong>Today</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>cup<span class="w"> </span>deploy<span class="w"> </span>docker<span class="w"> </span>cup.toml<span class="w">          </span><span class="c1"># generates Dockerfile, compose</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w">                   </span><span class="c1"># local only</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># then manually: push to GitHub, connect Render, set env vars...</span>
+</code></pre></div></p>
+<p><strong>Tomorrow (two-tier default)</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># → Detects [frontend] + [deploy] → &quot;web application&quot;</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># → Minifies/obfuscates static/ directory</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># → Pushes to github.com/orchestrate-apps/my-app (public, Pages enabled)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># → ssh + rsync backend to OCI instance</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="c1"># → Caddy routes api.my-app.orchestrate.dev → localhost:8421</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># → Health check: GET /api/health → 200 OK</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># → Prints:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="c1">#   ✅ Frontend: https://orchestrate-apps.github.io/my-app</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1">#   ✅ API:      https://api.my-app.orchestrate.dev</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="c1">#   Cost: $0/month</span>
+</code></pre></div></p>
+<p><strong>Implementation path</strong>:
+1. <code>PagesToGitHub</code> filter — creates repo (via <code>gh</code> CLI), pushes <code>static/</code> or <code>dist/</code>
+2. <code>DeployToOCI</code> filter — <code>ssh</code> + <code>rsync</code> to OCI instance, restarts systemd service
+3. <code>ConfigureCaddy</code> filter — appends subdomain → port mapping to Caddyfile
+4. <code>HealthCheck</code> filter — <code>GET /api/health</code>, verify 200
+5. GitHub Actions workflow (optional) — auto-redeploy on push to static repo</p>
+<h3 id="api-services">API Services<a class="headerlink" href="#api-services" title="Permanent link">&para;</a></h3>
+<p><strong>Today</strong>: Same as web app minus frontend. Works, but no auth layer in generated server.</p>
+<p><strong>Tomorrow (compute-only tier)</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># → Detects no [frontend] → &quot;API service&quot;</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># → ssh + rsync to OCI instance</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># → Caddy routes api.my-service.orchestrate.dev → localhost:PORT</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># → Health check: GET /health → 200 OK</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1"># → Prints:</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1">#   ✅ API: https://api.my-service.orchestrate.dev</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1">#   Cost: $0/month</span>
+</code></pre></div></p>
+<p>No static shell. No GitHub Pages. Just compute. The server runs on OCI, Caddy provides SSL and routing.</p>
+<h3 id="cli-tools">CLI Tools<a class="headerlink" href="#cli-tools" title="Permanent link">&para;</a></h3>
+<p><strong>Today</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>cup<span class="w"> </span>init<span class="w"> </span>cli<span class="w"> </span>my-tool
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1"># write your filters...</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>python<span class="w"> </span>-m<span class="w"> </span>build<span class="w">                     </span><span class="c1"># manual</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>twine<span class="w"> </span>upload<span class="w"> </span>dist/*<span class="w">                 </span><span class="c1"># manual PyPI publish</span>
+</code></pre></div></p>
+<p><strong>Tomorrow</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># → Detects [project.entry_point] → &quot;CLI tool&quot;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="c1"># → Runs tests</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># → Builds wheel + sdist</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># → Publishes to PyPI (or GitHub Releases)</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="c1"># → Prints: ✅ Published my-tool 0.1.0 to PyPI</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1">#           Install: pip install my-tool</span>
+</code></pre></div></p>
+<p><strong>Bonus tier</strong> — native binary:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">[cli]</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">binary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w">           </span><span class="c1"># bundle as standalone executable</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">targets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;macos-arm64&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;macos-x64&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;linux-x64&quot;</span><span class="p">]</span>
+</code></pre></div>
+Uses PyInstaller or Nuitka under the hood. Produces downloadable binaries in <code>dist/</code>.</p>
+<h3 id="desktop-applications">Desktop Applications<a class="headerlink" href="#desktop-applications" title="Permanent link">&para;</a></h3>
+<p>This is the biggest gap and the most interesting opportunity.</p>
+<p><strong>Today</strong>: Prototypes run as <code>python3 server.py</code> + open browser. Developer-friendly, user-hostile.</p>
+<p><strong>Tomorrow</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">[desktop]</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tauri&quot;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Vault Manager&quot;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">icon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;assets/icon.png&quot;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="n">bundle_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;com.orchestrate.vault-manager&quot;</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># → Detects [desktop] → &quot;desktop application&quot;</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># → Builds the Python backend into a self-contained server</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># → Wraps in Tauri/webview shell (native window, no Electron bloat)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1"># → Code-signs (if certificate configured)</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># → Outputs: dist/VaultManager.dmg, dist/VaultManager.msi</span>
+</code></pre></div>
+<p><strong>Why Tauri over Electron</strong>: Tauri uses the system webview (WebKit on macOS, WebView2 on Windows, WebKitGTK on Linux). Binary is ~5MB vs Electron's ~150MB. Written in Rust, so the shell is fast and tiny. Our Python backend runs as a subprocess, Tauri wraps the UI.</p>
+<p><strong>Architecture</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>┌─────────────────────────┐
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>│   Tauri Native Window   │  ← system webview, ~5MB
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>├─────────────────────────┤
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>│    Static HTML/JS/CSS   │  ← our existing SPA (static/)
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>├─────────────────────────┤
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>│  Python Backend (bundled)│  ← PyInstaller-frozen server.py
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>│    └── codeupipe runtime │  ← pipelines, filters, vault, etc.
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>└─────────────────────────┘
+</code></pre></div></p>
+<p><strong>Implementation path</strong>:
+1. New adapter: <code>TauriAdapter</code> — generates <code>tauri.conf.json</code>, Cargo project, sidecar config
+2. Sidecar pattern: Tauri launches the Python binary as a sidecar process
+3. Frontend: copies <code>static/</code> into Tauri's <code>dist</code> directory
+4. Build: <code>cargo tauri build</code> produces <code>.dmg</code> / <code>.msi</code> / <code>.AppImage</code>
+5. Auto-update: Tauri's built-in updater with GitHub Releases as the update source</p>
+<p><strong>Alternative — System Webview (lighter)</strong>:
+For simpler tools that don't need native menus or notifications, we could use <code>pywebview</code> — pure Python, opens a native window with a webview, embeds the server in-process. No Rust toolchain needed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>pip<span class="w"> </span>install<span class="w"> </span>pywebview
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>cup<span class="w"> </span>ship<span class="w"> </span>--desktop<span class="w"> </span>webview
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1"># → Bundles server + static into a PyInstaller binary</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># → pywebview opens a native window pointing at the embedded server</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># → Single executable, ~30MB, works on all platforms</span>
+</code></pre></div>
+<h3 id="serverless-functions">Serverless Functions<a class="headerlink" href="#serverless-functions" title="Permanent link">&para;</a></h3>
+<p><strong>Today</strong>: <code>cup deploy vercel cup.toml</code> generates handler files. Manual push + dashboard connection.</p>
+<p><strong>Tomorrow</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># → Detects [deploy.target] = &quot;vercel&quot; with no [frontend] → &quot;serverless function&quot;</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="c1"># → Generates handler</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># → vercel deploy --prod (shells out to Vercel CLI)</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1"># → Prints: ✅ Live at https://my-func.vercel.app</span>
+</code></pre></div></p>
+<hr />
+<h2 id="the-cup-ship-implementation-plan">The <code>cup ship</code> Implementation Plan<a class="headerlink" href="#the-cup-ship-implementation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-github-pages-adapter-days-not-weeks">Phase 1: GitHub Pages Adapter (days, not weeks)<a class="headerlink" href="#phase-1-github-pages-adapter-days-not-weeks" title="Permanent link">&para;</a></h3>
+<p>The static shell is the quickest win. Most of our prototypes already have a <code>static/</code> directory that works as-is.</p>
+<p><strong><code>PagesAdapter</code></strong> — new adapter, ~100 lines:
+1. Create (or use existing) public GitHub repo via <code>gh repo create</code>
+2. Copy <code>static/</code> or <code>dist/</code> into the repo
+3. Optionally minify/obfuscate JS (stdlib + simple regex, or shell out to <code>terser</code> if available)
+4. <code>git push</code> → GitHub Pages auto-deploys
+5. Return the live URL: <code>https://&lt;org&gt;.github.io/&lt;repo&gt;</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>cup<span class="w"> </span>ship<span class="w"> </span>--frontend-only
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="c1"># ✅ Pushed static/ to github.com/orchestrate-apps/social-login (public)</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1"># ✅ Live at https://orchestrate-apps.github.io/social-login</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Cost: $0</span>
+</code></pre></div>
+<h3 id="phase-2-oci-compute-adapter-the-other-half">Phase 2: OCI Compute Adapter (the other half)<a class="headerlink" href="#phase-2-oci-compute-adapter-the-other-half" title="Permanent link">&para;</a></h3>
+<p><strong><code>OCIAdapter</code></strong> — new adapter, ~150 lines:
+1. <code>ssh</code> to the OCI instance (key-based auth, no password)
+2. <code>rsync</code> the backend code (server.py, requirements.txt, codeupipe, etc.)
+3. <code>pip install -r requirements.txt</code> on the instance (in a virtualenv)
+4. Generate + install a <code>systemd</code> service unit for the app
+5. Reload Caddy config to add subdomain → port routing
+6. <code>systemctl restart my-app</code>
+7. Health check: <code>GET https://api.my-app.orchestrate.dev/health</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>cup<span class="w"> </span>ship<span class="w"> </span>--backend-only
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="c1"># ✅ Deployed backend to oci-instance-1 (port 8421)</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1"># ✅ Caddy routing: api.social-login.orchestrate.dev → :8421</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># ✅ Health check: 200 OK (47ms)</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="c1"># Cost: $0</span>
+</code></pre></div>
+<p>The Caddy reverse proxy is the key enabler. One Caddyfile, multiple subdomains, automatic HTTPS via Let's Encrypt:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>api.social-login.orchestrate.dev {
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    reverse_proxy localhost:8421
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>}
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>api.vault-manager.orchestrate.dev {
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    reverse_proxy localhost:8420
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>}
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>api.google-auth.orchestrate.dev {
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>    reverse_proxy localhost:8422
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>}
+</code></pre></div>
+<h3 id="phase-3-full-cup-ship-phases-1-2-combined">Phase 3: Full <code>cup ship</code> (Phases 1 + 2 combined)<a class="headerlink" href="#phase-3-full-cup-ship-phases-1-2-combined" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="c1"># → Reads cup.toml</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1"># → Detects [frontend] → ships static to GitHub Pages</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># → Detects [deploy] → ships backend to OCI</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="c1"># → Configures CORS (API allows requests from the Pages domain)</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="c1"># → Health checks both endpoints</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="c1"># → Prints summary</span>
+</code></pre></div>
+<h3 id="phase-4-secret-forwarding-to-oci">Phase 4: Secret Forwarding to OCI<a class="headerlink" href="#phase-4-secret-forwarding-to-oci" title="Permanent link">&para;</a></h3>
+<p>Instead of SSH-ing in and manually creating <code>.env</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>cup<span class="w"> </span>ship<span class="w"> </span>--secrets
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="c1"># Reads local .env</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1"># scp .env to /opt/apps/my-app/.env on OCI instance</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># systemctl restart my-app</span>
+</code></pre></div>
+<p>Or for platform adapters (Render, Fly, etc.):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>cup<span class="w"> </span>ship<span class="w"> </span>--target<span class="w"> </span>render<span class="w"> </span>--secrets
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="c1"># Reads .env, sends to Render API</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="c1"># Render: PUT /services/{id}/env-groups</span>
+</code></pre></div></p>
+<h3 id="phase-5-desktop-cli-publishing">Phase 5: Desktop + CLI Publishing<a class="headerlink" href="#phase-5-desktop-cli-publishing" title="Permanent link">&para;</a></h3>
+<p>Desktop (pywebview → single executable):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">[desktop]</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;webview&quot;</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;My App&quot;</span>
+</code></pre></div></p>
+<p>CLI publishing (PyPI):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">[publish]</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pypi&quot;</span>
+</code></pre></div></p>
+<p>These are the 10% that don't fit the two-tier model. They get their own specialized adapters later.</p>
+<hr />
+<h2 id="the-end-user-experience">The End User Experience<a class="headerlink" href="#the-end-user-experience" title="Permanent link">&para;</a></h2>
+<h3 id="for-the-developer-orchestrates-customer">For the Developer (Orchestrate's customer)<a class="headerlink" href="#for-the-developer-orchestrates-customer" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># Start a project</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>cup<span class="w"> </span>init<span class="w"> </span>saas<span class="w"> </span>my-startup<span class="w"> </span>--frontend<span class="w"> </span>vanilla<span class="w"> </span>--deploy<span class="w"> </span>pages+oci
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="c1"># Write business logic (filters, pipelines)</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="c1"># ...</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="c1"># Ship it</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a>cup<span class="w"> </span>ship
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="c1"># ✅ Tests passed (23/23)</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="c1"># ✅ Static minified (static/ — 127KB)</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="c1"># ✅ Pushed to github.com/orchestrate-apps/my-startup (public)</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="c1"># ✅ Frontend live: https://orchestrate-apps.github.io/my-startup</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="c1"># ✅ Backend deployed to oci-instance-1 (port 8430)</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="c1"># ✅ Caddy routing: api.my-startup.orchestrate.dev → :8430</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="c1"># ✅ Secrets synced (.env → /opt/apps/my-startup/.env)</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a><span class="c1"># ✅ Health check: 200 OK (47ms)</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a><span class="c1"># Cost: $0/month</span>
+</code></pre></div>
+<h3 id="for-the-end-user-developers-customer">For the End User (developer's customer)<a class="headerlink" href="#for-the-end-user-developers-customer" title="Permanent link">&para;</a></h3>
+<p>They never see codeupipe. They see:
+- A URL that works
+- A desktop app that opens
+- A CLI tool they <code>pip install</code>
+- An API they call with an API key</p>
+<p>The framework is invisible. That's the goal.</p>
+<hr />
+<h2 id="decision-points">Decision Points<a class="headerlink" href="#decision-points" title="Permanent link">&para;</a></h2>
+<h3 id="1-should-cup-ship-be-one-command-or-two">1. Should <code>cup ship</code> be one command or two?<a class="headerlink" href="#1-should-cup-ship-be-one-command-or-two" title="Permanent link">&para;</a></h3>
+<p><strong>Option A</strong>: <code>cup ship</code> does everything (validate + build + deploy + verify)<br />
+<strong>Option B</strong>: <code>cup build</code> generates artifacts, <code>cup ship</code> deploys them</p>
+<p>Recommendation: <strong>Option A</strong> with <code>--dry-run</code> for safety. One command. The whole point is reducing cognitive overhead.</p>
+<h3 id="2-public-repo-for-static-shells-is-that-really-okay">2. Public repo for static shells — is that really okay?<a class="headerlink" href="#2-public-repo-for-static-shells-is-that-really-okay" title="Permanent link">&para;</a></h3>
+<p><strong>Yes.</strong> Consider what's in the public repo:
+- Minified HTML/JS/CSS — no readable source code
+- API endpoint URLs — already visible in browser devtools
+- No secrets, tokens, or keys — those live on the compute layer
+- No business logic — all server-side</p>
+<p>The marketplace SPA is already a public repo on GitHub Pages. The docs site is public. The framework itself is open-source. Static shells are just another public artifact.</p>
+<p>For clients who insist on private repos, GitHub Pro/Enterprise works with Pages. But for Orchestrate's own apps, public is the pragmatic default.</p>
+<h3 id="3-one-oci-instance-or-multiple">3. One OCI instance or multiple?<a class="headerlink" href="#3-one-oci-instance-or-multiple" title="Permanent link">&para;</a></h3>
+<p><strong>Start with one.</strong> A 4-core ARM instance with 24GB RAM running Caddy + multiple Python processes is more than enough for dozens of low-traffic apps. When an app outgrows shared hosting, graduate it to its own instance or a paid platform (Render, Fly, etc.).</p>
+<p>The Caddy + systemd pattern makes it trivial to add/remove apps:
+- Add app: <code>rsync</code> code, create <code>.service</code> file, add Caddyfile entry, reload
+- Remove app: <code>systemctl stop</code>, delete files, remove Caddyfile entry, reload</p>
+<h3 id="4-which-desktop-runtime">4. Which desktop runtime?<a class="headerlink" href="#4-which-desktop-runtime" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>Size</th>
+<th>Toolchain</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pywebview</code></td>
+<td>~30MB</td>
+<td>Python only</td>
+<td>Low — start here</td>
+</tr>
+<tr>
+<td>Tauri</td>
+<td>~5MB (+ Python sidecar)</td>
+<td>Rust + Node</td>
+<td>Medium — upgrade path</td>
+</tr>
+<tr>
+<td>Electron</td>
+<td>~150MB</td>
+<td>Node</td>
+<td>High — avoid</td>
+</tr>
+</tbody>
+</table>
+<p>Recommendation: <strong>pywebview first</strong>, <strong>Tauri later</strong>. Pywebview is pure Python, works on all platforms, and aligns with our zero-external-dep philosophy. Tauri is the production upgrade when we need native menus, auto-update, and code signing.</p>
+<h3 id="5-how-do-we-handle-secrets">5. How do we handle secrets?<a class="headerlink" href="#5-how-do-we-handle-secrets" title="Permanent link">&para;</a></h3>
+<p><strong>Never store secrets in <code>cup ship</code> state.</strong> Read from <code>.env</code> at ship time, <code>scp</code> to the OCI instance's app directory, then forget them. The <code>.env</code> file stays local (gitignored). On OCI, the <code>.env</code> lives in <code>/opt/apps/&lt;name&gt;/.env</code>, readable only by the app's systemd service.</p>
+<p>Secrets flow:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>.env (local, gitignored) → cup ship → scp → /opt/apps/myapp/.env (on OCI) → systemd reads at start
+</code></pre></div></p>
+<p>For platform adapters (Render, Fly, etc.):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>.env (local) → cup ship → Platform API (encrypted) → runtime env vars
+</code></pre></div></p>
+<h3 id="6-what-about-obfuscation">6. What about obfuscation?<a class="headerlink" href="#6-what-about-obfuscation" title="Permanent link">&para;</a></h3>
+<p>For the static shell:
+- <strong>Minification</strong> (remove whitespace, shorten variable names) — <code>terser</code> for JS, inline tool for CSS
+- <strong>Path obfuscation</strong> — rename API paths in production (optional, security through obscurity is not real security but does raise the bar)
+- <strong>Source maps</strong> — never ship them. Generate for debugging, keep local.</p>
+<p>The real security is on the compute layer: proper CORS headers, rate limiting, auth tokens, and never exposing raw business logic client-side.</p>
+<hr />
+<h2 id="what-this-means-for-our-product-surface">What This Means for Our Product Surface<a class="headerlink" href="#what-this-means-for-our-product-surface" title="Permanent link">&para;</a></h2>
+<p>Today codeupipe is a <strong>framework</strong>. With <code>cup ship</code>, it becomes a <strong>platform CLI</strong> — comparable to <code>vercel</code>, <code>fly</code>, <code>railway</code>, but with a crucial difference: <strong>the default path costs $0</strong>.</p>
+<p>The competitive positioning shifts:</p>
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"A Python pipeline framework"</td>
+<td>"Zero to production for Python apps — free"</td>
+</tr>
+<tr>
+<td>Competes with: Prefect, Dagster</td>
+<td>Competes with: Vercel, Railway, Render CLI</td>
+</tr>
+<tr>
+<td>Deploy: "generate artifacts, figure out the rest"</td>
+<td>Deploy: "<code>cup ship</code> — live in 30 seconds"</td>
+</tr>
+<tr>
+<td>Cost: depends on platform</td>
+<td>Cost: $0 (GitHub Pages + OCI free tier)</td>
+</tr>
+</tbody>
+</table>
+<p>The framework is the engine. GitHub Pages is the storefront. OCI is the workshop. <code>cup ship</code> is the ignition key.</p>
+<h3 id="the-9010-split">The 90/10 Split<a class="headerlink" href="#the-9010-split" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>90% of apps</strong>: Static shell (GitHub Pages) + lightweight API (OCI free tier) = $0/month</li>
+<li><strong>10% of apps</strong>: Heavy compute, real-time, high traffic → graduate to Render/Fly/Railway via <code>cup ship --target render</code></li>
+</ul>
+<p>We build for the 90% first. The 10% already works via the existing 12 adapters.</p>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Set up OCI free-tier instance</strong> — install Python 3.9+, Caddy, create <code>/opt/apps/</code> directory structure</li>
+<li><strong>Build <code>PagesAdapter</code></strong> — <code>gh repo create</code> + <code>git push</code> to ship static shells</li>
+<li><strong>Build <code>OCIAdapter</code></strong> — <code>ssh</code> + <code>rsync</code> + <code>systemctl</code> to ship backends</li>
+<li><strong>Add <code>cup ship</code> CLI command</strong> — new entry in <code>deploy_cmds.py</code></li>
+<li><strong>Ship <code>social-login</code> as proof of concept</strong> — static shell on Pages, backend on OCI</li>
+<li><strong>Write tests</strong> — mock <code>ssh</code>, <code>gh</code>, and <code>rsync</code> calls; test the full pipeline</li>
+<li><strong>Ship it</strong> (yes, use <code>cup ship</code> to ship <code>cup ship</code>)</li>
+</ol>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The insight is simple: <strong>most apps are static shells + API calls</strong>. The shell is free (GitHub Pages). The compute is free (OCI). The code being public doesn't matter — the value is in the data and the secrets, which live server-side.</p>
+<p>Stop treating every app like it needs its own managed platform. Start treating the static shell as a commodity and the compute as a utility. GitHub Pages + OCI free tier covers 90% of our use cases at $0/month. The other 10% can use paid platforms when they outgrow the free tier.</p>
+<p><code>cup ship</code> should make this the path of least resistance.</p>
+<hr />
+<p><em>This document is a living exploration. It will evolve as we build.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+  
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/codeuchain/codeupipe" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+  
+  <div style="text-align:center;padding:0.5em 0;font-size:0.72em;opacity:0.55;font-family:monospace;">
+    AI agent? &rarr;
+    <a href="https://codeuchain.github.io/codeupipe/agents.txt" style="opacity:0.8;">agents.txt</a>
+    &nbsp;|&nbsp; plain text:
+    <a href="https://codeuchain.github.io/codeupipe/archive/shipping-exploration.txt" style="opacity:0.8;">archive/shipping-exploration.txt</a>
+  </div>
+  
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

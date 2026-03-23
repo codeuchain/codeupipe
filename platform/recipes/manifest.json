@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "id": "dream-training",
+      "name": "Dream Training",
+      "description": "GPU-accelerated dream training for bird-bone AI model surgery",
+      "icon": "🧠",
+      "tier": "native",
+      "recipe": "dream-training.json"
+    },
+    {
+      "id": "swarm-training",
+      "name": "Swarm Training",
+      "description": "Distributed wave-sequential training across browser drones",
+      "icon": "🐝",
+      "tier": "native",
+      "recipe": "swarm-training.json"
+    },
+    {
+      "id": "job-queue",
+      "name": "Job Queue",
+      "description": "Google Sheets-backed job queue for coordinating training across machines",
+      "icon": "📋",
+      "tier": "native",
+      "recipe": "job-queue.json"
+    },
+    {
+      "id": "browser-training",
+      "name": "Browser Training",
+      "description": "Train model shards directly in the browser using Web Workers",
+      "icon": "⚡",
+      "tier": "wasm",
+      "recipe": "browser-training.json"
+    },
+    {
+      "id": "onnx-inference",
+      "name": "ONNX Inference",
+      "description": "Run ONNX models in the browser via WebAssembly",
+      "icon": "🔮",
+      "tier": "wasm",
+      "recipe": "onnx-inference.json"
+    }
+  ]
+}

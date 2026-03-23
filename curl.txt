@@ -1,0 +1,47 @@
+codeupipe documentation (curl-friendly)
+===========================================
+
+Agent navigation guide:
+  curl https://codeuchain.github.io/codeupipe/agents.txt
+
+Usage:
+  curl https://codeuchain.github.io/codeupipe/curl.txt              # this sitemap
+  curl https://codeuchain.github.io/codeupipe/getting-started.txt   # quick start
+  curl https://codeuchain.github.io/codeupipe/concepts.txt          # full API reference
+
+Available pages:
+
+  curl https://codeuchain.github.io/codeupipe/agents/auth.txt
+  curl https://codeuchain.github.io/codeupipe/agents/browser.txt
+  curl https://codeuchain.github.io/codeupipe/agents/cli.txt
+  curl https://codeuchain.github.io/codeupipe/agents/connect.txt
+  curl https://codeuchain.github.io/codeupipe/agents/core.txt
+  curl https://codeuchain.github.io/codeupipe/agents/deploy.txt
+  curl https://codeuchain.github.io/codeupipe/agents/patterns.txt
+  curl https://codeuchain.github.io/codeupipe/agents/testing.txt
+  curl https://codeuchain.github.io/codeupipe/agents.txt
+  curl https://codeuchain.github.io/codeupipe/architecture-diagram.txt
+  curl https://codeuchain.github.io/codeupipe/archive/README.txt
+  curl https://codeuchain.github.io/codeupipe/archive/ring7-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/archive/ring8-connect-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/archive/ring9-marketplace-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/archive/shipping-exploration.txt
+  curl https://codeuchain.github.io/codeupipe/best-practices.txt
+  curl https://codeuchain.github.io/codeupipe/blueprints/ring7.txt
+  curl https://codeuchain.github.io/codeupipe/blueprints/ring8.txt
+  curl https://codeuchain.github.io/codeupipe/blueprints/ring9.txt
+  curl https://codeuchain.github.io/codeupipe/concepts.txt
+  curl https://codeuchain.github.io/codeupipe/deploy-guide.txt
+  curl https://codeuchain.github.io/codeupipe/getting-started.txt
+  curl https://codeuchain.github.io/codeupipe/index.txt
+  curl https://codeuchain.github.io/codeupipe/install.txt
+  curl https://codeuchain.github.io/codeupipe/mobile-roadmap.txt
+  curl https://codeuchain.github.io/codeupipe/module-index.txt
+  curl https://codeuchain.github.io/codeupipe/platform.txt
+  curl https://codeuchain.github.io/codeupipe/privacy-policy.txt
+  curl https://codeuchain.github.io/codeupipe/ring10-secure-config-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/ring11-ai-frontend-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/ring12-ai-suite-blueprint.txt
+  curl https://codeuchain.github.io/codeupipe/roadmap.txt
+
+Browse with a browser: https://codeuchain.github.io/codeupipe

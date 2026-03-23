@@ -1,0 +1,2613 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python pipeline framework — composable Payload → Filter → Pipeline pattern with streaming. Zero dependencies.">
+      
+      
+      
+        <link rel="canonical" href="https://codeuchain.github.io/codeupipe/archive/ring7-blueprint/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Ring 7 — Accelerate: Implementation Blueprint - codeupipe</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <!-- Agent navigation guide: https://codeuchain.github.io/codeupipe/agents.txt -->
+  <meta name="agent-guide" content="https://codeuchain.github.io/codeupipe/agents.txt">
+  
+  <meta name="plain-text" content="https://codeuchain.github.io/codeupipe/archive/ring7-blueprint.txt">
+  
+  <style>
+    /* ── Marketplace Hero Banner ───────────────────────────── */
+    .marketplace-banner {
+      position: relative;
+      margin: 1.5em 0 2em;
+      padding: 1.5em 2em;
+      background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(255,171,0,0.10) 100%);
+      border: 1px solid rgba(124,77,255,0.30);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .marketplace-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(124,77,255,0.08), transparent 70%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,171,0,0.06), transparent 70%);
+      pointer-events: none;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 1;
+    }
+    .banner-content > p:first-of-type {
+      font-size: 1.1em;
+      margin-bottom: 0.8em;
+    }
+    .banner-icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin-right: 0.15em;
+    }
+    .banner-actions {
+      display: flex;
+      gap: 0.75em;
+      flex-wrap: wrap;
+    }
+    .banner-actions .md-button {
+      font-size: 0.85em;
+      padding: 0.5em 1.3em;
+    }
+    /* Accent the primary button with project colors */
+    .banner-actions .md-button--primary {
+      background-color: #7c4dff;
+      border-color: #7c4dff;
+    }
+    .banner-actions .md-button--primary:hover {
+      background-color: #651fff;
+      border-color: #651fff;
+    }
+    /* Subtle shimmer animation on hover */
+    .marketplace-banner:hover {
+      border-color: rgba(124,77,255,0.50);
+      box-shadow: 0 0 24px rgba(124,77,255,0.08);
+      transition: border-color 300ms ease, box-shadow 300ms ease;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ring-7-accelerate-implementation-blueprint" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="codeupipe" class="md-header__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            codeupipe
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Ring 7 — Accelerate: Implementation Blueprint
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../best-practices/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../module-index/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../blueprints/ring7/" class="md-tabs__link">
+          
+  
+  
+  Blueprints
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../platform/" class="md-tabs__link">
+          
+  
+  
+  Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../agents/" class="md-tabs__link">
+          
+  
+  
+  Agent Docs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Marketplace
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="codeupipe" class="md-nav__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    codeupipe
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../module-index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blueprints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blueprints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 7 — Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 8 — Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/ring9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 9 — Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CUP Bridge Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mobile-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/deploy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/connect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agents/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-decision-core-vs-contrib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Decision: Core vs. Contrib
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Decision: Core vs. Contrib">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zero-dependency-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zero-Dependency Constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-deploy-protocol-cli-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Deploy Protocol + CLI Foundation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Deploy Protocol + CLI Foundation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-deployadapter-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 DeployAdapter Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-adapter-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Adapter Discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-cup-deploy-cli-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 cup deploy CLI Command
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-first-adapter-docker-generic-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: First Adapter — Docker / Generic Container
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: First Adapter — Docker / Generic Container">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-dockeradapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 DockerAdapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-execution-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Execution Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-cloud-adapters-separate-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Cloud Adapters (separate packages)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: Cloud Adapters (separate packages)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-codeupipe-deploy-aws" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 codeupipe-deploy-aws
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-codeupipe-deploy-azure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 codeupipe-deploy-azure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-codeupipe-deploy-fly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 codeupipe-deploy-fly
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-4-cup-recipe-composable-workflow-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: cup recipe — Composable Workflow Templates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4: cup recipe — Composable Workflow Templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-recipe-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Recipe Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-cup-recipe-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 cup recipe CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-recipe-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Recipe Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-5-cup-init-project-bootstrapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: cup init — Project Bootstrapping
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 5: cup init — Project Bootstrapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-project-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Project Templates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-generated-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Generated Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-cuptoml-project-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 cup.toml — Project Manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-6-service-connector-packs-separate-repospackages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Service Connector Packs (separate repos/packages)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 6: Service Connector Packs (separate repos/packages)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connector-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connector Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-order-for-connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Order for Connectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-order-what-to-build-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Order (What to build when)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Order (What to build when)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ring-7a-foundation-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7a — Foundation (next)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7b-recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7b — Recipes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7c-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7c — Init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7d-cloud-adapters-separate-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7d — Cloud Adapters (separate packages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ring-7e-first-connector-packs-separate-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ring 7e — First Connector Packs (separate packages)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Design Principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-for-ring-7a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions for Ring 7a
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ring-7-accelerate-implementation-blueprint">Ring 7 — Accelerate: Implementation Blueprint<a class="headerlink" href="#ring-7-accelerate-implementation-blueprint" title="Permanent link">&para;</a></h1>
+<p><strong>Goal:</strong> Zero to production. Express intent → codeupipe assembles, deploys, connects, monitors.</p>
+<p>This document is the engineering blueprint for Ring 7. It defines the architecture, interfaces, phasing, and deliverables.</p>
+<hr />
+<h2 id="architecture-decision-core-vs-contrib">Architecture Decision: Core vs. Contrib<a class="headerlink" href="#architecture-decision-core-vs-contrib" title="Permanent link">&para;</a></h2>
+<p>Ring 7 spans two concerns:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Lives In</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Deploy protocol + CLI</strong></td>
+<td><code>codeupipe</code> core</td>
+<td>The <code>DeployAdapter</code> protocol, <code>cup deploy</code>, <code>cup recipe</code>, <code>cup init</code> are framework-level. Zero external deps.</td>
+</tr>
+<tr>
+<td><strong>Cloud adapters</strong></td>
+<td><code>codeupipe-deploy-{target}</code> packages</td>
+<td>Each adapter pulls in cloud-specific SDKs (boto3, azure-functions-core-tools, etc.). Separate packages keep core zero-dep.</td>
+</tr>
+<tr>
+<td><strong>Service connectors</strong></td>
+<td><code>codeupipe-{service}</code> packages</td>
+<td>Each filter pack is its own installable package with its own deps (stripe, openai, etc.).</td>
+</tr>
+<tr>
+<td><strong>Recipes</strong></td>
+<td><code>codeupipe</code> core (bundled TOML) or <code>codeupipe-recipes</code></td>
+<td>Recipe configs are just TOML files — no deps. Can live in core or a lightweight companion.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zero-dependency-constraint">Zero-Dependency Constraint<a class="headerlink" href="#zero-dependency-constraint" title="Permanent link">&para;</a></h3>
+<p>codeupipe core remains zero-dep. All external SDK usage lives in adapter/connector packages that users install separately. Core provides:
+- The <code>DeployAdapter</code> protocol
+- The <code>cup deploy</code> / <code>cup recipe</code> / <code>cup init</code> CLI commands
+- Recipe template resolution
+- Dockerfile and config generation (string templates, no Jinja)</p>
+<hr />
+<h2 id="phase-1-deploy-protocol-cli-foundation">Phase 1: Deploy Protocol + CLI Foundation<a class="headerlink" href="#phase-1-deploy-protocol-cli-foundation" title="Permanent link">&para;</a></h2>
+<h3 id="11-deployadapter-protocol">1.1 DeployAdapter Protocol<a class="headerlink" href="#11-deployadapter-protocol" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># codeupipe/deploy/adapter.py</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">DeployTarget</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata about a deployment target.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>           <span class="c1"># &quot;aws-lambda&quot;, &quot;azure-functions&quot;, &quot;fly&quot;, etc.</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">requires</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="c1"># pip packages needed: [&quot;boto3&quot;, &quot;aws-cdk-lib&quot;]</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">DeployAdapter</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for deployment adapters.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeployTarget</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return metadata about this deploy target.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-flight checks. Return list of issues (empty = OK).&quot;&quot;&quot;</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate deployment artifacts (handler, infra, Dockerfile).</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="sd">        Returns list of generated file paths.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the deployment. Returns deployment URL or status.&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="12-adapter-discovery">1.2 Adapter Discovery<a class="headerlink" href="#12-adapter-discovery" title="Permanent link">&para;</a></h3>
+<p>Adapters register via Python entry points:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In codeupipe-deploy-aws/pyproject.toml</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">[project.entry-points.</span><span class="s2">&quot;codeupipe.deploy&quot;</span><span class="k">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">aws-lambda</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;codeupipe_deploy_aws:LambdaAdapter&quot;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">aws-fargate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;codeupipe_deploy_aws:FargateAdapter&quot;</span>
+</code></pre></div>
+<p>Core discovers them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># codeupipe/deploy/discovery.py</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">find_adapters</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DeployAdapter</span><span class="p">]:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Discover all installed deploy adapters via entry points.&quot;&quot;&quot;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="c1"># Uses importlib.metadata.entry_points (stdlib)</span>
+</code></pre></div>
+<h3 id="13-cup-deploy-cli-command">1.3 <code>cup deploy</code> CLI Command<a class="headerlink" href="#13-cup-deploy-cli-command" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># List available targets</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>cup<span class="w"> </span>deploy<span class="w"> </span>--list
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Deploy to a target</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>cup<span class="w"> </span>deploy<span class="w"> </span>aws-lambda<span class="w"> </span>pipeline.toml
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>cup<span class="w"> </span>deploy<span class="w"> </span>azure-functions<span class="w"> </span>pipeline.toml<span class="w"> </span>--dry-run
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>cup<span class="w"> </span>deploy<span class="w"> </span>fly<span class="w"> </span>pipeline.toml
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># With options</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>cup<span class="w"> </span>deploy<span class="w"> </span>aws-lambda<span class="w"> </span>pipeline.toml<span class="w"> </span>--region<span class="w"> </span>us-east-1<span class="w"> </span>--memory<span class="w"> </span><span class="m">256</span>
+</code></pre></div>
+<p>Implementation in <code>cli.py</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_deploy</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">target_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">config_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">dry_run</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dry_run</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">adapters</span> <span class="o">=</span> <span class="n">find_adapters</span><span class="p">()</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adapters</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown target &#39;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">&#39;. Available: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">adapters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="n">adapter</span> <span class="o">=</span> <span class="n">adapters</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">issues</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="k">if</span> <span class="n">issues</span><span class="p">:</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ✗ </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="n">generated</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>        <span class="n">url</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deployed: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-2-first-adapter-docker-generic-container">Phase 2: First Adapter — Docker / Generic Container<a class="headerlink" href="#phase-2-first-adapter-docker-generic-container" title="Permanent link">&para;</a></h2>
+<p>Before cloud-specific adapters, build the foundational one: <strong>containerized pipeline</strong>.</p>
+<h3 id="21-dockeradapter">2.1 <code>DockerAdapter</code><a class="headerlink" href="#21-dockeradapter" title="Permanent link">&para;</a></h3>
+<p>Lives in core (no external deps — generates files, doesn't call Docker API):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># codeupipe/deploy/docker.py</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">DockerAdapter</span><span class="p">(</span><span class="n">DeployAdapter</span><span class="p">):</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates Dockerfile + entrypoint for any pipeline config.&quot;&quot;&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_config</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="c1"># 1. Write entrypoint.py — imports pipeline config, runs it</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="c1"># 2. Write Dockerfile — FROM python:3.12-slim, pip install codeupipe + deps</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="c1"># 3. Write docker-compose.yml (optional)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        <span class="o">...</span>
+</code></pre></div>
+<p>Generated structure:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>deploy/
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>├── Dockerfile
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>├── entrypoint.py      # Pipeline runner script
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>├── pipeline.toml      # Copy of the config
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>├── requirements.txt   # Extracted from pipeline deps
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>└── docker-compose.yml # Optional orchestration
+</code></pre></div></p>
+<p>The <code>entrypoint.py</code> generated:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="sd">&quot;&quot;&quot;Auto-generated pipeline entrypoint.&quot;&quot;&quot;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">codeupipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">Registry</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">codeupipe.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_registry</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="s2">&quot;pipeline.toml&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">default_registry</span><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># HTTP mode: wrap as Flask/FastAPI endpoint</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Worker mode: poll source, run pipeline</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># CLI mode: read stdin, run pipeline, write stdout</span>
+</code></pre></div></p>
+<h3 id="22-execution-modes">2.2 Execution Modes<a class="headerlink" href="#22-execution-modes" title="Permanent link">&para;</a></h3>
+<p>The deploy adapter detects the pipeline shape and generates the right entrypoint:</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline Shape</th>
+<th>Execution Mode</th>
+<th>Generated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filter chain (batch)</td>
+<td>HTTP request handler</td>
+<td>FastAPI/Flask endpoint</td>
+</tr>
+<tr>
+<td>StreamFilter chain</td>
+<td>Long-running worker</td>
+<td>Process loop with source</td>
+</tr>
+<tr>
+<td>Timer/schedule config</td>
+<td>Cron job</td>
+<td>Schedule wrapper</td>
+</tr>
+<tr>
+<td>Queue trigger config</td>
+<td>Message consumer</td>
+<td>Queue listener</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="phase-3-cloud-adapters-separate-packages">Phase 3: Cloud Adapters (separate packages)<a class="headerlink" href="#phase-3-cloud-adapters-separate-packages" title="Permanent link">&para;</a></h2>
+<h3 id="31-codeupipe-deploy-aws">3.1 <code>codeupipe-deploy-aws</code><a class="headerlink" href="#31-codeupipe-deploy-aws" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>codeupipe-deploy-aws/
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├── pyproject.toml       # deps: boto3, aws-cdk-lib (optional)
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>├── codeupipe_deploy_aws/
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│   ├── __init__.py
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│   ├── lambda_adapter.py   # LambdaAdapter — generates handler.py + SAM template
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│   ├── fargate_adapter.py  # FargateAdapter — generates Dockerfile + task def
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>│   └── templates/          # SAM/CDK template strings
+</code></pre></div>
+<h3 id="32-codeupipe-deploy-azure">3.2 <code>codeupipe-deploy-azure</code><a class="headerlink" href="#32-codeupipe-deploy-azure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>codeupipe-deploy-azure/
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── codeupipe_deploy_azure/
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>│   ├── functions_adapter.py   # Azure Functions trigger
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│   ├── container_adapter.py   # Azure Container Apps
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│   └── templates/
+</code></pre></div>
+<h3 id="33-codeupipe-deploy-fly">3.3 <code>codeupipe-deploy-fly</code><a class="headerlink" href="#33-codeupipe-deploy-fly" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>codeupipe-deploy-fly/
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── codeupipe_deploy_fly/
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>│   ├── fly_adapter.py   # fly.toml generation + flyctl deploy
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│   └── templates/
+</code></pre></div>
+<hr />
+<h2 id="phase-4-cup-recipe-composable-workflow-templates">Phase 4: <code>cup recipe</code> — Composable Workflow Templates<a class="headerlink" href="#phase-4-cup-recipe-composable-workflow-templates" title="Permanent link">&para;</a></h2>
+<h3 id="41-recipe-format">4.1 Recipe Format<a class="headerlink" href="#41-recipe-format" title="Permanent link">&para;</a></h3>
+<p>Recipes are TOML configs with variable slots:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># recipes/saas-signup.toml</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">[recipe]</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;saas-signup&quot;</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SaaS signup flow — validate, create user, send welcome, start trial&quot;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">variables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;auth_provider&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;email_provider&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;payment_provider&quot;</span><span class="p">]</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="k">[pipeline]</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;signup&quot;</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="k">[[pipeline.steps]]</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ValidateEmail&quot;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;filter&quot;</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="k">[[pipeline.steps]]</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${auth_provider}CreateUser&quot;</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;filter&quot;</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="k">[[pipeline.steps]]</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${email_provider}SendWelcome&quot;</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;filter&quot;</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="k">[[pipeline.steps]]</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${payment_provider}StartTrial&quot;</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;filter&quot;</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a><span class="k">[pipeline.require_input]</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a><span class="n">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;plan&quot;</span><span class="p">]</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a><span class="k">[pipeline.guarantee_output]</span>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a><span class="n">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;trial_id&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="42-cup-recipe-cli">4.2 <code>cup recipe</code> CLI<a class="headerlink" href="#42-cup-recipe-cli" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># List available recipes</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>cup<span class="w"> </span>recipe<span class="w"> </span>--list
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Generate a recipe (writes pipeline.toml + installs deps)</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>cup<span class="w"> </span>recipe<span class="w"> </span>saas-signup<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span>--auth<span class="w"> </span>clerk<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span>--email<span class="w"> </span>resend<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span>--payments<span class="w"> </span>stripe
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># Preview without writing</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>cup<span class="w"> </span>recipe<span class="w"> </span>saas-signup<span class="w"> </span>--auth<span class="w"> </span>clerk<span class="w"> </span>--email<span class="w"> </span>resend<span class="w"> </span>--payments<span class="w"> </span>stripe<span class="w"> </span>--dry-run
+</code></pre></div>
+<h3 id="43-recipe-resolution">4.3 Recipe Resolution<a class="headerlink" href="#43-recipe-resolution" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_recipe</span><span class="p">(</span><span class="n">recipe_name</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Load recipe template, substitute variables, resolve filter deps.&quot;&quot;&quot;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">template</span> <span class="o">=</span> <span class="n">load_recipe</span><span class="p">(</span><span class="n">recipe_name</span><span class="p">)</span>  <span class="c1"># from bundled or installed recipes</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">substitute</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">variables</span><span class="p">)</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">deps</span> <span class="o">=</span> <span class="n">resolve_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># which codeupipe-* packages needed</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">deps</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-5-cup-init-project-bootstrapping">Phase 5: <code>cup init</code> — Project Bootstrapping<a class="headerlink" href="#phase-5-cup-init-project-bootstrapping" title="Permanent link">&para;</a></h2>
+<h3 id="51-project-templates">5.1 Project Templates<a class="headerlink" href="#51-project-templates" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>cup<span class="w"> </span>init<span class="w"> </span>saas<span class="w"> </span>my-app<span class="w"> </span>--auth<span class="w"> </span>clerk<span class="w"> </span>--payments<span class="w"> </span>stripe<span class="w"> </span>--db<span class="w"> </span>supabase<span class="w"> </span>--deploy<span class="w"> </span>aws-lambda
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>cup<span class="w"> </span>init<span class="w"> </span>api<span class="w"> </span>my-api<span class="w"> </span>--db<span class="w"> </span>postgres<span class="w"> </span>--deploy<span class="w"> </span>docker
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>cup<span class="w"> </span>init<span class="w"> </span>etl<span class="w"> </span>my-etl<span class="w"> </span>--source<span class="w"> </span>rest<span class="w"> </span>--sink<span class="w"> </span>postgres<span class="w"> </span>--deploy<span class="w"> </span>aws-fargate
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>cup<span class="w"> </span>init<span class="w"> </span>chatbot<span class="w"> </span>my-bot<span class="w"> </span>--ai<span class="w"> </span>openai<span class="w"> </span>--deploy<span class="w"> </span>fly
+</code></pre></div>
+<h3 id="52-generated-structure">5.2 Generated Structure<a class="headerlink" href="#52-generated-structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>my-app/
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>├── cup.toml              # Project manifest (name, version, deploy target, deps)
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>├── pipelines/
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>│   ├── signup.toml       # Generated from recipe
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>│   ├── checkout.toml     # Generated from recipe
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>│   └── webhook.toml      # Generated from recipe
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>├── filters/
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>│   ├── __init__.py
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>│   └── custom.py         # Placeholder for user&#39;s custom filters
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>├── tests/
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>│   ├── __init__.py
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>│   └── test_signup.py    # Generated test scaffold
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>├── deploy/
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>│   ├── Dockerfile        # Generated by deploy adapter
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>│   └── infra/            # CDK/Terraform/SAM templates
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>├── .github/
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>│   └── workflows/
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>│       └── ci.yml        # Generated CI workflow
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>├── pyproject.toml
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>└── README.md
+</code></pre></div>
+<h3 id="53-cuptoml-project-manifest">5.3 <code>cup.toml</code> — Project Manifest<a class="headerlink" href="#53-cuptoml-project-manifest" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">[project]</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-app&quot;</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="k">[deploy]</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aws-lambda&quot;</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="k">[dependencies]</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="n">codeupipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=0.5.0&quot;</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">codeupipe-auth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;clerk&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="n">codeupipe-payments</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;stripe&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="n">codeupipe-database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;supabase&quot;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-6-service-connector-packs-separate-repospackages">Phase 6: Service Connector Packs (separate repos/packages)<a class="headerlink" href="#phase-6-service-connector-packs-separate-repospackages" title="Permanent link">&para;</a></h2>
+<p>Each connector pack follows the same structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>codeupipe-{service}/
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>├── pyproject.toml            # deps: service SDK
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>├── codeupipe_{service}/
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>│   ├── __init__.py           # cup_component decorators for auto-discovery
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>│   ├── filters/
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>│   │   ├── create.py         # e.g., StripeCreateCheckout
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>│   │   ├── read.py           # e.g., StripeGetPayment
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>│   │   └── webhook.py        # e.g., StripeWebhookValidate
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>│   └── hooks/
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>│       └── logging.py        # Service-specific audit hooks
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>├── tests/
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>│   ├── test_create.py
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>│   └── test_webhook.py
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>└── README.md
+</code></pre></div>
+<h3 id="connector-protocol">Connector Protocol<a class="headerlink" href="#connector-protocol" title="Permanent link">&para;</a></h3>
+<p>All connectors:
+1. Use <code>@cup_component</code> decorator for Registry auto-discovery
+2. Accept config via constructor (API keys from env vars, not hardcoded)
+3. Follow the Filter protocol (async <code>call(payload) -&gt; payload</code>)
+4. Include comprehensive tests (unit + integration with real APIs where possible)</p>
+<h3 id="priority-order-for-connectors">Priority Order for Connectors<a class="headerlink" href="#priority-order-for-connectors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Pack</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>codeupipe-ai</code></td>
+<td>Hottest market, immediate developer demand</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>codeupipe-database</code></td>
+<td>Every app needs data persistence</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>codeupipe-auth</code></td>
+<td>Every SaaS needs auth</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>codeupipe-email</code></td>
+<td>Transactional email is universal</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>codeupipe-payments</code></td>
+<td>Monetization layer</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>codeupipe-storage</code></td>
+<td>File/blob handling</td>
+</tr>
+<tr>
+<td>7+</td>
+<td>Rest</td>
+<td>Based on community demand</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-order-what-to-build-when">Implementation Order (What to build when)<a class="headerlink" href="#implementation-order-what-to-build-when" title="Permanent link">&para;</a></h2>
+<h3 id="ring-7a-foundation-next">Ring 7a — Foundation (next)<a class="headerlink" href="#ring-7a-foundation-next" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>codeupipe/deploy/</code> package in core — <code>DeployAdapter</code> protocol, adapter discovery, <code>DockerAdapter</code></li>
+<li><code>cup deploy</code> CLI command</li>
+<li><code>cup.toml</code> manifest parser</li>
+<li>Tests for all of the above</li>
+</ol>
+<h3 id="ring-7b-recipes">Ring 7b — Recipes<a class="headerlink" href="#ring-7b-recipes" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Recipe template format + resolution engine</li>
+<li><code>cup recipe</code> CLI command</li>
+<li>3-5 bundled recipes (saas-signup, api-crud, etl, ai-chat, webhook-handler)</li>
+<li>Tests</li>
+</ol>
+<h3 id="ring-7c-init">Ring 7c — Init<a class="headerlink" href="#ring-7c-init" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Project template engine</li>
+<li><code>cup init</code> CLI command with template types (saas, api, etl, chatbot)</li>
+<li>Generated test scaffolds + CI workflows</li>
+<li>Tests</li>
+</ol>
+<h3 id="ring-7d-cloud-adapters-separate-packages">Ring 7d — Cloud Adapters (separate packages)<a class="headerlink" href="#ring-7d-cloud-adapters-separate-packages" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>codeupipe-deploy-aws</code> (Lambda + Fargate)</li>
+<li><code>codeupipe-deploy-azure</code> (Functions + Container Apps)</li>
+<li><code>codeupipe-deploy-fly</code></li>
+<li>Integration tests with real cloud deployments</li>
+</ol>
+<h3 id="ring-7e-first-connector-packs-separate-packages">Ring 7e — First Connector Packs (separate packages)<a class="headerlink" href="#ring-7e-first-connector-packs-separate-packages" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>codeupipe-ai</code> (OpenAI, Anthropic, Ollama)</li>
+<li><code>codeupipe-database</code> (PostgreSQL, SQLite)</li>
+<li><code>codeupipe-auth</code> (JWT validation, basic schemes)</li>
+</ol>
+<hr />
+<h2 id="key-design-principles">Key Design Principles<a class="headerlink" href="#key-design-principles" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Config is king.</strong> Everything expressible in TOML/JSON. No code required for standard workflows.</li>
+<li><strong>Progressive disclosure.</strong> <code>cup deploy docker</code> works with zero config beyond the pipeline. Cloud targets add a few flags.</li>
+<li><strong>Fail fast with clear messages.</strong> <code>cup deploy</code> validates before generating, validates before deploying.</li>
+<li><strong>Adapter isolation.</strong> Cloud SDKs never touch core. Users install only what they need.</li>
+<li><strong>Recipe composability.</strong> Recipes are just pipeline configs with variables. Users can fork, edit, and share them.</li>
+<li><strong>Entry point discovery.</strong> All adapters and connectors use Python entry points for zero-config registration.</li>
+</ol>
+<hr />
+<h2 id="open-questions-for-ring-7a">Open Questions for Ring 7a<a class="headerlink" href="#open-questions-for-ring-7a" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Entrypoint mode detection:</strong> Should we auto-detect (batch vs streaming vs scheduled) or require explicit config?</li>
+<li>
+<p>Recommendation: Auto-detect with override. If pipeline has StreamFilters → worker mode. Otherwise → HTTP handler.</p>
+</li>
+<li>
+<p><strong>Secrets management:</strong> How do connectors get API keys?</p>
+</li>
+<li>
+<p>Recommendation: Environment variables with a <code>[secrets]</code> section in <code>cup.toml</code> that documents which env vars are needed. No secret storage in code or config files.</p>
+</li>
+<li>
+<p><strong>Testing adapters:</strong> How do we test <code>cup deploy aws-lambda</code> without an AWS account?</p>
+</li>
+<li>Recommendation: Test the generate step (artifact correctness) without deploying. Integration tests in CI use ephemeral cloud resources with cleanup.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+  
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/codeuchain/codeupipe" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+  
+  <div style="text-align:center;padding:0.5em 0;font-size:0.72em;opacity:0.55;font-family:monospace;">
+    AI agent? &rarr;
+    <a href="https://codeuchain.github.io/codeupipe/agents.txt" style="opacity:0.8;">agents.txt</a>
+    &nbsp;|&nbsp; plain text:
+    <a href="https://codeuchain.github.io/codeupipe/archive/ring7-blueprint.txt" style="opacity:0.8;">archive/ring7-blueprint.txt</a>
+  </div>
+  
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

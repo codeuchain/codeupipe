@@ -1,0 +1,199 @@
+# ── codeupipe docs ──────────────────────────────────────────────────────────
+# Agent navigation guide : https://codeuchain.github.io/codeupipe/agents.txt
+# All pages as plain text: https://codeuchain.github.io/codeupipe/curl.txt
+# ────────────────────────────────────────────────────────────────────────────
+
+# codeupipe Patterns — Agent Reference
+
+> `curl https://codeuchain.github.io/codeupipe/agents/patterns.txt`
+
+---
+
+## Common Pipeline Patterns
+
+### ETL (Extract → Transform → Load)
+
+```python
+from codeupipe import Payload, Pipeline
+
+class Extract:
+    def call(self, payload):
+        data = fetch_from_source(payload.get("source_url"))
+        return payload.insert("raw_data", data)
+
+class Transform:
+    def call(self, payload):
+        cleaned = clean(payload.get("raw_data"))
+        return payload.insert("clean_data", cleaned)
+
+class Load:
+    def call(self, payload):
+        save_to_db(payload.get("clean_data"))
+        return payload.insert("loaded", True)
+
+pipeline = Pipeline()
+pipeline.add_filter(Extract(), name="extract")
+pipeline.add_filter(Transform(), name="transform")
+pipeline.add_filter(Load(), name="load")
+result = pipeline.run_sync(Payload({"source_url": "https://..."}))
+```
+
+### Validation Gate (Valve)
+
+```python
+from codeupipe import Valve
+
+# Only process records that pass validation
+pipeline.add_filter(
+    Valve(
+        filter=ExpensiveProcessor(),
+        predicate=lambda p: p.get("is_valid", False)
+    ),
+    name="guarded_processor"
+)
+```
+
+### Fan-Out / Fan-In (Parallel)
+
+```python
+# Run 3 enrichment filters in parallel, merge results
+pipeline.add_parallel([
+    GeoEnrich(),
+    SentimentAnalysis(),
+    SpamCheck(),
+], name="enrichment")
+```
+
+### Nested Pipelines
+
+```python
+# Compose pipelines as single steps
+auth_pipeline = Pipeline()
+auth_pipeline.add_filter(ValidateToken())
+auth_pipeline.add_filter(LoadUser())
+
+main_pipeline = Pipeline()
+main_pipeline.add_pipeline(auth_pipeline, name="auth")
+main_pipeline.add_filter(BusinessLogic())
+```
+
+### Streaming (Constant Memory)
+
+```python
+class ChunkProcessor:
+    async def stream(self, chunk):
+        processed = transform(chunk)
+        yield chunk.insert("processed", processed)
+
+pipeline = Pipeline()
+pipeline.add_filter(ChunkProcessor(), name="processor")
+
+async for result in pipeline.stream(async_data_source()):
+    save(result)
+```
+
+### Retry + Circuit Breaker
+
+```python
+pipeline = Pipeline()
+pipeline.add_filter(UnreliableApiCall())
+pipeline.with_retry(max_retries=3)
+pipeline.with_circuit_breaker(threshold=5)  # open after 5 consecutive failures
+```
+
+### Config-Driven Pipeline
+
+```toml
+# pipeline.toml
+[pipeline]
+name = "my_etl"
+steps = ["extract", "transform", "load"]
+
+[pipeline.steps.extract]
+type = "Extract"
+source_url = "https://..."
+
+[pipeline.steps.transform]
+type = "Transform"
+
+[pipeline.steps.load]
+type = "Load"
+```
+
+```python
+from codeupipe import Pipeline
+pipeline = Pipeline.from_config("pipeline.toml", registry=my_registry)
+result = pipeline.run_sync(Payload())
+```
+
+---
+
+## Project Structure Convention
+
+```
+my_project/
+├── cup.toml               # project manifest
+├── pipeline.toml           # pipeline config
+├── filters/
+│   ├── __init__.py
+│   ├── extract.py          # one class per file
+│   ├── transform.py
+│   └── load.py
+├── taps/
+│   └── logger.py
+├── hooks/
+│   └── timing.py
+└── tests/
+    ├── test_extract.py     # mirrors filters/
+    ├── test_transform.py
+    └── test_load.py
+```
+
+### Naming Rules
+
+- Filter files: `snake_case.py` matching class `PascalCase`
+- Test files: `test_<filter_name>.py`
+- One class per file
+- `cup lint` enforces these conventions (CUP000–CUP008)
+
+---
+
+## Converter (Migration)
+
+Migrate existing code to/from codeupipe patterns:
+
+```python
+from codeupipe.converter import build_export_pipeline, build_import_pipeline
+
+# CUP → standard Python (mvc/clean/hexagonal/flat layouts)
+export_pipeline = build_export_pipeline(pattern="mvc")
+result = export_pipeline.run_sync(Payload({"project_path": "./src"}))
+
+# Standard Python → CUP
+import_pipeline = build_import_pipeline()
+result = import_pipeline.run_sync(Payload({"project_path": "./legacy"}))
+```
+
+---
+
+## Distributed Execution
+
+```python
+from codeupipe.distribute import (
+    Checkpoint, CheckpointHook,  # save/resume pipeline progress
+    RemoteFilter,                 # execute filter on remote worker
+    IterableSource, FileSource,   # stream data into pipelines
+    WorkerPool,                   # multi-process execution
+)
+
+# Checkpoint: resume after failure
+pipeline.use_hook(CheckpointHook("checkpoints/"))
+
+# Remote: run a filter on another machine
+remote = RemoteFilter("https://worker.example.com/filter")
+pipeline.add_filter(remote, name="remote_step")
+
+# Parallel workers
+pool = WorkerPool(workers=4)
+results = pool.map(pipeline, data_items)
+```

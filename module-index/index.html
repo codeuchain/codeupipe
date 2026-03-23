@@ -1,0 +1,5367 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python pipeline framework — composable Payload → Filter → Pipeline pattern with streaming. Zero dependencies.">
+      
+      
+      
+        <link rel="canonical" href="https://codeuchain.github.io/codeupipe/module-index/">
+      
+      
+        <link rel="prev" href="../deploy-guide/">
+      
+      
+        <link rel="next" href="../architecture-diagram/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Module Index - codeupipe</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <!-- Agent navigation guide: https://codeuchain.github.io/codeupipe/agents.txt -->
+  <meta name="agent-guide" content="https://codeuchain.github.io/codeupipe/agents.txt">
+  
+  <meta name="plain-text" content="https://codeuchain.github.io/codeupipe/module-index.txt">
+  
+  <style>
+    /* ── Marketplace Hero Banner ───────────────────────────── */
+    .marketplace-banner {
+      position: relative;
+      margin: 1.5em 0 2em;
+      padding: 1.5em 2em;
+      background: linear-gradient(135deg, rgba(124,77,255,0.12) 0%, rgba(255,171,0,0.10) 100%);
+      border: 1px solid rgba(124,77,255,0.30);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .marketplace-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(124,77,255,0.08), transparent 70%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,171,0,0.06), transparent 70%);
+      pointer-events: none;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 1;
+    }
+    .banner-content > p:first-of-type {
+      font-size: 1.1em;
+      margin-bottom: 0.8em;
+    }
+    .banner-icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin-right: 0.15em;
+    }
+    .banner-actions {
+      display: flex;
+      gap: 0.75em;
+      flex-wrap: wrap;
+    }
+    .banner-actions .md-button {
+      font-size: 0.85em;
+      padding: 0.5em 1.3em;
+    }
+    /* Accent the primary button with project colors */
+    .banner-actions .md-button--primary {
+      background-color: #7c4dff;
+      border-color: #7c4dff;
+    }
+    .banner-actions .md-button--primary:hover {
+      background-color: #651fff;
+      border-color: #651fff;
+    }
+    /* Subtle shimmer animation on hover */
+    .marketplace-banner:hover {
+      border-color: rgba(124,77,255,0.50);
+      box-shadow: 0 0 24px rgba(124,77,255,0.08);
+      transition: border-color 300ms ease, box-shadow 300ms ease;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#codeupipe-index" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="codeupipe" class="md-header__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            codeupipe
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Module Index
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../best-practices/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../blueprints/ring7/" class="md-tabs__link">
+          
+  
+  
+  Blueprints
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../platform/" class="md-tabs__link">
+          
+  
+  
+  Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../agents/" class="md-tabs__link">
+          
+  
+  
+  Agent Docs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Marketplace
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="codeupipe" class="md-nav__button md-logo" aria-label="codeupipe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    codeupipe
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/codeuchain/codeupipe" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    codeuchain/codeupipe
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../best-practices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Best Practices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Index
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#govern-ring-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Govern (Ring 6)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-ring-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy (Ring 7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distribute-ring-7a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribute (Ring 7a)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-ring-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect (Ring 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#marketplace-ring-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Marketplace (Ring 9)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Marketplace (Ring 9)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust Tiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secure-config-ring-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secure Config (Ring 10)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secure Config (Ring 10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-contracts-25-json-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Contracts (25 JSON schemas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-protection-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Protection Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polyglot-ports-ring-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglot Ports (Ring 11)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Polyglot Ports (Ring 11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typescript-portsts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TypeScript — ports/ts/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rust-portsrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust — ports/rs/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#go-portsgo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go — ports/go/
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-suite-ring-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Suite (Ring 12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Suite (Ring 12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent SDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Pipelines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hub-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hub &amp; Discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-loop-template-cup-init-agent-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent-Loop Template (cup init agent-loop)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utils
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#converter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Converter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linter-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linter Pipelines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser Control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Browser Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-full-surface-bridgerun-passthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Full Surface (bridge.run passthrough)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#android-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android Control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Android Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adbbridgerun-passthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AdbBridge.run() passthrough
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emulatormanager-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmulatorManager lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Utilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doctor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-zero-downtime-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime (Zero-Downtime Control)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auth-oauth2-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auth (OAuth2 Integration)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registry-composability-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registry (Composability Layer)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blueprints
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blueprints
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 7 — Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 8 — Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blueprints/ring9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ring 9 — Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CUP Bridge Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mobile-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skill Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/browser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/deploy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/connect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://codeuchain.github.io/codeupipe-marketplace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Marketplace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#govern-ring-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Govern (Ring 6)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-ring-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy (Ring 7)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#distribute-ring-7a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribute (Ring 7a)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-ring-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect (Ring 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#marketplace-ring-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Marketplace (Ring 9)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Marketplace (Ring 9)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust Tiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secure-config-ring-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secure Config (Ring 10)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secure Config (Ring 10)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-contracts-25-json-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Contracts (25 JSON schemas)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-protection-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source Protection Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polyglot-ports-ring-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglot Ports (Ring 11)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Polyglot Ports (Ring 11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#typescript-portsts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TypeScript — ports/ts/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rust-portsrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust — ports/rs/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#go-portsgo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go — ports/go/
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-suite-ring-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Suite (Ring 12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Suite (Ring 12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent SDK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Providers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Filters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Pipelines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hub-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hub &amp; Discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-loop-template-cup-init-agent-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent-Loop Template (cup init agent-loop)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utils
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#converter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Converter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linter-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linter Pipelines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser Control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Browser Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-full-surface-bridgerun-passthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Full Surface (bridge.run passthrough)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#android-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android Control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Android Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adbbridgerun-passthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AdbBridge.run() passthrough
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emulatormanager-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmulatorManager lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Utilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doctor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Doctor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-zero-downtime-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime (Zero-Downtime Control)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auth-oauth2-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auth (OAuth2 Integration)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registry-composability-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registry (Composability Layer)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="codeupipe-index">codeupipe — Index<a class="headerlink" href="#codeupipe-index" title="Permanent link">&para;</a></h1>
+<p>Quick-reference map of the project. Every path listed here is verified by <code>cup doc-check</code>.</p>
+<hr />
+<h2 id="docs">Docs<a class="headerlink" href="#docs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="README.md">README.md</a></td>
+<td>Quick-start, install, examples</td>
+</tr>
+<tr>
+<td><a href="CONCEPTS.md">CONCEPTS.md</a></td>
+<td>Full API reference with runnable examples</td>
+</tr>
+<tr>
+<td><a href="BEST_PRACTICES.md">BEST_PRACTICES.md</a></td>
+<td>Project structure, naming, testing strategy</td>
+</tr>
+<tr>
+<td><a href="SKILL.md">SKILL.md</a></td>
+<td>Agent skill reference (types, patterns, conversion)</td>
+</tr>
+<tr>
+<td><a href="INDEX.md">INDEX.md</a></td>
+<td>This file — project map</td>
+</tr>
+<tr>
+<td><a href="docs/ring10-secure-config-blueprint.md">ring10-secure-config-blueprint.md</a></td>
+<td>Ring 10 — Secure Config design blueprint</td>
+</tr>
+<tr>
+<td><a href="docs/ring11-ai-frontend-blueprint.md">ring11-ai-frontend-blueprint.md</a></td>
+<td>Ring 11 — Polyglot Core &amp; AI Frontend blueprint</td>
+</tr>
+<tr>
+<td><a href="docs/ring12-ai-suite-blueprint.md">ring12-ai-suite-blueprint.md</a></td>
+<td>Ring 12 — AI Suite design blueprint</td>
+</tr>
+<tr>
+<td><a href="docs/archive/">docs/archive/</a></td>
+<td>Archived blueprints (rings 7-9, shipping exploration)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="package-structure">Package Structure<a class="headerlink" href="#package-structure" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/__init__.py hash=84f5c61 -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>codeupipe/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── __init__.py              # Public API re-exports
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── py.typed                 # PEP 561 typed marker
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── core/                    # Primitives
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── payload.py           # Payload, MutablePayload
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── filter.py            # Filter Protocol
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── stream_filter.py     # StreamFilter Protocol
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── pipeline.py          # Pipeline orchestrator + from_config()
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── valve.py             # Valve — conditional gate
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── tap.py               # Tap Protocol — observation
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── state.py             # State — execution metadata
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── hook.py              # Hook ABC — lifecycle
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── event.py             # PipelineEvent, EventEmitter
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   ├── govern.py            # Schemas, contracts, audit, dead-letter
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   ├── secure.py            # Sign, verify, encrypt, decrypt — functional helpers
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   ├── sign_filter.py       # SignFilter — HMAC-SHA256 signing
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── verify_filter.py     # VerifyFilter — signature verification
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   ├── encrypt_filter.py    # EncryptFilter — symmetric encryption
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   └── decrypt_filter.py    # DecryptFilter — symmetric decryption
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>├── connect/                 # Service connectors (Ring 8) + Bridge Platform (Ring 13)
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│   ├── config.py            # ConnectorConfig, load_connector_configs
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   ├── discovery.py         # discover_connectors, check_health
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│   ├── http.py              # HttpConnector — built-in REST connector
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│   ├── bridge_config.py     # BridgeConfig, BridgeTier, load_bridge_configs
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│   ├── bridge_discovery.py  # discover_bridges, scan_localhost, scan_lan
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│   ├── bridge_launcher.py   # BridgeLauncher, install_service, uninstall_service
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│   ├── local_bridge.py      # LocalBridge — HTTP bridge to localhost compute
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│   └── extension/           # MV3 browser extension + native messaging
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│       ├── manifest.json    # Extension manifest (MAIN + ISOLATED worlds)
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│       ├── manifest.android.json # Android variant (no nativeMessaging)
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│       ├── build_crx.py     # CRX3 builder — stdlib-only, RSA signing
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│       ├── service-worker.js# CUP pipeline (12 filters) in SW
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>│       ├── content-script.js# Page↔Extension relay + status badge
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│       ├── cup-bridge-api.js# window.cupBridge API (MAIN world)
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│       ├── popup.html       # Extension popup
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│       ├── native/          # Native messaging host
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│       │   └── native_host.py # NM protocol + CUP filter pipeline
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│       ├── platform/        # GitHub Pages SPA
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│       └── recipes/         # Capability recipes (JSON)
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>├── deploy/                  # Deployment adapters (Ring 7)
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>│   ├── adapter.py           # DeployTarget, DeployAdapter ABC
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   ├── contract.py          # Platform contracts — load, list, validate
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│   ├── contracts/           # 25 platform constraint JSON schemas
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   ├── discovery.py         # find_adapters
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│   ├── docker.py            # DockerAdapter
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│   ├── handlers.py          # Serverless handler renderers
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│   ├── init.py              # cup init scaffolding
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>│   ├── manifest.py          # cup.toml manifest — load &amp; validate
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│   ├── netlify.py           # NetlifyAdapter
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│   ├── obfuscate/           # SPA obfuscation build pipeline
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│   │   ├── obfuscate_config.py     # ObfuscateConfig — tool options
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│   │   ├── scan_html_files.py      # ScanHtmlFiles filter
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│   │   ├── extract_inline_scripts.py # ExtractInlineScripts filter
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>│   │   ├── obfuscate_scripts.py    # ObfuscateScripts — JS obfuscation
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>│   │   ├── reassemble_html.py      # ReassembleHtml — re-inject scripts
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>│   │   ├── minify_html.py          # MinifyHtml — HTML+CSS minification
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>│   │   ├── write_output.py         # WriteOutput — write files + copy static
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>│   │   └── obfuscate_pipeline.py   # build_obfuscate_pipeline() builder
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>│   ├── recipe.py            # Recipes — list, resolve, dependencies
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>│   └── vercel.py            # VercelAdapter
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>│
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>├── distribute/              # Distributed execution (Ring 7a)
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>│   ├── checkpoint.py        # Checkpoint, CheckpointHook
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>│   ├── remote.py            # RemoteFilter
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>│   ├── source.py            # IterableSource, FileSource
+<a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a>│   └── worker.py            # WorkerPool
+<a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a>│
+<a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a>├── runtime.py               # TapSwitch, HotSwap — zero-downtime production control
+<a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a>│
+<a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a>├── auth/                    # OAuth2 integration (browser-based login, credential persistence)
+<a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a>│   ├── credential.py        # Credential, CredentialStore
+<a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a>│   ├── provider.py          # AuthProvider, GoogleOAuth, GitHubOAuth
+<a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a>│   ├── hook.py              # AuthHook
+<a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a>│   └── _server.py           # Local OAuth callback server
+<a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a>│
+<a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a>├── registry.py              # Registry, cup_component, default_registry
+<a id="__codelineno-0-80" name="__codelineno-0-80" href="#__codelineno-0-80"></a>│
+<a id="__codelineno-0-81" name="__codelineno-0-81" href="#__codelineno-0-81"></a>├── utils/
+<a id="__codelineno-0-82" name="__codelineno-0-82" href="#__codelineno-0-82"></a>│   └── error_handling.py    # ErrorHandlingMixin, RetryFilter
+<a id="__codelineno-0-83" name="__codelineno-0-83" href="#__codelineno-0-83"></a>│
+<a id="__codelineno-0-84" name="__codelineno-0-84" href="#__codelineno-0-84"></a>├── converter/               # CodeUChain ↔ codeupipe migration
+<a id="__codelineno-0-85" name="__codelineno-0-85" href="#__codelineno-0-85"></a>│   ├── config.py            # Pattern config (mvc/clean/hexagonal/flat)
+<a id="__codelineno-0-86" name="__codelineno-0-86" href="#__codelineno-0-86"></a>│   ├── filters/             # 7 conversion filters
+<a id="__codelineno-0-87" name="__codelineno-0-87" href="#__codelineno-0-87"></a>│   ├── taps/                # ConversionLogTap
+<a id="__codelineno-0-88" name="__codelineno-0-88" href="#__codelineno-0-88"></a>│   └── pipelines/           # build_export_pipeline, build_import_pipeline
+<a id="__codelineno-0-89" name="__codelineno-0-89" href="#__codelineno-0-89"></a>│
+<a id="__codelineno-0-90" name="__codelineno-0-90" href="#__codelineno-0-90"></a>├── linter/                  # Analysis pipelines (dogfooded as CUP)
+<a id="__codelineno-0-91" name="__codelineno-0-91" href="#__codelineno-0-91"></a>│   ├── lint_pipeline.py     # build_lint_pipeline()
+<a id="__codelineno-0-92" name="__codelineno-0-92" href="#__codelineno-0-92"></a>│   ├── coverage_pipeline.py # build_coverage_pipeline()
+<a id="__codelineno-0-93" name="__codelineno-0-93" href="#__codelineno-0-93"></a>│   ├── report_pipeline.py   # build_report_pipeline()
+<a id="__codelineno-0-94" name="__codelineno-0-94" href="#__codelineno-0-94"></a>│   ├── doc_check_pipeline.py# build_doc_check_pipeline()
+<a id="__codelineno-0-95" name="__codelineno-0-95" href="#__codelineno-0-95"></a>│   └── (18 filter files)    # ScanDirectory, CheckNaming, etc.
+<a id="__codelineno-0-96" name="__codelineno-0-96" href="#__codelineno-0-96"></a>│
+<a id="__codelineno-0-97" name="__codelineno-0-97" href="#__codelineno-0-97"></a>├── browser/                 # Browser control via agent-browser (Ring 13)
+<a id="__codelineno-0-98" name="__codelineno-0-98" href="#__codelineno-0-98"></a>│   ├── bridge.py            # BrowserBridge subprocess wrapper, BrowserResult
+<a id="__codelineno-0-99" name="__codelineno-0-99" href="#__codelineno-0-99"></a>│   ├── playwright_bridge.py # PlaywrightBridge — Playwright SDK wrapper
+<a id="__codelineno-0-100" name="__codelineno-0-100" href="#__codelineno-0-100"></a>│   ├── browser_open.py      # BrowserOpen — navigate to URL
+<a id="__codelineno-0-101" name="__codelineno-0-101" href="#__codelineno-0-101"></a>│   ├── browser_close.py     # BrowserClose — close session
+<a id="__codelineno-0-102" name="__codelineno-0-102" href="#__codelineno-0-102"></a>│   ├── browser_snapshot.py  # BrowserSnapshot — accessibility tree with @refs
+<a id="__codelineno-0-103" name="__codelineno-0-103" href="#__codelineno-0-103"></a>│   ├── browser_click.py     # BrowserClick — click by @ref selector
+<a id="__codelineno-0-104" name="__codelineno-0-104" href="#__codelineno-0-104"></a>│   ├── browser_fill.py      # BrowserFill — fill form field
+<a id="__codelineno-0-105" name="__codelineno-0-105" href="#__codelineno-0-105"></a>│   ├── browser_eval.py      # BrowserEval — evaluate JavaScript
+<a id="__codelineno-0-106" name="__codelineno-0-106" href="#__codelineno-0-106"></a>│   ├── browser_screenshot.py# BrowserScreenshot — capture PNG
+<a id="__codelineno-0-107" name="__codelineno-0-107" href="#__codelineno-0-107"></a>│   ├── browser_tabs.py      # BrowserTabs — list open tabs
+<a id="__codelineno-0-108" name="__codelineno-0-108" href="#__codelineno-0-108"></a>│   ├── browser_raw.py       # BrowserRaw — raw CDP passthrough
+<a id="__codelineno-0-109" name="__codelineno-0-109" href="#__codelineno-0-109"></a>│   └── browser_get.py       # BrowserGet — get text/title/url/html/value
+<a id="__codelineno-0-110" name="__codelineno-0-110" href="#__codelineno-0-110"></a>│
+<a id="__codelineno-0-111" name="__codelineno-0-111" href="#__codelineno-0-111"></a>├── testing.py               # Test helpers — run_filter, assert_payload, etc.
+<a id="__codelineno-0-112" name="__codelineno-0-112" href="#__codelineno-0-112"></a>│
+<a id="__codelineno-0-113" name="__codelineno-0-113" href="#__codelineno-0-113"></a>├── ai/                      # AI Suite (Ring 12) — requires pip install codeupipe[ai]
+<a id="__codelineno-0-114" name="__codelineno-0-114" href="#__codelineno-0-114"></a>│   ├── __init__.py          # Public API — Agent, AgentConfig, AgentEvent, EventType
+<a id="__codelineno-0-115" name="__codelineno-0-115" href="#__codelineno-0-115"></a>│   ├── _check.py            # Import guard — require_ai_deps()
+<a id="__codelineno-0-116" name="__codelineno-0-116" href="#__codelineno-0-116"></a>│   ├── config.py            # Settings — registry_path, model defaults
+<a id="__codelineno-0-117" name="__codelineno-0-117" href="#__codelineno-0-117"></a>│   ├── agent/               # Agent SDK — Agent, AgentConfig, AgentEvent, EventType, ServerDef
+<a id="__codelineno-0-118" name="__codelineno-0-118" href="#__codelineno-0-118"></a>│   ├── providers/           # LLM backends — LanguageModelProvider ABC, CopilotProvider
+<a id="__codelineno-0-119" name="__codelineno-0-119" href="#__codelineno-0-119"></a>│   ├── filters/             # AI filters — InitProvider, LanguageModel, RegisterServers
+<a id="__codelineno-0-120" name="__codelineno-0-120" href="#__codelineno-0-120"></a>│   │   ├── loop/            # Agent loop — AgentLoop, ToolContinuation, ManageState, Backchannel, ...
+<a id="__codelineno-0-121" name="__codelineno-0-121" href="#__codelineno-0-121"></a>│   │   ├── discovery/       # Discovery — EmbedQuery, CoarseSearch, FineRank, FetchDefinitions
+<a id="__codelineno-0-122" name="__codelineno-0-122" href="#__codelineno-0-122"></a>│   │   └── registration/    # Registration — ScanFiles, ParseCapabilities, SyncRegistry
+<a id="__codelineno-0-123" name="__codelineno-0-123" href="#__codelineno-0-123"></a>│   ├── pipelines/           # Pipeline builders — agent_session, intent_discovery, file/cap registration
+<a id="__codelineno-0-124" name="__codelineno-0-124" href="#__codelineno-0-124"></a>│   ├── hooks/               # Middleware — LoggingMiddleware, TimingMiddleware, AuditProducer
+<a id="__codelineno-0-125" name="__codelineno-0-125" href="#__codelineno-0-125"></a>│   ├── hub/                 # MCP server registry — ServerRegistry, IOWrapper, create_default_hub
+<a id="__codelineno-0-126" name="__codelineno-0-126" href="#__codelineno-0-126"></a>│   ├── loop/                # Session management — SessionStore
+<a id="__codelineno-0-127" name="__codelineno-0-127" href="#__codelineno-0-127"></a>│   ├── discovery/           # Capability registry — CapabilityRegistry, SnowflakeArcticEmbedder
+<a id="__codelineno-0-128" name="__codelineno-0-128" href="#__codelineno-0-128"></a>│   ├── servers/             # Built-in MCP servers — echo, mcp_manager, api_keys
+<a id="__codelineno-0-129" name="__codelineno-0-129" href="#__codelineno-0-129"></a>│   ├── tui/                 # Textual TUI — CopilotApp (requires codeupipe[ai-tui])
+<a id="__codelineno-0-130" name="__codelineno-0-130" href="#__codelineno-0-130"></a>│   │   ├── screens/         # Chat, events, history screens
+<a id="__codelineno-0-131" name="__codelineno-0-131" href="#__codelineno-0-131"></a>│   │   └── widgets/         # InputBar, MessagePanel, EventPanel
+<a id="__codelineno-0-132" name="__codelineno-0-132" href="#__codelineno-0-132"></a>│   └── eval/                # Evaluation framework — Experiment, Scenario, Metrics, Scoring, Storage
+<a id="__codelineno-0-133" name="__codelineno-0-133" href="#__codelineno-0-133"></a>│
+<a id="__codelineno-0-134" name="__codelineno-0-134" href="#__codelineno-0-134"></a>└── cli/                     # CLI package — registry-routed command dispatch
+<a id="__codelineno-0-135" name="__codelineno-0-135" href="#__codelineno-0-135"></a>    ├── __init__.py          # Thin main() + backward-compat re-exports
+<a id="__codelineno-0-136" name="__codelineno-0-136" href="#__codelineno-0-136"></a>    ├── __main__.py          # python -m codeupipe.cli entry
+<a id="__codelineno-0-137" name="__codelineno-0-137" href="#__codelineno-0-137"></a>    ├── _registry.py         # CommandRegistry — routes command name → handler
+<a id="__codelineno-0-138" name="__codelineno-0-138" href="#__codelineno-0-138"></a>    ├── _templates.py        # 9 component template strings
+<a id="__codelineno-0-139" name="__codelineno-0-139" href="#__codelineno-0-139"></a>    ├── _scaffold.py         # scaffold engine, name utils, composed builder
+<a id="__codelineno-0-140" name="__codelineno-0-140" href="#__codelineno-0-140"></a>    ├── _bundle.py           # bundle engine
+<a id="__codelineno-0-141" name="__codelineno-0-141" href="#__codelineno-0-141"></a>    └── commands/            # One module per command group
+<a id="__codelineno-0-142" name="__codelineno-0-142" href="#__codelineno-0-142"></a>        ├── scaffold_cmds.py # new, list
+<a id="__codelineno-0-143" name="__codelineno-0-143" href="#__codelineno-0-143"></a>        ├── analysis_cmds.py # lint, coverage, report, doc-check
+<a id="__codelineno-0-144" name="__codelineno-0-144" href="#__codelineno-0-144"></a>        ├── run_cmds.py      # run, describe, graph, runs
+<a id="__codelineno-0-145" name="__codelineno-0-145" href="#__codelineno-0-145"></a>        ├── deploy_cmds.py   # deploy, recipe, init, ci, config, obfuscate
+<a id="__codelineno-0-146" name="__codelineno-0-146" href="#__codelineno-0-146"></a>        ├── connect_cmds.py  # connect, marketplace
+<a id="__codelineno-0-147" name="__codelineno-0-147" href="#__codelineno-0-147"></a>        ├── project_cmds.py  # test, doctor, upgrade, publish, version, bundle
+<a id="__codelineno-0-148" name="__codelineno-0-148" href="#__codelineno-0-148"></a>        ├── distribute_cmds.py # distribute checkpoint/remote/worker
+<a id="__codelineno-0-149" name="__codelineno-0-149" href="#__codelineno-0-149"></a>        ├── auth_cmds.py     # auth login/status/revoke/list
+<a id="__codelineno-0-150" name="__codelineno-0-150" href="#__codelineno-0-150"></a>        ├── ai_cmds.py       # ai-ask, ai-interactive, ai-tui, ai-discover, ai-sync, ai-register, ai-hub
+<a id="__codelineno-0-151" name="__codelineno-0-151" href="#__codelineno-0-151"></a>        └── browser_cmds.py  # browser-open/close/snapshot/click/fill/eval/screenshot/tabs/raw/get
+</code></pre></div>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="core-types">Core Types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/core/__init__.py hash=af8905e -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Payload</code></td>
+<td>core/payload.py</td>
+<td>Immutable data container</td>
+</tr>
+<tr>
+<td><code>MutablePayload</code></td>
+<td>core/payload.py</td>
+<td>Mutable sibling for bulk edits</td>
+</tr>
+<tr>
+<td><code>Filter</code></td>
+<td>core/filter.py</td>
+<td>Processing unit — <code>.call(payload) → Payload</code></td>
+</tr>
+<tr>
+<td><code>StreamFilter</code></td>
+<td>core/stream_filter.py</td>
+<td>Streaming — <code>.stream(chunk)</code> yields 0..N</td>
+</tr>
+<tr>
+<td><code>Pipeline</code></td>
+<td>core/pipeline.py</td>
+<td>Orchestrator — <code>.run()</code> / <code>.stream()</code></td>
+</tr>
+<tr>
+<td><code>Valve</code></td>
+<td>core/valve.py</td>
+<td>Conditional gate — filter + predicate</td>
+</tr>
+<tr>
+<td><code>Tap</code></td>
+<td>core/tap.py</td>
+<td>Read-only observer — <code>.observe(payload)</code></td>
+</tr>
+<tr>
+<td><code>State</code></td>
+<td>core/state.py</td>
+<td>Execution metadata</td>
+</tr>
+<tr>
+<td><code>Hook</code></td>
+<td>core/hook.py</td>
+<td>Lifecycle — before / after / on_error</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="govern-ring-6">Govern (Ring 6)<a class="headerlink" href="#govern-ring-6" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/core/event.py symbols=PipelineEvent,EventEmitter hash=d106174 -->
+<!-- cup:ref file=codeupipe/core/govern.py symbols=SchemaViolation,ContractViolation,PipelineTimeoutError,PayloadSchema,AuditEntry,AuditTrail,AuditHook,DeadLetterHandler,LogDeadLetterHandler hash=f98fbce -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PipelineEvent</code></td>
+<td>core/event.py</td>
+<td>Typed event emitted by pipelines</td>
+</tr>
+<tr>
+<td><code>EventEmitter</code></td>
+<td>core/event.py</td>
+<td>Pub/sub event bus</td>
+</tr>
+<tr>
+<td><code>PayloadSchema</code></td>
+<td>core/govern.py</td>
+<td>Declarative payload validation</td>
+</tr>
+<tr>
+<td><code>SchemaViolation</code></td>
+<td>core/govern.py</td>
+<td>Schema check failure</td>
+</tr>
+<tr>
+<td><code>ContractViolation</code></td>
+<td>core/govern.py</td>
+<td>Pre/post-condition failure</td>
+</tr>
+<tr>
+<td><code>PipelineTimeoutError</code></td>
+<td>core/govern.py</td>
+<td>Timeout exceeded</td>
+</tr>
+<tr>
+<td><code>AuditEntry</code> / <code>AuditTrail</code></td>
+<td>core/govern.py</td>
+<td>Immutable audit log</td>
+</tr>
+<tr>
+<td><code>AuditHook</code></td>
+<td>core/govern.py</td>
+<td>Hook that records audit entries</td>
+</tr>
+<tr>
+<td><code>DeadLetterHandler</code></td>
+<td>core/govern.py</td>
+<td>Failed-payload routing ABC</td>
+</tr>
+<tr>
+<td><code>LogDeadLetterHandler</code></td>
+<td>core/govern.py</td>
+<td>Dead-letter → logger</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="deploy-ring-7">Deploy (Ring 7)<a class="headerlink" href="#deploy-ring-7" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/deploy/__init__.py hash=5cd158c -->
+<!-- cup:ref file=codeupipe/deploy/adapter.py symbols=DeployTarget,DeployAdapter hash=fb707c9 -->
+<!-- cup:ref file=codeupipe/deploy/discovery.py symbols=find_adapters hash=2057718 -->
+<!-- cup:ref file=codeupipe/deploy/docker.py symbols=DockerAdapter hash=bb3410f -->
+<!-- cup:ref file=codeupipe/deploy/handlers.py symbols=render_vercel_handler,render_netlify_handler,render_lambda_handler hash=33fb03d -->
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=init_project,list_templates hash=8e90613 -->
+<!-- cup:ref file=codeupipe/deploy/manifest.py symbols=ManifestError,load_manifest hash=717235e -->
+<!-- cup:ref file=codeupipe/deploy/netlify.py symbols=NetlifyAdapter hash=5659642 -->
+<!-- cup:ref file=codeupipe/deploy/render.py symbols=RenderAdapter hash=c94da8d -->
+<!-- cup:ref file=codeupipe/deploy/recipe.py symbols=RecipeError,list_recipes,resolve_recipe hash=6e84b7a -->
+<!-- cup:ref file=codeupipe/deploy/vercel.py symbols=VercelAdapter hash=33ddeb5 -->
+<!-- cup:ref file=codeupipe/deploy/fly.py symbols=FlyAdapter -->
+<!-- cup:ref file=codeupipe/deploy/railway.py symbols=RailwayAdapter -->
+<!-- cup:ref file=codeupipe/deploy/cloudrun.py symbols=CloudRunAdapter -->
+<!-- cup:ref file=codeupipe/deploy/koyeb.py symbols=KoyebAdapter -->
+<!-- cup:ref file=codeupipe/deploy/apprunner.py symbols=AppRunnerAdapter -->
+<!-- cup:ref file=codeupipe/deploy/oracle.py symbols=OracleAdapter -->
+<!-- cup:ref file=codeupipe/deploy/azure_container_apps.py symbols=AzureContainerAppsAdapter -->
+<!-- cup:ref file=codeupipe/deploy/huggingface.py symbols=HuggingFaceAdapter -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DeployTarget</code></td>
+<td>deploy/adapter.py</td>
+<td>Enum — docker, vercel, netlify, lambda</td>
+</tr>
+<tr>
+<td><code>DeployAdapter</code></td>
+<td>deploy/adapter.py</td>
+<td>ABC — <code>prepare()</code>, <code>deploy()</code></td>
+</tr>
+<tr>
+<td><code>find_adapters</code></td>
+<td>deploy/discovery.py</td>
+<td>Auto-discover platform adapters</td>
+</tr>
+<tr>
+<td><code>DockerAdapter</code></td>
+<td>deploy/docker.py</td>
+<td>Docker build + push</td>
+</tr>
+<tr>
+<td><code>VercelAdapter</code></td>
+<td>deploy/vercel.py</td>
+<td>Vercel deployment</td>
+</tr>
+<tr>
+<td><code>NetlifyAdapter</code></td>
+<td>deploy/netlify.py</td>
+<td>Netlify deployment</td>
+</tr>
+<tr>
+<td><code>RenderAdapter</code></td>
+<td>deploy/render.py</td>
+<td>Render free-tier deployment</td>
+</tr>
+<tr>
+<td><code>FlyAdapter</code></td>
+<td>deploy/fly.py</td>
+<td>Fly.io edge deployment</td>
+</tr>
+<tr>
+<td><code>RailwayAdapter</code></td>
+<td>deploy/railway.py</td>
+<td>Railway deployment</td>
+</tr>
+<tr>
+<td><code>CloudRunAdapter</code></td>
+<td>deploy/cloudrun.py</td>
+<td>Google Cloud Run</td>
+</tr>
+<tr>
+<td><code>KoyebAdapter</code></td>
+<td>deploy/koyeb.py</td>
+<td>Koyeb free-tier deployment</td>
+</tr>
+<tr>
+<td><code>AppRunnerAdapter</code></td>
+<td>deploy/apprunner.py</td>
+<td>AWS App Runner</td>
+</tr>
+<tr>
+<td><code>OracleAdapter</code></td>
+<td>deploy/oracle.py</td>
+<td>Oracle Cloud Always Free VM</td>
+</tr>
+<tr>
+<td><code>AzureContainerAppsAdapter</code></td>
+<td>deploy/azure_container_apps.py</td>
+<td>Azure Container Apps</td>
+</tr>
+<tr>
+<td><code>HuggingFaceAdapter</code></td>
+<td>deploy/huggingface.py</td>
+<td>Hugging Face Spaces</td>
+</tr>
+<tr>
+<td><code>render_*_handler</code></td>
+<td>deploy/handlers.py</td>
+<td>Serverless entry-point renderers</td>
+</tr>
+<tr>
+<td><code>init_project</code></td>
+<td>deploy/init.py</td>
+<td><code>cup init</code> scaffolding</td>
+</tr>
+<tr>
+<td><code>load_manifest</code></td>
+<td>deploy/manifest.py</td>
+<td>Parse &amp; validate cup.toml</td>
+</tr>
+<tr>
+<td><code>list_recipes</code> / <code>resolve_recipe</code></td>
+<td>deploy/recipe.py</td>
+<td>Recipe system</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="distribute-ring-7a">Distribute (Ring 7a)<a class="headerlink" href="#distribute-ring-7a" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/distribute/__init__.py hash=59ccacc -->
+<!-- cup:ref file=codeupipe/distribute/checkpoint.py symbols=Checkpoint,CheckpointHook hash=c982735 -->
+<!-- cup:ref file=codeupipe/distribute/remote.py symbols=RemoteFilter hash=b17b607 -->
+<!-- cup:ref file=codeupipe/distribute/source.py symbols=IterableSource,FileSource hash=192a21a -->
+<!-- cup:ref file=codeupipe/distribute/worker.py symbols=WorkerPool hash=362b51b -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Checkpoint</code> / <code>CheckpointHook</code></td>
+<td>distribute/checkpoint.py</td>
+<td>Save/resume pipeline progress</td>
+</tr>
+<tr>
+<td><code>RemoteFilter</code></td>
+<td>distribute/remote.py</td>
+<td>Execute a filter on a remote worker</td>
+</tr>
+<tr>
+<td><code>IterableSource</code> / <code>FileSource</code></td>
+<td>distribute/source.py</td>
+<td>Stream data into pipelines</td>
+</tr>
+<tr>
+<td><code>WorkerPool</code></td>
+<td>distribute/worker.py</td>
+<td>Multi-process execution pool</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="connect-ring-8">Connect (Ring 8)<a class="headerlink" href="#connect-ring-8" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/connect/__init__.py hash=2a94b61 -->
+<!-- cup:ref file=codeupipe/connect/config.py symbols=ConfigError,ConnectorConfig,load_connector_configs hash=693d3be -->
+<!-- cup:ref file=codeupipe/connect/discovery.py symbols=discover_connectors,check_health hash=e9fe17c -->
+<!-- cup:ref file=codeupipe/connect/http.py symbols=HttpConnector hash=2bf804b -->
+<!-- cup:ref file=codeupipe/connect/bridge_config.py symbols=BridgeConfigError,BridgeCapability,BridgeTier,BridgeConfig,load_bridge_configs hash=822c951 -->
+<!-- cup:ref file=codeupipe/connect/bridge_discovery.py symbols=discover_bridges,scan_localhost,scan_lan hash=0c0e69d -->
+<!-- cup:ref file=codeupipe/connect/bridge_launcher.py symbols=LaunchResult,BridgeLauncher,install_service,uninstall_service hash=9aa33a3 -->
+<!-- cup:ref file=codeupipe/connect/local_bridge.py symbols=BridgeError,BridgeEndpoint,LocalBridge hash=74de7b7 -->
+<!-- cup:ref file=codeupipe/connect/extension/native/native_host.py symbols=nm_read,nm_write,NativePayload,ReadMessageFilter,RouteActionFilter hash=7220c23 -->
+<!-- cup:ref file=codeupipe/connect/extension/build_crx.py symbols=build_crx,extension_id_from_key hash=9c710ce -->
+<!-- cup:ref file=codeupipe/connect/extension/manifest.android.json hash=e1c2e7d -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConnectorConfig</code></td>
+<td>connect/config.py</td>
+<td>Parse <code>[connectors.*]</code> from cup.toml</td>
+</tr>
+<tr>
+<td><code>load_connector_configs</code></td>
+<td>connect/config.py</td>
+<td>Load all connector configs</td>
+</tr>
+<tr>
+<td><code>discover_connectors</code></td>
+<td>connect/discovery.py</td>
+<td>Entry-point discovery + registration</td>
+</tr>
+<tr>
+<td><code>check_health</code></td>
+<td>connect/discovery.py</td>
+<td>Pre-flight health checks</td>
+</tr>
+<tr>
+<td><code>HttpConnector</code></td>
+<td>connect/http.py</td>
+<td>Built-in REST connector (urllib, zero deps)</td>
+</tr>
+<tr>
+<td><code>BridgeConfig</code></td>
+<td>connect/bridge_config.py</td>
+<td>Bridge tier + capability config</td>
+</tr>
+<tr>
+<td><code>BridgeTier</code></td>
+<td>connect/bridge_config.py</td>
+<td>Enum: native / http / wasm</td>
+</tr>
+<tr>
+<td><code>load_bridge_configs</code></td>
+<td>connect/bridge_config.py</td>
+<td>Load all bridge configurations</td>
+</tr>
+<tr>
+<td><code>discover_bridges</code></td>
+<td>connect/bridge_discovery.py</td>
+<td>Scan for available bridges</td>
+</tr>
+<tr>
+<td><code>scan_localhost</code></td>
+<td>connect/bridge_discovery.py</td>
+<td>Probe localhost for bridge servers</td>
+</tr>
+<tr>
+<td><code>BridgeLauncher</code></td>
+<td>connect/bridge_launcher.py</td>
+<td>Launch + manage bridge processes</td>
+</tr>
+<tr>
+<td><code>install_service</code></td>
+<td>connect/bridge_launcher.py</td>
+<td>Install bridge as system service</td>
+</tr>
+<tr>
+<td><code>LocalBridge</code></td>
+<td>connect/local_bridge.py</td>
+<td>HTTP bridge to localhost compute</td>
+</tr>
+<tr>
+<td><code>nm_read</code> / <code>nm_write</code></td>
+<td>extension/native/native_host.py</td>
+<td>Chrome NM protocol I/O</td>
+</tr>
+<tr>
+<td><code>NativePayload</code></td>
+<td>extension/native/native_host.py</td>
+<td>Minimal Payload for native host</td>
+</tr>
+<tr>
+<td><code>ReadMessageFilter</code></td>
+<td>extension/native/native_host.py</td>
+<td>Read NM message filter</td>
+</tr>
+<tr>
+<td><code>RouteActionFilter</code></td>
+<td>extension/native/native_host.py</td>
+<td>Route actions to handler filters</td>
+</tr>
+<tr>
+<td><code>build_crx</code></td>
+<td>extension/build_crx.py</td>
+<td>Build CRX3 from extension dir (stdlib-only)</td>
+</tr>
+<tr>
+<td><code>extension_id_from_key</code></td>
+<td>extension/build_crx.py</td>
+<td>Compute extension ID from RSA key</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="marketplace-ring-9">Marketplace (Ring 9)<a class="headerlink" href="#marketplace-ring-9" title="Permanent link">&para;</a></h2>
+<p>The marketplace index is community-managed in a standalone repo:
+<strong><a href="https://github.com/codeuchain/codeupipe-marketplace">codeuchain/codeupipe-marketplace</a></strong></p>
+<p>Contributors fork that repo, add a <code>manifest.json</code> for their component, and open a PR.
+CI validates the manifest; on merge the index is rebuilt automatically.</p>
+<p>The CLI client code below fetches the index and provides search/info/install commands:</p>
+<!-- cup:ref file=codeupipe/marketplace/__init__.py hash=4dc7675 -->
+<!-- cup:ref file=codeupipe/marketplace/index.py symbols=fetch_index,search,info,MarketplaceError hash=c05c5ff -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fetch_index</code></td>
+<td>marketplace/index.py</td>
+<td>Fetch &amp; cache marketplace JSON index</td>
+</tr>
+<tr>
+<td><code>search</code></td>
+<td>marketplace/index.py</td>
+<td>Keyword + category/provider search</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>marketplace/index.py</td>
+<td>Package detail lookup by name or provider</td>
+</tr>
+<tr>
+<td><code>MarketplaceError</code></td>
+<td>marketplace/index.py</td>
+<td>Marketplace-specific error</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cli-commands">CLI Commands<a class="headerlink" href="#cli-commands" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cup<span class="w"> </span>marketplace<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;payments&quot;</span><span class="w">          </span><span class="c1"># Search by keyword</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cup<span class="w"> </span>marketplace<span class="w"> </span>info<span class="w"> </span>codeupipe-stripe<span class="w">      </span><span class="c1"># Detailed package info</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>cup<span class="w"> </span>marketplace<span class="w"> </span>install<span class="w"> </span>codeupipe-stripe<span class="w">   </span><span class="c1"># Install from PyPI</span>
+</code></pre></div>
+<h3 id="trust-tiers">Trust Tiers<a class="headerlink" href="#trust-tiers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Badge</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>verified</strong></td>
+<td>✅</td>
+<td>Published by codeuchain org</td>
+</tr>
+<tr>
+<td><strong>community</strong></td>
+<td>🔷</td>
+<td>Community-submitted, CI-validated</td>
+</tr>
+<tr>
+<td><strong>unindexed</strong></td>
+<td>—</td>
+<td>Works via entry points, not in index</td>
+</tr>
+</tbody>
+</table>
+<p>All tiers work with <code>cup connect --list</code>. The marketplace only affects discoverability.</p>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="secure-config-ring-10">Secure Config (Ring 10)<a class="headerlink" href="#secure-config-ring-10" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/core/secure.py symbols=seal_payload,verify_payload,encrypt_data,decrypt_data,SecurePayloadError -->
+<!-- cup:ref file=codeupipe/core/sign_filter.py symbols=SignFilter -->
+<!-- cup:ref file=codeupipe/core/verify_filter.py symbols=VerifyFilter -->
+<!-- cup:ref file=codeupipe/core/encrypt_filter.py symbols=EncryptFilter -->
+<!-- cup:ref file=codeupipe/core/decrypt_filter.py symbols=DecryptFilter -->
+<!-- cup:ref file=codeupipe/deploy/contract.py symbols=load_contract,list_contracts,validate_env,ContractError,ValidationResult -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SignFilter</code></td>
+<td>core/sign_filter.py</td>
+<td>HMAC-SHA256 sign payloads at pipeline boundary</td>
+</tr>
+<tr>
+<td><code>VerifyFilter</code></td>
+<td>core/verify_filter.py</td>
+<td>Verify signature + optional expiry check</td>
+</tr>
+<tr>
+<td><code>EncryptFilter</code></td>
+<td>core/encrypt_filter.py</td>
+<td>Encrypt payload data (PBKDF2 + authenticated)</td>
+</tr>
+<tr>
+<td><code>DecryptFilter</code></td>
+<td>core/decrypt_filter.py</td>
+<td>Decrypt payload data</td>
+</tr>
+<tr>
+<td><code>seal_payload</code> / <code>verify_payload</code></td>
+<td>core/secure.py</td>
+<td>Functional sign/verify helpers</td>
+</tr>
+<tr>
+<td><code>encrypt_data</code> / <code>decrypt_data</code></td>
+<td>core/secure.py</td>
+<td>Functional encrypt/decrypt helpers</td>
+</tr>
+<tr>
+<td><code>SecurePayloadError</code></td>
+<td>core/secure.py</td>
+<td>Tamper, wrong key, or expiry error</td>
+</tr>
+<tr>
+<td><code>load_contract</code></td>
+<td>deploy/contract.py</td>
+<td>Load a platform contract JSON by ID</td>
+</tr>
+<tr>
+<td><code>list_contracts</code></td>
+<td>deploy/contract.py</td>
+<td>List all available platform contracts</td>
+</tr>
+<tr>
+<td><code>validate_env</code></td>
+<td>deploy/contract.py</td>
+<td>Validate env vars against a contract</td>
+</tr>
+<tr>
+<td><code>ContractError</code></td>
+<td>deploy/contract.py</td>
+<td>Contract not found / malformed</td>
+</tr>
+<tr>
+<td><code>ValidationResult</code></td>
+<td>deploy/contract.py</td>
+<td>Validation result with <code>.valid</code>, <code>.errors</code>, <code>.warnings</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="platform-contracts-25-json-schemas">Platform Contracts (25 JSON schemas)<a class="headerlink" href="#platform-contracts-25-json-schemas" title="Permanent link">&para;</a></h3>
+<p>Located in <code>codeupipe/deploy/contracts/</code>. Each JSON defines:
+- Required / optional env vars
+- Naming rules (regex pattern, forbidden prefixes)
+- Size limits (key, value, total, max vars)
+- Secret backends and export formats</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cup<span class="w"> </span>config<span class="w"> </span>--list<span class="w">                        </span><span class="c1"># Show all 23 platforms</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cup<span class="w"> </span>config<span class="w"> </span>aws-lambda<span class="w"> </span>--var<span class="w"> </span><span class="nv">MY_KEY</span><span class="o">=</span>val<span class="w">   </span><span class="c1"># Validate against AWS Lambda contract</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cup<span class="w"> </span>config<span class="w"> </span>kubernetes<span class="w"> </span>--env-file<span class="w"> </span>.env<span class="w">    </span><span class="c1"># Validate .env against Kubernetes</span>
+</code></pre></div>
+<h3 id="source-protection-pipeline">Source Protection Pipeline<a class="headerlink" href="#source-protection-pipeline" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/deploy/obfuscate/__init__.py -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_config.py symbols=ObfuscateConfig -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_pipeline.py symbols=build_obfuscate_pipeline -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/scan_source_files.py symbols=ScanSourceFiles -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/extract_embedded_code.py symbols=ExtractEmbeddedCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/inject_dead_code.py symbols=InjectDeadCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/transform_code.py symbols=TransformCode -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/reassemble_content.py symbols=ReassembleContent -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/minify_content.py symbols=MinifyContent -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/write_output.py symbols=WriteOutput -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/scan_html_files.py symbols=ScanHtmlFiles -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/extract_inline_scripts.py symbols=ExtractInlineScripts -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/obfuscate_scripts.py symbols=ObfuscateScripts -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/reassemble_html.py symbols=ReassembleHtml -->
+<!-- cup:ref file=codeupipe/deploy/obfuscate/minify_html.py symbols=MinifyHtml -->
+
+<p>Configurable source protection pipeline with preset profiles, per-stage toggling,
+dead code injection, and file type extensibility. A dynamic CUP pipeline:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Filter (New)</th>
+<th>Alias (Old)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>ScanSourceFiles</code></td>
+<td><code>ScanHtmlFiles</code></td>
+<td>Discover files by configured extensions</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>ExtractEmbeddedCode</code></td>
+<td><code>ExtractInlineScripts</code></td>
+<td>Regex-extract inline code, replace with placeholders</td>
+</tr>
+<tr>
+<td>2½</td>
+<td><code>InjectDeadCode</code></td>
+<td>—</td>
+<td>Insert non-functional code (optional, density-controlled)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>TransformCode</code></td>
+<td><code>ObfuscateScripts</code></td>
+<td>Shell out to tool (graceful fallback)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>ReassembleContent</code></td>
+<td><code>ReassembleHtml</code></td>
+<td>Inject processed code back into templates</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>MinifyContent</code></td>
+<td><code>MinifyHtml</code></td>
+<td>Shell out to minifier (graceful fallback)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>WriteOutput</code></td>
+<td><code>WriteOutput</code></td>
+<td>Write files + copy static assets to output directory</td>
+</tr>
+</tbody>
+</table>
+<p>Presets: <code>light</code>, <code>medium</code> (default), <code>heavy</code>, <code>paranoid</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w">                                    </span><span class="c1"># Auto-detect, medium preset</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--preset<span class="w"> </span>heavy<span class="w">                     </span><span class="c1"># Aggressive protection</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--preset<span class="w"> </span>paranoid<span class="w"> </span>--dead-code<span class="w"> </span>high<span class="w"> </span><span class="c1"># Max protection + dead code</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--config-file<span class="w"> </span>obfuscate.toml<span class="w">       </span><span class="c1"># Load from config file</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--disable-stage<span class="w"> </span>minify<span class="w">             </span><span class="c1"># Skip minification</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--strict<span class="w">                           </span><span class="c1"># Fail if Node tools missing</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--html<span class="w"> </span>index.html<span class="w"> </span>--static<span class="w"> </span>robots.txt<span class="w"> </span>assets/
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>cup<span class="w"> </span>obfuscate<span class="w"> </span>src/<span class="w"> </span>dist/<span class="w"> </span>--json<span class="w">                             </span><span class="c1"># Machine-readable output</span>
+</code></pre></div>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="polyglot-ports-ring-11">Polyglot Ports (Ring 11)<a class="headerlink" href="#polyglot-ports-ring-11" title="Permanent link">&para;</a></h2>
+<p>Core primitives ported to TypeScript and Rust. Same 8 types, same API shape, language-idiomatic.</p>
+<h3 id="typescript-portsts">TypeScript — <code>ports/ts/</code><a class="headerlink" href="#typescript-portsts" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=ports/ts/src/index.ts -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Payload&lt;T&gt;</code></td>
+<td>src/payload.ts</td>
+<td>Immutable data container (generic typed)</td>
+</tr>
+<tr>
+<td><code>MutablePayload&lt;T&gt;</code></td>
+<td>src/payload.ts</td>
+<td>Mutable sibling for bulk edits</td>
+</tr>
+<tr>
+<td><code>Filter&lt;TIn, TOut&gt;</code></td>
+<td>src/filter.ts</td>
+<td>Processing interface — <code>call(payload): Promise&lt;Payload&gt;</code></td>
+</tr>
+<tr>
+<td><code>StreamFilter&lt;TIn, TOut&gt;</code></td>
+<td>src/stream_filter.ts</td>
+<td>Streaming — <code>stream(chunk): AsyncIterable&lt;Payload&gt;</code></td>
+</tr>
+<tr>
+<td><code>Pipeline&lt;TIn, TOut&gt;</code></td>
+<td>src/pipeline.ts</td>
+<td>Orchestrator — <code>.run()</code> / <code>.stream()</code></td>
+</tr>
+<tr>
+<td><code>Valve&lt;TIn, TOut&gt;</code></td>
+<td>src/valve.ts</td>
+<td>Conditional gate — filter + predicate</td>
+</tr>
+<tr>
+<td><code>Tap&lt;T&gt;</code></td>
+<td>src/tap.ts</td>
+<td>Read-only observer — <code>.observe(payload)</code></td>
+</tr>
+<tr>
+<td><code>State</code></td>
+<td>src/state.ts</td>
+<td>Execution metadata</td>
+</tr>
+<tr>
+<td><code>Hook&lt;T&gt;</code></td>
+<td>src/hook.ts</td>
+<td>Lifecycle — before / after / onError</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<p><strong>88 tests</strong> across 4 files. <code>npm test</code> in <code>ports/ts/</code>.</p>
+<h3 id="rust-portsrs">Rust — <code>ports/rs/</code><a class="headerlink" href="#rust-portsrs" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=ports/rs/src/lib.rs -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Payload</code></td>
+<td>src/payload.rs</td>
+<td>Immutable data container</td>
+</tr>
+<tr>
+<td><code>MutablePayload</code></td>
+<td>src/payload.rs</td>
+<td>Mutable sibling for bulk edits</td>
+</tr>
+<tr>
+<td><code>Value</code></td>
+<td>src/payload.rs</td>
+<td>Dynamic value enum (Int, Float, Str, Bool, List, Map, Null)</td>
+</tr>
+<tr>
+<td><code>Filter</code></td>
+<td>src/filter.rs</td>
+<td>Processing trait — <code>call(payload) → Result&lt;Payload&gt;</code></td>
+</tr>
+<tr>
+<td><code>StreamFilter</code></td>
+<td>src/stream_filter.rs</td>
+<td>Streaming — <code>stream(chunk) → Vec&lt;Payload&gt;</code></td>
+</tr>
+<tr>
+<td><code>Pipeline</code></td>
+<td>src/pipeline.rs</td>
+<td>Orchestrator — <code>.run()</code> / <code>.stream()</code></td>
+</tr>
+<tr>
+<td><code>Valve</code></td>
+<td>src/valve.rs</td>
+<td>Conditional gate — filter + predicate (AtomicBool)</td>
+</tr>
+<tr>
+<td><code>Tap</code></td>
+<td>src/tap.rs</td>
+<td>Read-only observer — <code>.observe(&amp;payload)</code></td>
+</tr>
+<tr>
+<td><code>State</code></td>
+<td>src/state.rs</td>
+<td>Execution metadata</td>
+</tr>
+<tr>
+<td><code>Hook</code></td>
+<td>src/hook.rs</td>
+<td>Lifecycle — before / after / on_error</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<p><strong>59 tests</strong> (inline <code>#[cfg(test)]</code> modules). <code>cargo test</code> in <code>ports/rs/</code>.</p>
+<h3 id="go-portsgo">Go — <code>ports/go/</code><a class="headerlink" href="#go-portsgo" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=ports/go/codeupipe/pipeline.go -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Payload</code></td>
+<td>codeupipe/payload.go</td>
+<td>Immutable data container (value semantics)</td>
+</tr>
+<tr>
+<td><code>MutablePayload</code></td>
+<td>codeupipe/payload.go</td>
+<td>Mutable sibling for bulk edits</td>
+</tr>
+<tr>
+<td><code>Filter</code></td>
+<td>codeupipe/filter.go</td>
+<td>Processing interface — <code>Call(payload) (Payload, error)</code></td>
+</tr>
+<tr>
+<td><code>NamedFilter</code></td>
+<td>codeupipe/filter.go</td>
+<td>Optional interface for custom filter names</td>
+</tr>
+<tr>
+<td><code>StreamFilter</code></td>
+<td>codeupipe/stream_filter.go</td>
+<td>Streaming — <code>Stream(chunk) ([]Payload, error)</code></td>
+</tr>
+<tr>
+<td><code>Pipeline</code></td>
+<td>codeupipe/pipeline.go</td>
+<td>Orchestrator — <code>.Run()</code> / <code>.Stream()</code> (goroutines + channels)</td>
+</tr>
+<tr>
+<td><code>Valve</code></td>
+<td>codeupipe/valve.go</td>
+<td>Conditional gate — filter + predicate</td>
+</tr>
+<tr>
+<td><code>Tap</code></td>
+<td>codeupipe/tap.go</td>
+<td>Read-only observer — <code>.Observe(payload)</code></td>
+</tr>
+<tr>
+<td><code>State</code></td>
+<td>codeupipe/state.go</td>
+<td>Execution metadata</td>
+</tr>
+<tr>
+<td><code>Hook</code></td>
+<td>codeupipe/hook.go</td>
+<td>Lifecycle — <code>Before</code> / <code>After</code> / <code>OnError</code></td>
+</tr>
+<tr>
+<td><code>DefaultHook</code></td>
+<td>codeupipe/hook.go</td>
+<td>No-op Hook for embedding</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<p><strong>68 tests</strong> across 3 files. <code>go test -v ./...</code> in <code>ports/go/</code>.</p>
+<hr />
+<h2 id="ai-suite-ring-12">AI Suite (Ring 12)<a class="headerlink" href="#ai-suite-ring-12" title="Permanent link">&para;</a></h2>
+<p>AI agent framework gated behind optional extras. Core stays zero-dep.</p>
+<p>Install: <code>pip install codeupipe[ai]</code> (core AI) · <code>codeupipe[ai-discovery]</code> (torch) · <code>codeupipe[ai-tui]</code> (textual) · <code>codeupipe[ai-full]</code> (everything)</p>
+<h3 id="agent-sdk">Agent SDK<a class="headerlink" href="#agent-sdk" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/__init__.py -->
+<!-- cup:ref file=codeupipe/ai/_check.py hash=f27f76c -->
+<!-- cup:ref file=codeupipe/ai/config.py hash=135861f -->
+<!-- cup:ref file=codeupipe/ai/agent/__init__.py hash=414a2a1 -->
+<!-- cup:ref file=codeupipe/ai/agent/billing.py hash=b8b1d7a -->
+<!-- cup:ref file=codeupipe/ai/agent/emitter.py hash=5008313 -->
+<!-- cup:ref file=codeupipe/ai/providers/__init__.py hash=80aada1 -->
+<!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
+<!-- cup:ref file=codeupipe/ai/pipelines/__init__.py hash=3595169 -->
+<!-- cup:ref file=codeupipe/ai/hooks/__init__.py hash=72a09c4 -->
+<!-- cup:ref file=codeupipe/ai/hub/__init__.py hash=ebda4eb -->
+<!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
+<!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
+<!-- cup:ref file=codeupipe/ai/discovery/models.py hash=93d9ab7 -->
+<!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=765bb3f -->
+<!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
+<!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
+<!-- cup:ref file=codeupipe/ai/loop/__init__.py hash=dd7e2b5 -->
+<!-- cup:ref file=codeupipe/ai/agent/agent.py symbols=Agent -->
+<!-- cup:ref file=codeupipe/ai/agent/config.py symbols=AgentConfig,ServerDef -->
+<!-- cup:ref file=codeupipe/ai/agent/events.py symbols=AgentEvent,EventType -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Agent</code></td>
+<td>ai/agent/agent.py</td>
+<td>Main agent — async generator event loop</td>
+</tr>
+<tr>
+<td><code>AgentConfig</code></td>
+<td>ai/agent/config.py</td>
+<td>Model, max_iterations, verbose, server defs</td>
+</tr>
+<tr>
+<td><code>AgentEvent</code></td>
+<td>ai/agent/events.py</td>
+<td>Typed event emitted during agent execution</td>
+</tr>
+<tr>
+<td><code>EventType</code></td>
+<td>ai/agent/events.py</td>
+<td>Enum — TURN_START, RESPONSE, TOOL_CALL, DONE, ERROR, etc.</td>
+</tr>
+<tr>
+<td><code>ServerDef</code></td>
+<td>ai/agent/config.py</td>
+<td>MCP server definition (name, command/url, args)</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<h3 id="providers">Providers<a class="headerlink" href="#providers" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/providers/base.py symbols=LanguageModelProvider hash=2a8df91 -->
+<!-- cup:ref file=codeupipe/ai/providers/copilot.py symbols=CopilotProvider hash=11322a0 -->
+<!-- cup:ref file=codeupipe/ai/providers/openai_compat.py symbols=OpenAICompatibleProvider -->
+<!-- cup:ref file=codeupipe/ai/providers/api_key_store.py symbols=ApiKeyEntry,ApiKeyStore -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LanguageModelProvider</code></td>
+<td>ai/providers/base.py</td>
+<td>ABC — init, create_session, chat, cleanup</td>
+</tr>
+<tr>
+<td><code>CopilotProvider</code></td>
+<td>ai/providers/copilot.py</td>
+<td>GitHub Copilot backend via copilot-sdk</td>
+</tr>
+<tr>
+<td><code>OpenAICompatibleProvider</code></td>
+<td>ai/providers/openai_compat.py</td>
+<td>Any OpenAI-compatible chat/completions API</td>
+</tr>
+<tr>
+<td><code>ApiKeyEntry</code></td>
+<td>ai/providers/api_key_store.py</td>
+<td>Data class for a saved provider configuration</td>
+</tr>
+<tr>
+<td><code>ApiKeyStore</code></td>
+<td>ai/providers/api_key_store.py</td>
+<td>Encrypted persistence for API keys (~/.codeupipe/api_keys.enc)</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<h3 id="ai-filters">AI Filters<a class="headerlink" href="#ai-filters" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/filters/__init__.py hash=78545dd -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InitProviderLink</code></td>
+<td>ai/filters/init_provider.py</td>
+<td>Configure LLM provider from payload</td>
+</tr>
+<tr>
+<td><code>LanguageModelLink</code></td>
+<td>ai/filters/language_model.py</td>
+<td>Send messages to LLM</td>
+</tr>
+<tr>
+<td><code>RegisterServersLink</code></td>
+<td>ai/filters/register_servers.py</td>
+<td>Register MCP servers</td>
+</tr>
+<tr>
+<td><code>CleanupSessionLink</code></td>
+<td>ai/filters/session_cleanup.py</td>
+<td>Clean up session resources</td>
+</tr>
+<tr>
+<td><code>DiscoverByIntentLink</code></td>
+<td>ai/filters/discovery/</td>
+<td>Intent → capability discovery</td>
+</tr>
+<tr>
+<td><code>AgentLoopLink</code></td>
+<td>ai/filters/loop/agent_loop.py</td>
+<td>Core agent iteration loop</td>
+</tr>
+<tr>
+<td><code>ToolContinuationLink</code></td>
+<td>ai/filters/loop/</td>
+<td>Process tool call results</td>
+</tr>
+<tr>
+<td><code>ManageStateLink</code></td>
+<td>ai/filters/loop/</td>
+<td>Manage conversation state</td>
+</tr>
+<tr>
+<td><code>BackchannelLink</code></td>
+<td>ai/filters/loop/</td>
+<td>Handle backchannel messages</td>
+</tr>
+<tr>
+<td><code>ContextPruningLink</code></td>
+<td>ai/filters/loop/</td>
+<td>Prune context to fit model limits</td>
+</tr>
+<tr>
+<td><code>EmbedQueryLink</code></td>
+<td>ai/filters/discovery/</td>
+<td>Embed query for semantic search</td>
+</tr>
+<tr>
+<td><code>CoarseSearchLink</code></td>
+<td>ai/filters/discovery/</td>
+<td>Coarse-grained capability search</td>
+</tr>
+<tr>
+<td><code>FineRankLink</code></td>
+<td>ai/filters/discovery/</td>
+<td>Fine-grained re-ranking</td>
+</tr>
+<tr>
+<td><code>ScanFilesLink</code></td>
+<td>ai/filters/registration/</td>
+<td>Scan local capability files</td>
+</tr>
+<tr>
+<td><code>ParseCapabilitiesLink</code></td>
+<td>ai/filters/registration/</td>
+<td>Parse file-based capabilities</td>
+</tr>
+<tr>
+<td><code>SyncRegistryLink</code></td>
+<td>ai/filters/registration/</td>
+<td>Sync capabilities to registry</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<h3 id="ai-pipelines">AI Pipelines<a class="headerlink" href="#ai-pipelines" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/pipelines/agent_session.py symbols=build_agent_session_chain hash=472de02 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/intent_discovery.py symbols=build_intent_discovery_chain hash=92f29cf -->
+<!-- cup:ref file=codeupipe/ai/pipelines/capability_registration.py symbols=build_capability_registration_chain hash=37e0063 -->
+<!-- cup:ref file=codeupipe/ai/pipelines/file_registration.py symbols=build_file_registration_chain hash=e6c7671 -->
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build_agent_session_chain()</code></td>
+<td>Full agent lifecycle: register → discover → init → loop → cleanup</td>
+</tr>
+<tr>
+<td><code>build_intent_discovery_chain()</code></td>
+<td>Intent → embed → search → rank → validate → fetch</td>
+</tr>
+<tr>
+<td><code>build_capability_registration_chain()</code></td>
+<td>MCP server tools → registry</td>
+</tr>
+<tr>
+<td><code>build_file_registration_chain()</code></td>
+<td>Local files → parse → sync to registry</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<h3 id="hub-discovery">Hub &amp; Discovery<a class="headerlink" href="#hub-discovery" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/hub/server.py symbols=create_default_hub -->
+<!-- cup:ref file=codeupipe/ai/discovery/registry.py symbols=CapabilityRegistry -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ServerRegistry</code></td>
+<td>ai/hub/server.py</td>
+<td>MCP server lifecycle management</td>
+</tr>
+<tr>
+<td><code>create_default_hub()</code></td>
+<td>ai/hub/server.py</td>
+<td>Default hub with echo server</td>
+</tr>
+<tr>
+<td><code>CapabilityRegistry</code></td>
+<td>ai/discovery/registry.py</td>
+<td>SQLite-backed capability store</td>
+</tr>
+<tr>
+<td><code>SnowflakeArcticEmbedder</code></td>
+<td>ai/discovery/embedder.py</td>
+<td>Local embedding model (requires torch)</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<h3 id="ai-hooks">AI Hooks<a class="headerlink" href="#ai-hooks" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/hooks/logging_hook.py symbols=LoggingMiddleware -->
+<!-- cup:ref file=codeupipe/ai/hooks/timing_hook.py symbols=TimingMiddleware -->
+<!-- cup:ref file=codeupipe/ai/hooks/audit_producer.py symbols=AuditProducer -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LoggingMiddleware</code></td>
+<td>ai/hooks/logging_hook.py</td>
+<td>Per-step info/error logging</td>
+</tr>
+<tr>
+<td><code>TimingMiddleware</code></td>
+<td>ai/hooks/timing_hook.py</td>
+<td>Per-step elapsed time tracking</td>
+</tr>
+<tr>
+<td><code>AuditProducer</code></td>
+<td>ai/hooks/audit_producer.py</td>
+<td>Audit trail for AI operations</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<h3 id="tui">TUI<a class="headerlink" href="#tui" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/tui/app.py symbols=CopilotApp -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Source</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CopilotApp</code></td>
+<td>ai/tui/app.py</td>
+<td>Textual TUI — chat, events, history (requires <code>codeupipe[ai-tui]</code>)</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<h3 id="eval">Eval<a class="headerlink" href="#eval" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/ai/eval/__init__.py -->
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>experiment.py</code></td>
+<td>A/B experiment runner</td>
+</tr>
+<tr>
+<td><code>scenario.py</code></td>
+<td>Scenario management</td>
+</tr>
+<tr>
+<td><code>metrics.py</code></td>
+<td>Metric computation</td>
+</tr>
+<tr>
+<td><code>scorer.py</code></td>
+<td>Deterministic + LLM scoring</td>
+</tr>
+<tr>
+<td><code>baseline.py</code></td>
+<td>Control group management</td>
+</tr>
+<tr>
+<td><code>comparator.py</code></td>
+<td>A/B comparisons</td>
+</tr>
+<tr>
+<td><code>analytics.py</code></td>
+<td>Audit-powered analytics</td>
+</tr>
+<tr>
+<td><code>collector.py</code></td>
+<td>Mass data capture</td>
+</tr>
+<tr>
+<td><code>storage.py</code></td>
+<td>SQLite persistence</td>
+</tr>
+<tr>
+<td><code>export.py</code></td>
+<td>Data export (CSV, JSON)</td>
+</tr>
+<tr>
+<td><code>report.py</code></td>
+<td>Markdown report generation</td>
+</tr>
+<tr>
+<td><code>validation.py</code></td>
+<td>Data integrity checks</td>
+</tr>
+<tr>
+<td><code>query.py</code></td>
+<td>Fluent query builder</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<p><strong>1221 AI tests</strong> (1221 pass without extras; remainder needs torch, textual, or API keys).</p>
+<h3 id="agent-loop-template-cup-init-agent-loop">Agent-Loop Template (<code>cup init agent-loop</code>)<a class="headerlink" href="#agent-loop-template-cup-init-agent-loop" title="Permanent link">&para;</a></h3>
+<!-- cup:ref file=codeupipe/deploy/init.py symbols=_scaffold_agent_loop -->
+<!-- cup:ref file=codeupipe/deploy/recipes/agent-loop.json hash=dc386f6 -->
+
+<p>Scaffolds a full agentic turn-loop project — the Claude Code / orchie pattern — via <code>cup init agent-loop &lt;name&gt;</code>.</p>
+<p><strong>Usage:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cup<span class="w"> </span>init<span class="w"> </span>agent-loop<span class="w"> </span>my-agent<span class="w"> </span>--ai<span class="w"> </span>Copilot
+</code></pre></div></p>
+<p><strong>Scaffolded structure:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>my-agent/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── main.py              # async entry point — one-shot + interactive modes
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├── cup.toml             # codeupipe project manifest
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>├── pyproject.toml       # depends on codeupipe[ai]&gt;=0.12.0
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── README.md            # architecture overview with turn loop diagram
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>├── .gitignore           # sessions/, .env, local config
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>├── pipelines/
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│   └── agent-loop.json  # resolved recipe config
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>├── providers/
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│   ├── __init__.py
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│   └── provider.py      # LLM provider stub (Copilot/Anthropic/OpenAI)
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>├── tools/
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│   ├── __init__.py
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│   └── echo.py          # example MCP tool with __follow_up__ convention
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>├── skills/
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│   ├── README.md        # skill authoring guide
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│   └── example.md       # example lazy-loaded context skill
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>├── prompts/
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│   ├── system.md        # 4-layer system prompt (identity, capabilities, behavior, constraints)
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│   └── tools.md         # tool conventions + follow-up protocol
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>├── sessions/
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│   └── .gitkeep         # session persistence directory (gitignored)
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>├── config/
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>│   ├── agent.toml       # model, max_iterations, context budget thresholds
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>│   └── hub.toml         # MCP server registry (echo server pre-registered)
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>├── filters/
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>│   └── custom.py        # CustomAgentFilter — response post-processing hook
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>└── tests/
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>    └── test_my_agent.py # payload + filter + session chain tests
+</code></pre></div></p>
+<p><strong>Turn loop architecture (14 filters per turn):</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>┌─────────── AgentLoop (repeats until done) ───────────┐
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>│ InjectNotifications → ReadInput → LanguageModel →     │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>│ ProcessResponse → Backchannel → ToolContinuation →    │
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│ UpdateIntent → Rediscover → ManageState →             │
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│ ContextAttribution → ConversationRevision →           │
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│ SaveCheckpoint → ContextPruning → CheckDone           │
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>└───────────────────────────────────────────────────────┘
+</code></pre></div></p>
+<p><strong>Recipe:</strong> <code>agent-loop.json</code> — 5 session steps (RegisterServers → DiscoverByIntent → InitProvider → AgentLoop → SessionCleanup) + 3 hooks (EventEmitter, AuditHook, TimingHook).</p>
+<p><strong>32 template tests:</strong> <code>tests/test_agent_loop_template.py</code></p>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="utils">Utils<a class="headerlink" href="#utils" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/utils/__init__.py hash=9c3f862 -->
+<!-- cup:ref file=codeupipe/utils/error_handling.py symbols=ErrorHandlingMixin,RetryFilter hash=dc0f5ec -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ErrorHandlingMixin</code></td>
+<td>Error routing for pipelines</td>
+</tr>
+<tr>
+<td><code>RetryFilter</code></td>
+<td>Resilience wrapper — retries N times</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="converter">Converter<a class="headerlink" href="#converter" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/converter/__init__.py hash=117430e -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load_config</code></td>
+<td>Parse <code>.cup.json</code> or pattern defaults</td>
+</tr>
+<tr>
+<td><code>DEFAULT_CONFIG</code></td>
+<td>Default config dict</td>
+</tr>
+<tr>
+<td><code>PATTERN_DEFAULTS</code></td>
+<td>Pattern configs (mvc/clean/hexagonal/flat)</td>
+</tr>
+<tr>
+<td><code>build_export_pipeline</code></td>
+<td>CUP → standard Python</td>
+</tr>
+<tr>
+<td><code>build_import_pipeline</code></td>
+<td>Standard Python → CUP</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="linter-pipelines">Linter Pipelines<a class="headerlink" href="#linter-pipelines" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/linter/__init__.py hash=adbf7fd -->
+<!-- cup:ref file=codeupipe/linter/lint_pipeline.py symbols=build_lint_pipeline hash=ccff493 -->
+<!-- cup:ref file=codeupipe/linter/coverage_pipeline.py symbols=build_coverage_pipeline hash=004f7b8 -->
+<!-- cup:ref file=codeupipe/linter/report_pipeline.py symbols=build_report_pipeline hash=15f61c5 -->
+<!-- cup:ref file=codeupipe/linter/doc_check_pipeline.py symbols=build_doc_check_pipeline hash=00e62dc -->
+<!-- cup:ref file=codeupipe/linter/agent_docs_pipeline.py symbols=build_agent_docs_pipeline hash=e955c10 -->
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build_lint_pipeline()</code></td>
+<td><code>cup lint</code></td>
+<td>Standards violations (CUP000–CUP008)</td>
+</tr>
+<tr>
+<td><code>build_coverage_pipeline()</code></td>
+<td><code>cup coverage</code></td>
+<td>Component↔test coverage gaps</td>
+</tr>
+<tr>
+<td><code>build_report_pipeline()</code></td>
+<td><code>cup report</code></td>
+<td>Health report with scores</td>
+</tr>
+<tr>
+<td><code>build_doc_check_pipeline()</code></td>
+<td><code>cup doc-check</code></td>
+<td>Doc freshness verification</td>
+</tr>
+<tr>
+<td><code>build_agent_docs_pipeline()</code></td>
+<td><code>cup agent-docs</code></td>
+<td>Agent doc generation + validation</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="browser-control">Browser Control<a class="headerlink" href="#browser-control" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/browser/__init__.py hash=23a630d -->
+<!-- cup:ref file=codeupipe/browser/bridge.py symbols=BrowserBridge,BrowserResult hash=835c568 -->
+<!-- cup:ref file=codeupipe/browser/playwright_bridge.py symbols=PlaywrightBridge hash=cbd5a80 -->
+<!-- cup:ref file=codeupipe/browser/browser_open.py symbols=BrowserOpen hash=4d137e3 -->
+<!-- cup:ref file=codeupipe/browser/browser_close.py symbols=BrowserClose hash=ac04eb5 -->
+<!-- cup:ref file=codeupipe/browser/browser_snapshot.py symbols=BrowserSnapshot hash=77768a3 -->
+<!-- cup:ref file=codeupipe/browser/browser_click.py symbols=BrowserClick hash=fdf400f -->
+<!-- cup:ref file=codeupipe/browser/browser_fill.py symbols=BrowserFill hash=ad96e8d -->
+<!-- cup:ref file=codeupipe/browser/browser_eval.py symbols=BrowserEval hash=aa5cd73 -->
+<!-- cup:ref file=codeupipe/browser/browser_screenshot.py symbols=BrowserScreenshot hash=f7072ba -->
+<!-- cup:ref file=codeupipe/browser/browser_tabs.py symbols=BrowserTabs hash=167e645 -->
+<!-- cup:ref file=codeupipe/browser/browser_raw.py symbols=BrowserRaw hash=6eb6d57 -->
+<!-- cup:ref file=codeupipe/browser/browser_get.py symbols=BrowserGet hash=16267b1 -->
+
+<p>Programmatic browser control via <code>agent-browser</code>. Each filter wraps a single browser action; compose them into pipelines for multi-step automation. Requires <code>npm install -g agent-browser</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BrowserBridge</code></td>
+<td>Subprocess wrapper — single contact point with <code>agent-browser</code> CLI</td>
+</tr>
+<tr>
+<td><code>BrowserResult</code></td>
+<td>Frozen dataclass: <code>stdout</code>, <code>stderr</code>, <code>returncode</code>, <code>.ok</code>, <code>.output</code></td>
+</tr>
+<tr>
+<td><code>PlaywrightBridge</code></td>
+<td>Playwright SDK wrapper — headless/headed automation, Edge/Chrome/Firefox</td>
+</tr>
+<tr>
+<td><code>BrowserOpen</code></td>
+<td>Navigate to a URL</td>
+</tr>
+<tr>
+<td><code>BrowserClose</code></td>
+<td>Close the browser session</td>
+</tr>
+<tr>
+<td><code>BrowserSnapshot</code></td>
+<td>Accessibility tree with <code>@ref</code> annotations for agent interaction</td>
+</tr>
+<tr>
+<td><code>BrowserClick</code></td>
+<td>Click an element by <code>@ref</code> selector</td>
+</tr>
+<tr>
+<td><code>BrowserFill</code></td>
+<td>Fill a form field with text</td>
+</tr>
+<tr>
+<td><code>BrowserEval</code></td>
+<td>Evaluate JavaScript in the page context</td>
+</tr>
+<tr>
+<td><code>BrowserScreenshot</code></td>
+<td>Capture PNG screenshot</td>
+</tr>
+<tr>
+<td><code>BrowserTabs</code></td>
+<td>List open browser tabs</td>
+</tr>
+<tr>
+<td><code>BrowserRaw</code></td>
+<td>Raw CDP method passthrough (escape hatch)</td>
+</tr>
+<tr>
+<td><code>BrowserGet</code></td>
+<td>Get page property: text, title, url, html, value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Payload keys:</strong> <code>browser_url</code>, <code>browser_snapshot</code>, <code>browser_eval</code>, <code>browser_screenshot</code>, <code>browser_tabs</code>, <code>browser_raw</code>, <code>browser_get_result</code>, <code>browser_ok</code>, <code>browser_output</code>, <code>browser_error</code>, <code>browser_selector</code>, <code>browser_text</code>, <code>browser_expression</code>, <code>browser_cdp_method</code>, <code>browser_cdp_params</code>, <code>browser_get_what</code>, <code>browser_get_selector</code>, <code>browser_interactive</code>, <code>browser_screenshot_path</code></p>
+<h3 id="the-full-surface-bridgerun-passthrough">The Full Surface (bridge.run passthrough)<a class="headerlink" href="#the-full-surface-bridgerun-passthrough" title="Permanent link">&para;</a></h3>
+<p>The 10 Filters and 10 CLI commands above are <strong>convenience wrappers</strong> for the most common agent-loop actions. But <code>BrowserBridge.run()</code> is a direct passthrough to the entire <code>agent-browser</code> CLI — every command and flag. This means <code>cup browser</code> gives you access to <strong>60+ commands and 30+ flags</strong> that aren't individually wrapped:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Commands via <code>bridge.run()</code></th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Input</strong></td>
+<td><code>dblclick</code>, <code>type</code>, <code>press</code>, <code>keyboard type/inserttext</code>, <code>hover</code>, <code>focus</code>, <code>check</code>, <code>uncheck</code>, <code>select</code>, <code>drag</code>, <code>upload</code>, <code>download</code></td>
+<td><code>bridge.run("press", "Enter")</code></td>
+</tr>
+<tr>
+<td><strong>Navigation</strong></td>
+<td><code>back</code>, <code>forward</code>, <code>reload</code>, <code>wait</code></td>
+<td><code>bridge.run("back")</code></td>
+</tr>
+<tr>
+<td><strong>Find</strong></td>
+<td><code>find role/text/label/placeholder/alt/title/testid/first/last/nth</code></td>
+<td><code>bridge.run("find", "role", "button", "click")</code></td>
+</tr>
+<tr>
+<td><strong>State</strong></td>
+<td><code>is visible</code>, <code>is enabled</code>, <code>is checked</code></td>
+<td><code>bridge.run("is", "visible", "@e2")</code></td>
+</tr>
+<tr>
+<td><strong>Mouse</strong></td>
+<td><code>mouse move/down/up/wheel</code></td>
+<td><code>bridge.run("mouse", "move", "100", "200")</code></td>
+</tr>
+<tr>
+<td><strong>Viewport</strong></td>
+<td><code>set viewport</code>, <code>set device</code>, <code>set geo</code>, <code>set media</code></td>
+<td><code>bridge.run("set", "viewport", "375", "812")</code></td>
+</tr>
+<tr>
+<td><strong>Network</strong></td>
+<td><code>set offline</code>, <code>set headers</code>, <code>set credentials</code>, <code>network route/unroute/requests</code></td>
+<td><code>bridge.run("set", "offline", "on")</code></td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td><code>cookies get/set/clear</code>, <code>storage local/session</code></td>
+<td><code>bridge.run("cookies", "get")</code></td>
+</tr>
+<tr>
+<td><strong>Debug</strong></td>
+<td><code>trace start/stop</code>, <code>profiler start/stop</code>, <code>record start/stop</code>, <code>console</code>, <code>errors</code>, <code>highlight</code>, <code>inspect</code></td>
+<td><code>bridge.run("trace", "start")</code></td>
+</tr>
+<tr>
+<td><strong>Export</strong></td>
+<td><code>pdf</code>, <code>screenshot --annotate</code>, <code>screenshot --full</code></td>
+<td><code>bridge.run("pdf", "report.pdf")</code></td>
+</tr>
+<tr>
+<td><strong>Diff</strong></td>
+<td><code>diff snapshot</code>, <code>diff screenshot</code>, <code>diff url</code></td>
+<td><code>bridge.run("diff", "snapshot")</code></td>
+</tr>
+<tr>
+<td><strong>Auth vault</strong></td>
+<td><code>auth save/login/list/show/delete</code></td>
+<td><code>bridge.run("auth", "save", "myapp", "--url", "...")</code></td>
+</tr>
+<tr>
+<td><strong>Sessions</strong></td>
+<td><code>session</code>, <code>session list</code></td>
+<td><code>bridge.run("session", "list")</code></td>
+</tr>
+<tr>
+<td><strong>Clipboard</strong></td>
+<td><code>clipboard read/write/copy/paste</code></td>
+<td><code>bridge.run("clipboard", "read")</code></td>
+</tr>
+<tr>
+<td><strong>iOS</strong></td>
+<td><code>-p ios open</code>, <code>swipe</code>, <code>tap</code>, <code>device list</code></td>
+<td><code>bridge.run("-p", "ios", "open", url)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Extra flags</strong> available on every invocation via <code>BrowserBridge(extra_args=[...])</code> or inline:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--json</code></td>
+<td>Machine-readable JSON output (great for agent parsing)</td>
+</tr>
+<tr>
+<td><code>--annotate</code></td>
+<td>Numbered screenshot labels for vision models</td>
+</tr>
+<tr>
+<td><code>--full</code></td>
+<td>Full-page screenshot</td>
+</tr>
+<tr>
+<td><code>--color-scheme dark</code></td>
+<td>Force dark/light mode</td>
+</tr>
+<tr>
+<td><code>--allowed-domains</code></td>
+<td>Restrict navigation to specific domains</td>
+</tr>
+<tr>
+<td><code>--action-policy &lt;path&gt;</code></td>
+<td>JSON policy file controlling allowed actions</td>
+</tr>
+<tr>
+<td><code>--confirm-actions</code></td>
+<td>Require confirmation for destructive actions</td>
+</tr>
+<tr>
+<td><code>--proxy &lt;url&gt;</code></td>
+<td>Route through HTTP/SOCKS proxy</td>
+</tr>
+<tr>
+<td><code>--user-agent &lt;ua&gt;</code></td>
+<td>Custom User-Agent string</td>
+</tr>
+<tr>
+<td><code>--ignore-https-errors</code></td>
+<td>Accept self-signed certificates</td>
+</tr>
+<tr>
+<td><code>--session-name &lt;name&gt;</code></td>
+<td>Auto-persist cookies/localStorage across restarts</td>
+</tr>
+<tr>
+<td><code>--state &lt;path&gt;</code></td>
+<td>Load saved auth state from JSON</td>
+</tr>
+<tr>
+<td><code>--auto-connect</code></td>
+<td>Discover and attach to a running Chrome instance</td>
+</tr>
+<tr>
+<td><code>--engine lightpanda</code></td>
+<td>Use LightPanda engine instead of Chrome</td>
+</tr>
+<tr>
+<td><code>--extension &lt;path&gt;</code></td>
+<td>Load browser extensions</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>For agents:</strong> <code>bridge.run()</code> + <code>--json</code> turns the browser into a structured-output tool. Combine <code>snapshot -i</code> for element discovery with <code>find role</code> for semantic queries, <code>set viewport</code> for responsive testing, and <code>diff snapshot</code> for change detection. The 10 Filters handle 90% of agent loops; <code>bridge.run()</code> handles the other 100%.</p>
+<p><strong>Demo:</strong> See <code>examples/browser_demo.py</code> for a working tour of all 11 tiers.</p>
+</blockquote>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="android-control">Android Control<a class="headerlink" href="#android-control" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/android/__init__.py hash=df52f0b -->
+<!-- cup:ref file=codeupipe/android/adb_result.py symbols=AdbResult hash=7a3225d -->
+<!-- cup:ref file=codeupipe/android/adb_bridge.py symbols=AdbBridge hash=d068f0a -->
+<!-- cup:ref file=codeupipe/android/emulator_manager.py symbols=EmulatorManager hash=90597f4 -->
+<!-- cup:ref file=codeupipe/android/android_open.py symbols=AndroidOpen hash=4e3b6ac -->
+<!-- cup:ref file=codeupipe/android/android_close.py symbols=AndroidClose hash=2e07bfb -->
+<!-- cup:ref file=codeupipe/android/android_tap.py symbols=AndroidTap hash=ad72e18 -->
+<!-- cup:ref file=codeupipe/android/android_type.py symbols=AndroidType hash=04828c3 -->
+<!-- cup:ref file=codeupipe/android/android_eval.py symbols=AndroidEval hash=fe84bbd -->
+<!-- cup:ref file=codeupipe/android/android_snapshot.py symbols=AndroidSnapshot hash=7068131 -->
+<!-- cup:ref file=codeupipe/android/android_screenshot.py symbols=AndroidScreenshot hash=96308b4 -->
+<!-- cup:ref file=codeupipe/android/android_install.py symbols=AndroidInstall hash=66c4be3 -->
+<!-- cup:ref file=codeupipe/android/android_log.py symbols=AndroidLog hash=e0ef94f -->
+<!-- cup:ref file=codeupipe/android/android_shell.py symbols=AndroidShell hash=6081a69 -->
+
+<p>Programmatic Android device and emulator control via <code>adb</code>. Mirrors the <code>codeupipe.browser</code> architecture — each filter wraps a single ADB action; compose them into pipelines for multi-step mobile automation. Requires Android SDK platform-tools (<code>adb</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AdbBridge</code></td>
+<td>Subprocess wrapper — single contact point with <code>adb</code> CLI</td>
+</tr>
+<tr>
+<td><code>AdbResult</code></td>
+<td>Frozen dataclass: <code>stdout</code>, <code>stderr</code>, <code>returncode</code>, <code>.ok</code>, <code>.output</code></td>
+</tr>
+<tr>
+<td><code>EmulatorManager</code></td>
+<td>AVD lifecycle — create, start, stop, list, wait-for-boot</td>
+</tr>
+<tr>
+<td><code>AndroidOpen</code></td>
+<td>Launch app by package/activity component</td>
+</tr>
+<tr>
+<td><code>AndroidClose</code></td>
+<td>Force-stop an app</td>
+</tr>
+<tr>
+<td><code>AndroidTap</code></td>
+<td>Tap at (x, y) screen coordinates</td>
+</tr>
+<tr>
+<td><code>AndroidType</code></td>
+<td>Type text into focused element</td>
+</tr>
+<tr>
+<td><code>AndroidEval</code></td>
+<td>Execute <code>adb shell</code> command</td>
+</tr>
+<tr>
+<td><code>AndroidSnapshot</code></td>
+<td>Dump UI hierarchy XML via <code>uiautomator dump</code></td>
+</tr>
+<tr>
+<td><code>AndroidScreenshot</code></td>
+<td>Capture screenshot via <code>screencap</code> + <code>adb pull</code></td>
+</tr>
+<tr>
+<td><code>AndroidInstall</code></td>
+<td>Install APK via <code>adb install</code></td>
+</tr>
+<tr>
+<td><code>AndroidLog</code></td>
+<td>Capture logcat output</td>
+</tr>
+<tr>
+<td><code>AndroidShell</code></td>
+<td>Raw <code>adb shell</code> escape hatch</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Payload keys:</strong> <code>android_package</code>, <code>android_apk</code>, <code>android_command</code>, <code>android_eval</code>, <code>android_log</code>, <code>android_screenshot</code>, <code>android_screenshot_path</code>, <code>android_shell</code>, <code>android_shell_cmd</code>, <code>android_snapshot</code>, <code>android_text</code>, <code>android_x</code>, <code>android_y</code>, <code>android_output</code>, <code>android_ok</code></p>
+<h3 id="adbbridgerun-passthrough">AdbBridge.run() passthrough<a class="headerlink" href="#adbbridgerun-passthrough" title="Permanent link">&para;</a></h3>
+<p>The 10 Filters above are convenience wrappers for the most common automation actions. <code>AdbBridge.run()</code> is a direct passthrough to any <code>adb</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Methods / via <code>bridge.run()</code></th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Device</strong></td>
+<td><code>devices</code>, <code>forward</code>, <code>push</code>, <code>pull</code></td>
+<td><code>bridge.run("devices")</code></td>
+</tr>
+<tr>
+<td><strong>App</strong></td>
+<td><code>start_app</code>, <code>stop_app</code>, <code>install</code>, <code>uninstall</code></td>
+<td><code>bridge.start_app("com.app/.Main")</code></td>
+</tr>
+<tr>
+<td><strong>Input</strong></td>
+<td><code>tap</code>, <code>swipe</code>, <code>type_text</code></td>
+<td><code>bridge.tap(100, 200)</code></td>
+</tr>
+<tr>
+<td><strong>Inspect</strong></td>
+<td><code>ui_dump</code>, <code>logcat</code>, <code>shell</code></td>
+<td><code>bridge.ui_dump()</code></td>
+</tr>
+<tr>
+<td><strong>Media</strong></td>
+<td><code>screenshot</code></td>
+<td><code>bridge.screenshot("/tmp/s.png")</code></td>
+</tr>
+<tr>
+<td><strong>Raw</strong></td>
+<td>any <code>adb</code> subcommand</td>
+<td><code>bridge.run("shell", "dumpsys", "battery")</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="emulatormanager-lifecycle">EmulatorManager lifecycle<a class="headerlink" href="#emulatormanager-lifecycle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">codeupipe.android</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmulatorManager</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">mgr</span> <span class="o">=</span> <span class="n">EmulatorManager</span><span class="p">()</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">mgr</span><span class="o">.</span><span class="n">create_avd</span><span class="p">(</span><span class="s2">&quot;test_avd&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="s2">&quot;system-images;android-34;google_apis;arm64-v8a&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">bridge</span> <span class="o">=</span> <span class="n">mgr</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s2">&quot;test_avd&quot;</span><span class="p">,</span> <span class="n">headless</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">mgr</span><span class="o">.</span><span class="n">wait_for_boot</span><span class="p">()</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># ... run filters with bridge ...</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</code></pre></div>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="testing-utilities">Testing Utilities<a class="headerlink" href="#testing-utilities" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/testing.py symbols=run_filter,run_pipeline,assert_payload,assert_keys,assert_state,mock_filter hash=65f0296 -->
+<table>
+<thead>
+<tr>
+<th>Helper</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_filter(filter, data)</code></td>
+<td>Run one filter, returns Payload</td>
+</tr>
+<tr>
+<td><code>run_pipeline(pipeline, data)</code></td>
+<td>Run full pipeline</td>
+</tr>
+<tr>
+<td><code>assert_payload(payload, **kv)</code></td>
+<td>Assert key=value pairs</td>
+</tr>
+<tr>
+<td><code>assert_keys(payload, *keys)</code></td>
+<td>Assert keys exist</td>
+</tr>
+<tr>
+<td><code>assert_state(payload, ...)</code></td>
+<td>Assert State tracking</td>
+</tr>
+<tr>
+<td><code>mock_filter(**sets)</code></td>
+<td>Mock filter that sets keys</td>
+</tr>
+<tr>
+<td><code>mock_tap()</code> / <code>mock_hook()</code></td>
+<td>Recording mocks</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/cli/__init__.py symbols=main hash=b8fbe58 -->
+<!-- cup:ref file=codeupipe/cli/__main__.py hash=eec6b5b -->
+<!-- cup:ref file=codeupipe/cli/_registry.py symbols=CommandRegistry hash=8e82ece -->
+<!-- cup:ref file=codeupipe/cli/_templates.py hash=c43b99a -->
+<!-- cup:ref file=codeupipe/cli/_scaffold.py symbols=scaffold,COMPONENT_TYPES hash=1f62e60 -->
+<!-- cup:ref file=codeupipe/cli/_bundle.py symbols=bundle hash=9a1b776 -->
+<!-- cup:ref file=codeupipe/cli/commands/__init__.py symbols=setup_all hash=192e8bb -->
+<!-- cup:ref file=codeupipe/cli/commands/scaffold_cmds.py hash=f410919 -->
+<!-- cup:ref file=codeupipe/cli/commands/analysis_cmds.py symbols=lint,coverage,report,doc_check hash=f2e1df8 -->
+<!-- cup:ref file=codeupipe/cli/commands/run_cmds.py hash=1dbf404 -->
+<!-- cup:ref file=codeupipe/cli/commands/deploy_cmds.py hash=9c59563 -->
+<!-- cup:ref file=codeupipe/cli/commands/connect_cmds.py hash=eb63c26 -->
+<!-- cup:ref file=codeupipe/cli/commands/project_cmds.py hash=6bad64b -->
+<!-- cup:ref file=codeupipe/cli/commands/distribute_cmds.py hash=8cb53eb -->
+<!-- cup:ref file=codeupipe/cli/commands/auth_cmds.py hash=a0df015 -->
+<!-- cup:ref file=codeupipe/cli/commands/vault_cmds.py hash=d2fb81a -->
+<!-- cup:ref file=codeupipe/cli/commands/ai_cmds.py symbols=setup -->
+<!-- cup:ref file=codeupipe/cli/commands/browser_cmds.py symbols=browser_open,browser_close,browser_snapshot,browser_click,browser_fill,browser_eval,browser_screenshot,browser_tabs,browser_raw,browser_get hash=f99d599 -->
+<p>| Command | Purpose |
+|---------|---------||
+| <code>cup new &lt;type&gt; &lt;name&gt; [path]</code> | Scaffold component + test |
+| <code>cup list</code> | Show component types |
+| <code>cup bundle &lt;path&gt;</code> | Generate <code>__init__.py</code> re-exports |
+| <code>cup lint &lt;path&gt;</code> | Check CUP conventions |
+| <code>cup coverage &lt;path&gt;</code> | Map test coverage |
+| <code>cup report &lt;path&gt;</code> | Health report |
+| <code>cup doc-check [path]</code> | Doc freshness check |
+| <code>cup run &lt;config&gt;</code> | Execute a pipeline from config (TOML/JSON) |
+| <code>cup run --record &lt;config&gt;</code> | Execute + persist run record |
+| <code>cup connect --list/--health</code> | List connectors / run health checks |
+| <code>cup describe &lt;config&gt;</code> | Inspect pipeline inputs, outputs, steps |
+| <code>cup test [path]</code> | Smart test runner (markers, coverage) |
+| <code>cup doctor [path]</code> | Project health diagnostics |
+| <code>cup runs</code> | Show recent pipeline run history |
+| <code>cup upgrade [path]</code> | Regenerate scaffolded files to latest templates |
+| <code>cup publish &lt;dir&gt;</code> | Validate &amp; build for publishing |
+| <code>cup graph &lt;config&gt;</code> | Mermaid pipeline visualization |
+| <code>cup version [--bump]</code> | Show/bump semver from pyproject.toml |
+| <code>cup auth login &lt;provider&gt;</code> | Browser-based OAuth2 login |
+| <code>cup auth status &lt;provider&gt;</code> | Show credential status |
+| <code>cup auth revoke &lt;provider&gt;</code> | Remove stored credentials |
+| <code>cup auth list</code> | List all stored providers |
+| <code>cup vault issue &lt;provider&gt;</code> | Issue a proxy token for a provider |
+| <code>cup vault resolve &lt;token&gt;</code> | Verify proxy token validity |
+| <code>cup vault revoke &lt;token&gt;</code> | Revoke a single proxy token |
+| <code>cup vault revoke-all</code> | Revoke all active proxy tokens |
+| <code>cup vault list</code> | List active proxy tokens |
+| <code>cup vault status &lt;token&gt;</code> | Detailed proxy token inspection |
+| <code>cup config --list</code> | List available platform contracts |
+| <code>cup config &lt;id&gt; --var K=V</code> | Validate env vars against a platform contract |
+| <code>cup config &lt;id&gt; --env-file .env</code> | Validate .env file against a contract |
+| <code>cup obfuscate &lt;src&gt; &lt;out&gt;</code> | Build obfuscated SPA — minify HTML, obfuscate JS |
+| <code>cup obfuscate &lt;src&gt; &lt;out&gt; --strict</code> | Fail if Node.js tools not installed |
+| <code>cup ai-ask &lt;prompt&gt;</code> | Send a prompt to the AI agent |
+| <code>cup ai-interactive</code> | Start interactive AI REPL session |
+| <code>cup ai-tui</code> | Launch rich Textual TUI (requires <code>codeupipe[ai-tui]</code>) |
+| <code>cup ai-discover &lt;intent&gt;</code> | Discover capabilities by intent |
+| <code>cup ai-sync</code> | Sync local file-based capabilities |
+| <code>cup ai-register --server-name N</code> | Register MCP server capabilities |
+| <code>cup ai-hub</code> | Show default hub server registry |
+| <code>cup init agent-loop &lt;name&gt;</code> | Scaffold agentic turn loop project (Claude Code / orchie pattern) |
+| <code>cup browser-open &lt;url&gt;</code> | Open URL in headless browser |
+| <code>cup browser-close</code> | Close browser session |
+| <code>cup browser-snapshot</code> | Accessibility tree with @ref annotations |
+| <code>cup browser-click &lt;selector&gt;</code> | Click element by @ref |
+| <code>cup browser-fill &lt;selector&gt; &lt;text&gt;</code> | Fill form field |
+| <code>cup browser-eval &lt;expression&gt;</code> | Evaluate JavaScript in page |
+| <code>cup browser-screenshot [path]</code> | Capture PNG screenshot |
+| <code>cup browser-tabs</code> | List open tabs |
+| <code>cup browser-raw &lt;method&gt; [params]</code> | Raw CDP passthrough |
+| <code>cup browser-get &lt;what&gt; [selector]</code> | Get text/title/url/html/value |
+| <code>--headed</code> (browser) | Run browser in visible mode |
+| <code>--cdp-port</code> (browser) | Connect to existing browser via CDP |
+| <code>--profile</code> (browser) | Named profile for persistent sessions |
+| <code>--json</code> (global) | Machine-readable JSON output |
+| <code>--auto-fix</code> (doc-check) | Non-interactive hash fix (AI/CI friendly) |</p>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/observe.py symbols=CaptureTap,InsightTap,MetricsTap,RunRecord,save_run_record,load_run_records,export_captures_for_testing hash=cee4130 -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CaptureTap</code></td>
+<td>Tap that records payload snapshots for replay</td>
+</tr>
+<tr>
+<td><code>MetricsTap</code></td>
+<td>Tap that counts invocations and timestamps</td>
+</tr>
+<tr>
+<td><code>RunRecord</code></td>
+<td>Serializable pipeline run summary</td>
+</tr>
+<tr>
+<td><code>save_run_record</code></td>
+<td>Persist run record to <code>.cup/runs/</code></td>
+</tr>
+<tr>
+<td><code>load_run_records</code></td>
+<td>Load recent run records</td>
+</tr>
+<tr>
+<td><code>export_captures_for_testing</code></td>
+<td>Generate pytest fixtures from captures</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="doctor">Doctor<a class="headerlink" href="#doctor" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/doctor.py symbols=diagnose hash=36b8d51 -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>diagnose</code></td>
+<td>Run 6 project health checks (manifest, CI, tests, lint, connectors, docs)</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/upgrade.py symbols=upgrade_project hash=681ba08 -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>upgrade_project</code></td>
+<td>Regenerate CI/README to latest templates</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="graph">Graph<a class="headerlink" href="#graph" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/graph.py symbols=pipeline_to_mermaid,render_graph hash=0b11399 -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pipeline_to_mermaid</code></td>
+<td>Convert pipeline config to Mermaid flowchart</td>
+</tr>
+<tr>
+<td><code>render_graph</code></td>
+<td>Load config file and generate diagram</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="runtime-zero-downtime-control">Runtime (Zero-Downtime Control)<a class="headerlink" href="#runtime-zero-downtime-control" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/runtime.py symbols=TapSwitch,HotSwap,PipelineAccessor -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TapSwitch</code></td>
+<td>Toggle observation taps on/off at runtime without restarting</td>
+</tr>
+<tr>
+<td><code>HotSwap</code></td>
+<td>Atomically replace the active Pipeline from a new config file</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="auth-oauth2-integration">Auth (OAuth2 Integration)<a class="headerlink" href="#auth-oauth2-integration" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/auth/__init__.py hash=85c76a2 -->
+<!-- cup:ref file=codeupipe/auth/credential.py symbols=Credential,CredentialStore hash=c430594 -->
+<!-- cup:ref file=codeupipe/auth/provider.py symbols=AuthProvider,GoogleOAuth,GitHubOAuth hash=88a42c5 -->
+<!-- cup:ref file=codeupipe/auth/hook.py symbols=AuthHook hash=f2144d0 -->
+<!-- cup:ref file=codeupipe/auth/_server.py symbols=run_oauth_flow hash=ae07f5c -->
+<!-- cup:ref file=codeupipe/auth/proxy_token.py symbols=ProxyToken hash=686c997 -->
+<!-- cup:ref file=codeupipe/auth/token_ledger.py symbols=LedgerEvent,TokenLedger hash=f6cd6dd -->
+<!-- cup:ref file=codeupipe/auth/token_vault.py symbols=TokenVault hash=dfd347f -->
+<!-- cup:ref file=codeupipe/auth/vault_hook.py symbols=VaultHook hash=899f08a -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Credential</code></td>
+<td>Token container with expiry tracking and serialization</td>
+</tr>
+<tr>
+<td><code>CredentialStore</code></td>
+<td>File-backed JSON persistence with auto-refresh</td>
+</tr>
+<tr>
+<td><code>AuthProvider</code></td>
+<td>ABC for OAuth2 flows (authorize, exchange, refresh)</td>
+</tr>
+<tr>
+<td><code>GoogleOAuth</code></td>
+<td>Google OAuth2 provider (all Google API scopes)</td>
+</tr>
+<tr>
+<td><code>GitHubOAuth</code></td>
+<td>GitHub OAuth2 provider</td>
+</tr>
+<tr>
+<td><code>AuthHook</code></td>
+<td>Pipeline hook that injects credentials before execution</td>
+</tr>
+<tr>
+<td><code>run_oauth_flow</code></td>
+<td>Browser-based OAuth2 callback server</td>
+</tr>
+<tr>
+<td><code>ProxyToken</code></td>
+<td>Opaque <code>cup_tok_*</code> reference token with TTL, scopes, usage limits</td>
+</tr>
+<tr>
+<td><code>TokenLedger</code></td>
+<td>Audit trail for proxy token lifecycle events</td>
+</tr>
+<tr>
+<td><code>TokenVault</code></td>
+<td>Central authority — issues, resolves, revokes proxy tokens</td>
+</tr>
+<tr>
+<td><code>VaultHook</code></td>
+<td>Pipeline hook — injects proxy tokens instead of real credentials</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="registry-composability-layer">Registry (Composability Layer)<a class="headerlink" href="#registry-composability-layer" title="Permanent link">&para;</a></h2>
+<!-- cup:ref file=codeupipe/registry.py symbols=Registry,cup_component,default_registry hash=5af5cbd -->
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Registry</code></td>
+<td>Name → component catalog with <code>register()</code>, <code>get()</code>, <code>discover()</code></td>
+</tr>
+<tr>
+<td><code>cup_component</code></td>
+<td>Decorator — register a class with auto-name and auto-kind detection</td>
+</tr>
+<tr>
+<td><code>default_registry</code></td>
+<td>Module-level singleton Registry</td>
+</tr>
+<tr>
+<td><code>Pipeline.from_config()</code></td>
+<td>Build a Pipeline from a <code>.toml</code> or <code>.json</code> config file</td>
+</tr>
+</tbody>
+</table>
+<!-- /cup:ref -->
+
+<hr />
+<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
+<p>3396 Python tests (2175 core + 1221 AI suite) across 176+ files. 88 TypeScript tests. 59 Rust tests. 68 Go tests. <strong>3611 total across all languages.</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Python — core (zero deps)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>--ignore<span class="o">=</span>tests/ai/
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Python — AI suite (requires codeupipe[ai])</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>pytest<span class="w"> </span>tests/ai/
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Python — all</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>pytest
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1"># TypeScript</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="nb">cd</span><span class="w"> </span>ports/ts<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c1"># Rust</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="nb">cd</span><span class="w"> </span>ports/rs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cargo<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="c1"># Go</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="nb">cd</span><span class="w"> </span>ports/go<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-v<span class="w"> </span>./...
+</code></pre></div>
+<hr />
+<p><em>Maintained via <code>cup doc-check</code> — if a referenced file changes, the marker hash drifts and CI catches it.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+  
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/codeuchain/codeupipe" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+  
+  <div style="text-align:center;padding:0.5em 0;font-size:0.72em;opacity:0.55;font-family:monospace;">
+    AI agent? &rarr;
+    <a href="https://codeuchain.github.io/codeupipe/agents.txt" style="opacity:0.8;">agents.txt</a>
+    &nbsp;|&nbsp; plain text:
+    <a href="https://codeuchain.github.io/codeupipe/module-index.txt" style="opacity:0.8;">module-index.txt</a>
+  </div>
+  
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

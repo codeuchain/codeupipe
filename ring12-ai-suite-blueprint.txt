@@ -1,0 +1,539 @@
+# ── codeupipe docs ──────────────────────────────────────────────────────────
+# Agent navigation guide : https://codeuchain.github.io/codeupipe/agents.txt
+# All pages as plain text: https://codeuchain.github.io/codeupipe/curl.txt
+# ────────────────────────────────────────────────────────────────────────────
+
+# Ring 12 — AI Suite Blueprint
+
+> **Status:** Implemented  
+> **Scope:** Absorb orchie into codeupipe as `codeupipe.ai`, the first-party AI agent toolkit  
+> **Constraint:** Zero-dependency core preserved — all heavy deps gated behind `pip install codeupipe[ai]`
+
+---
+
+## The Thesis
+
+codeupipe is a pipeline framework. Orchie is an autonomous agent built *on* that pipeline framework. The relationship is already parent–child: every orchie Filter, Pipeline, Hook, and Payload is a codeupipe primitive. The question isn't *can* orchie live inside codeupipe — it already does conceptually. The question is whether making that physical saves more than it costs.
+
+### Why Absorb
+
+| Argument | Weight |
+|----------|--------|
+| **Single install** — `pip install codeupipe[ai]` gives you pipelines + agent + eval in one shot | High |
+| **Shared release cadence** — agent and framework evolve together, no version-matrix hell | High |
+| **Dogfooding showcase** — the AI suite *is* a CUP pipeline system; having it in-tree proves the framework works at scale | High |
+| **Discovery** — users find codeupipe, see it does AI agents too; users find the agent, discover the pipeline framework | Medium |
+| **Code reuse** — shared testing utilities, linter rules, registry, CLI infrastructure | Medium |
+| **Proprietary control** — one repo to govern, one license to enforce | Medium |
+
+### Why Keep Separate
+
+| Argument | Weight |
+|----------|--------|
+| **Dependency contamination** — orchie needs pydantic, mcp, numpy, github-copilot-sdk; codeupipe has zero deps | Critical |
+| **Release independence** — agent changes shouldn't force a codeupipe release | Medium |
+| **Conceptual clarity** — "pipeline framework" vs "AI agent" are different mental models | Medium |
+| **Install size** — users who want `Payload` shouldn't pull torch | Low (extras solve this) |
+
+### Resolution: The Extras Gate
+
+The zero-dependency constraint is **non-negotiable** for `codeupipe` core. But Python's extras system solves this cleanly:
+
+```toml
+# pyproject.toml
+[project]
+dependencies = []  # ← STAYS EMPTY
+
+[project.optional-dependencies]
+ai = [
+    "github-copilot-sdk>=0.1.23",
+    "mcp>=1.0.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "numpy>=1.26",
+]
+ai-discovery = [
+    "codeupipe[ai]",
+    "torch>=2.5.0",
+    "transformers>=4.45",
+]
+ai-tui = [
+    "codeupipe[ai]",
+    "textual[syntax]>=1.0.0",
+    "textual-autocomplete>=4.0.0",
+]
+ai-eval = [
+    "codeupipe[ai]",
+]
+ai-full = [
+    "codeupipe[ai,ai-discovery,ai-tui,ai-eval]",
+]
+```
+
+Users who `pip install codeupipe` get **zero deps, zero AI code imported**. Users who `pip install codeupipe[ai]` get the full agent suite. The `codeupipe.ai` package simply doesn't import if the deps aren't installed — same pattern as `torch` in orchie today.
+
+---
+
+## Package Layout
+
+```
+codeupipe/
+├── __init__.py                    # Public API (unchanged)
+├── core/                          # Ring 1–10 (unchanged)
+├── connect/                       # Ring 8 (unchanged)
+├── deploy/                        # Ring 7 (unchanged)
+├── distribute/                    # Ring 5 (unchanged)
+├── linter/                        # Ring 1 (unchanged)
+├── ...                            # Everything else (unchanged)
+│
+└── ai/                            # Ring 12 — NEW
+    ├── __init__.py                # Public API: Agent, AgentConfig, Pipeline builders
+    ├── _check.py                  # Lazy import guard — raises clear error if [ai] not installed
+    │
+    ├── agent/                     # SDK layer (was orchie_sdk)
+    │   ├── __init__.py            # Agent, AgentConfig, AgentEvent, EventType
+    │   ├── agent.py               # Agent — run(), ask(), push(), inject(), steer()
+    │   ├── config.py              # AgentConfig, ServerDef (pydantic)
+    │   ├── events.py              # AgentEvent, EventType enum
+    │   ├── emitter.py             # EventEmitterHook (was EventEmitterMiddleware)
+    │   └── billing.py             # UsageTracker, model multipliers
+    │
+    ├── providers/                 # LLM provider abstraction
+    │   ├── __init__.py            # LanguageModelProvider protocol, ModelResponse
+    │   ├── base.py                # Protocol + frozen dataclass
+    │   └── copilot.py             # CopilotProvider — GitHub Copilot SDK
+    │
+    ├── filters/                   # Domain filters (was orchie/links/)
+    │   ├── __init__.py
+    │   ├── language_model.py      # LanguageModelFilter (was LanguageModelLink)
+    │   ├── init_provider.py       # InitProviderFilter
+    │   ├── register_servers.py    # RegisterServersFilter
+    │   ├── session_cleanup.py     # SessionCleanupFilter
+    │   │
+    │   ├── loop/                  # Turn-loop filters (14 filters)
+    │   │   ├── __init__.py
+    │   │   ├── agent_loop.py      # AgentLoopFilter — the meta-loop
+    │   │   ├── read_input.py      # ReadInputFilter
+    │   │   ├── process_response.py
+    │   │   ├── check_done.py
+    │   │   ├── inject_notifications.py
+    │   │   ├── tool_continuation.py
+    │   │   ├── update_intent.py
+    │   │   ├── rediscover.py
+    │   │   ├── manage_state.py
+    │   │   ├── context_attribution.py
+    │   │   ├── context_pruning.py
+    │   │   ├── conversation_revision.py
+    │   │   ├── save_checkpoint.py
+    │   │   ├── backchannel.py
+    │   │   └── resume_session.py
+    │   │
+    │   ├── discovery/             # Intent-based capability discovery (7 filters)
+    │   │   ├── __init__.py
+    │   │   ├── discover_by_intent.py
+    │   │   ├── embed_query.py
+    │   │   ├── coarse_search.py
+    │   │   ├── fine_rank.py
+    │   │   ├── fetch_definitions.py
+    │   │   ├── group_results.py
+    │   │   └── validate_availability.py
+    │   │
+    │   └── registration/          # Server/capability registration (7 filters)
+    │       ├── __init__.py
+    │       ├── scan_server.py
+    │       ├── scan_skills.py
+    │       ├── scan_instructions.py
+    │       ├── scan_plans.py
+    │       ├── embed_capability.py
+    │       ├── insert_capability.py
+    │       └── sync_local.py
+    │
+    ├── pipelines/                 # Pre-built pipeline builders (was orchie/chains/)
+    │   ├── __init__.py
+    │   ├── agent_session.py       # build_agent_session_pipeline()
+    │   ├── turn.py                # build_turn_pipeline() — the 14-filter turn chain
+    │   ├── intent_discovery.py    # build_intent_discovery_pipeline()
+    │   ├── capability_registration.py
+    │   └── file_registration.py
+    │
+    ├── hooks/                     # Observation hooks (was orchie/middleware/)
+    │   ├── __init__.py
+    │   ├── audit_hook.py          # AuditHook (was AuditMiddleware)
+    │   ├── audit_event.py         # AuditEvent dataclass
+    │   ├── audit_producer.py      # AuditProducer ABC, NoopAuditSink
+    │   ├── logging_hook.py        # LoggingHook (was LoggingMiddleware)
+    │   └── timing_hook.py         # TimingHook (was TimingMiddleware)
+    │
+    ├── loop/                      # Agent state & session management
+    │   ├── __init__.py
+    │   ├── state.py               # AgentState, TurnRecord, TurnType
+    │   ├── notifications.py       # NotificationQueue, Notification
+    │   ├── session_store.py       # SessionStore (SQLite)
+    │   ├── context_budget.py      # Token budget tracking
+    │   └── context_schema.py      # Context schema definitions
+    │
+    ├── hub/                       # MCP server hub
+    │   ├── __init__.py
+    │   ├── server.py              # create_default_hub
+    │   ├── registry.py            # ServerRegistry
+    │   ├── config.py              # HubConfig
+    │   └── io_wrapper.py          # Server I/O normalization
+    │
+    ├── discovery/                 # Capability discovery engine
+    │   ├── __init__.py
+    │   ├── embedder.py            # SnowflakeArcticEmbedder (torch optional)
+    │   ├── registry.py            # CapabilityRegistry (SQLite + FTS5 + vector)
+    │   └── models.py              # CapabilityDefinition, 6 capability types
+    │
+    ├── servers/                   # Built-in MCP servers
+    │   ├── __init__.py
+    │   └── echo.py                # EchoServer — testing/demo
+    │
+    ├── tui/                       # Terminal UI (optional, textual)
+    │   ├── __init__.py
+    │   ├── app.py
+    │   ├── screens/
+    │   └── widgets/
+    │       ├── chat_pane.py
+    │       ├── event_panel.py
+    │       └── input_bar.py
+    │
+    └── eval/                      # Evaluation framework (was orchie_eval)
+        ├── __init__.py            # EvalCollector, EvalStore, Scenario, etc.
+        ├── types.py               # All eval data types
+        ├── collector.py           # EvalCollector — capture raw events
+        ├── storage.py             # EvalStore — SQLite persistence
+        ├── metrics.py             # Metric computation
+        ├── scorer.py              # Scoring engine
+        ├── scenario.py            # Scenario definitions + categories
+        ├── baseline.py            # Baseline management
+        ├── experiment.py          # A/B experiment runner
+        ├── analytics.py           # Statistical analysis
+        ├── comparator.py          # Cross-experiment comparison
+        ├── query.py               # Query builder for stored evals
+        ├── export.py              # Export to CSV/JSON
+        ├── report.py              # Human-readable eval reports
+        ├── stats.py               # Statistical helpers
+        └── validation.py          # Eval data validation
+```
+
+**Total:** ~80 source files under `codeupipe/ai/`. Zero impact on the existing 60+ files.
+
+---
+
+## Naming Conventions
+
+The migration renames orchie concepts to codeupipe-native names:
+
+| Orchie Name | codeupipe.ai Name | Rationale |
+|-------------|-------------------|-----------|
+| `Link` | `Filter` | Already done — standard CUP primitive |
+| `Chain` | `Pipeline` | Already done — standard CUP primitive |
+| `Middleware` | `Hook` | Already done — standard CUP primitive |
+| `orchie_sdk.Agent` | `codeupipe.ai.Agent` | Top-level user-facing class |
+| `orchie_sdk.AgentConfig` | `codeupipe.ai.AgentConfig` | Config dataclass |
+| `orchie_sdk.AgentEvent` | `codeupipe.ai.AgentEvent` | Event type |
+| `orchie_eval.*` | `codeupipe.ai.eval.*` | Eval framework |
+| `orchie.chains.build_*` | `codeupipe.ai.pipelines.build_*` | Pipeline builders |
+| `orchie.links.loop.*` | `codeupipe.ai.filters.loop.*` | Turn-loop filters |
+| `orchie.middleware.*_mw` | `codeupipe.ai.hooks.*_hook` | Hook classes |
+| `AuditMiddleware` | `AuditHook` | Consistent with framework naming |
+| `EventEmitterMiddleware` | `EventEmitterHook` | Consistent with framework naming |
+
+---
+
+## Public API
+
+```python
+# The one-liner experience
+from codeupipe.ai import Agent
+
+agent = Agent()
+answer = await agent.ask("What tools do you have?")
+```
+
+```python
+# Full streaming with events
+from codeupipe.ai import Agent, AgentConfig, AgentEvent, EventType
+
+config = AgentConfig(model="gpt-4.1", max_iterations=5)
+agent = Agent(config)
+
+async for event in agent.run("Summarize this codebase"):
+    if event.type == EventType.RESPONSE:
+        print(event.data["content"])
+```
+
+```python
+# Building custom agent pipelines using CUP primitives
+from codeupipe import Pipeline, Payload
+from codeupipe.ai.filters import LanguageModelFilter, ReadInputFilter, CheckDoneFilter
+from codeupipe.ai.filters.loop import AgentLoopFilter
+from codeupipe.ai.hooks import AuditHook, TimingHook
+
+# Everything is just a Pipeline — compose however you want
+turn = Pipeline()
+turn.add_filter(ReadInputFilter())
+turn.add_filter(LanguageModelFilter())
+turn.add_filter(CheckDoneFilter())
+
+loop = AgentLoopFilter(turn_pipeline=turn)
+session = Pipeline()
+session.add_filter(loop)
+session.use_hook(AuditHook(sink))
+session.use_hook(TimingHook())
+
+result = await session.run(Payload({"prompt": "Hello", "provider": my_provider}))
+```
+
+```python
+# Eval framework
+from codeupipe.ai.eval import EvalCollector, EvalStore, Scenario
+
+store = EvalStore("evals.db")
+collector = EvalCollector(store)
+scenario = Scenario(name="math", prompt="What is 2+2?", expected="4")
+```
+
+### Import Guard
+
+```python
+# codeupipe/ai/_check.py
+def require_ai_deps():
+    """Raise ImportError with install instructions if [ai] extras missing."""
+    try:
+        import pydantic
+        import mcp
+    except ImportError:
+        raise ImportError(
+            "codeupipe.ai requires extra dependencies. "
+            "Install with: pip install codeupipe[ai]"
+        ) from None
+```
+
+Every `codeupipe/ai/__init__.py` calls `require_ai_deps()` at import time. Users who never `from codeupipe.ai import ...` never pay the cost.
+
+---
+
+## CLI Integration
+
+New `cup ai` command group:
+
+```bash
+# Agent interaction
+cup ai ask "What tools do you have?"        # One-shot question
+cup ai run --prompt "Summarize this file"    # Streaming mode
+cup ai run --interactive                     # Multi-turn REPL
+
+# Server management
+cup ai hub list                              # List registered MCP servers
+cup ai hub add echo                          # Add a built-in server
+cup ai hub health                            # Health check all servers
+
+# Discovery
+cup ai discover "payment processing"         # Search capability registry
+cup ai register ./my-server/                 # Register capabilities from a server
+
+# Eval
+cup ai eval run scenarios.json               # Run eval scenarios
+cup ai eval report                           # Generate eval report
+cup ai eval compare baseline-v1 experiment-v2
+
+# TUI
+cup ai tui                                   # Launch terminal UI
+```
+
+Implementation follows the existing CLI pattern — each subcommand is a wrapper function that builds and runs a Pipeline:
+
+```python
+# codeupipe/cli/commands/ai_cmds.py
+def setup(registry: CommandRegistry) -> None:
+    registry.register("ai ask", handle_ask)
+    registry.register("ai run", handle_run)
+    registry.register("ai hub", handle_hub)
+    registry.register("ai discover", handle_discover)
+    registry.register("ai eval", handle_eval)
+    registry.register("ai tui", handle_tui)
+```
+
+---
+
+## Migration Path
+
+### Phase 1: Copy + Rename (mechanical)
+The orchie → codeupipe.ai conversion is 95% done. The remaining work:
+1. Move files from `orchie/src/orchie/` → `codeupipe/ai/`
+2. Rename `orchie.links.*` → `codeupipe.ai.filters.*`
+3. Rename `orchie.chains.*` → `codeupipe.ai.pipelines.*`
+4. Rename `orchie.middleware.*` → `codeupipe.ai.hooks.*`
+5. Update all internal imports: `from orchie.` → `from codeupipe.ai.`
+6. Move `orchie_sdk/` → `codeupipe/ai/agent/`
+7. Move `orchie_eval/` → `codeupipe/ai/eval/`
+
+### Phase 2: Tests
+1. Move `orchie/tests/` → `codeupipe/tests/ai/`
+2. Update all test imports
+3. Verify 1280+ tests pass in-tree
+4. Add to main pytest suite
+
+### Phase 3: CLI + Docs
+1. Add `ai_cmds.py` to CLI command registry
+2. Add `codeupipe.ai` section to INDEX.md
+3. Add `cup ai` commands to CLI table
+4. Update ROADMAP.md — Ring 12 complete
+
+### Phase 4: Extras wiring
+1. Add `[ai]` extras to pyproject.toml
+2. CI matrix: test with and without `[ai]` installed
+3. Verify `import codeupipe` still works with zero deps
+4. Verify `from codeupipe.ai import Agent` fails gracefully without extras
+
+---
+
+## Dependency Audit
+
+### Required by `codeupipe[ai]`
+
+| Package | Why | Size |
+|---------|-----|------|
+| `pydantic>=2.0` | AgentConfig, ServerDef, eval types | ~2MB |
+| `pydantic-settings>=2.0` | Environment-based config | ~100KB |
+| `mcp>=1.0.0` | Model Context Protocol client | ~500KB |
+| `github-copilot-sdk>=0.1.23` | Copilot provider | ~200KB |
+| `numpy>=1.26` | Vector similarity in discovery | ~30MB |
+
+### Optional extras
+
+| Extra | Packages | Use Case |
+|-------|----------|----------|
+| `ai-discovery` | `torch>=2.5.0`, `transformers>=4.45` | Local embedding model | 
+| `ai-tui` | `textual>=1.0.0`, `textual-autocomplete>=4.0.0` | Terminal UI |
+| `ai-full` | All of the above | Everything |
+
+### Zero-dep guarantee
+
+```python
+# This MUST always work with zero deps installed:
+from codeupipe import Payload, Filter, Pipeline
+from codeupipe.core import Hook, State, Valve, Tap
+from codeupipe.testing import run_filter, assert_payload
+
+# This requires [ai] extras:
+from codeupipe.ai import Agent  # ImportError if deps missing
+```
+
+---
+
+## Test Impact
+
+| Suite | Current | After Integration |
+|-------|---------|-------------------|
+| codeupipe core (Python) | 2097 | 2097 (unchanged) |
+| codeupipe.ai | — | ~1280 (from orchie) |
+| TypeScript port | 88 | 88 (unchanged) |
+| Rust port | 59 | 59 (unchanged) |
+| Go port | 68 | 68 (unchanged) |
+| **Total** | **2312** | **~3592** |
+
+CI runs two matrices:
+1. **Core** — `pip install -e .` — tests everything *except* `tests/ai/`
+2. **AI** — `pip install -e ".[ai]"` — tests `tests/ai/` (skips discovery tests unless `[ai-discovery]` installed)
+
+---
+
+## What This Enables
+
+### 1. Custom Agent Pipelines
+Users compose agents from CUP primitives — swap any filter, add hooks, nest pipelines:
+
+```python
+from codeupipe import Pipeline
+from codeupipe.ai.filters import LanguageModelFilter
+from codeupipe.ai.providers.copilot import CopilotProvider
+
+# My custom 3-filter agent — no loop, no discovery, just LLM
+pipe = Pipeline()
+pipe.add_filter(MyPromptBuilder())     # Your filter
+pipe.add_filter(LanguageModelFilter()) # CUP AI filter
+pipe.add_filter(MyResponseParser())    # Your filter
+```
+
+### 2. Agent-in-Pipeline
+An agent *is* a filter. Embed it in larger data pipelines:
+
+```python
+from codeupipe import Pipeline
+from codeupipe.ai import Agent
+
+class AgentFilter:
+    def __init__(self):
+        self.agent = Agent()
+    
+    async def call(self, payload):
+        question = payload.get("question")
+        answer = await self.agent.ask(question)
+        return payload.insert("answer", answer)
+
+etl = Pipeline()
+etl.add_filter(LoadDataFilter())
+etl.add_filter(AgentFilter())       # LLM in the middle
+etl.add_filter(SaveResultsFilter())
+```
+
+### 3. Multi-Provider Support
+The provider protocol is abstract — add Anthropic, Ollama, OpenAI:
+
+```python
+from codeupipe.ai.providers.base import LanguageModelProvider
+
+class AnthropicProvider(LanguageModelProvider):
+    async def start(self, **kwargs): ...
+    async def send(self, prompt: str) -> ModelResponse: ...
+    async def stop(self): ...
+```
+
+### 4. Eval-Driven Development
+Test your agent pipelines with the built-in eval framework:
+
+```python
+from codeupipe.ai.eval import EvalCollector, Scenario
+
+scenarios = [
+    Scenario(name="math", prompt="2+2?", expected="4"),
+    Scenario(name="code", prompt="Hello world in Python", expected_contains="print"),
+]
+```
+
+---
+
+## Risk Assessment
+
+| Risk | Likelihood | Mitigation |
+|------|------------|------------|
+| Dependency leakage into core | Low | CI gate: `pip install -e . && python -c "import codeupipe"` with zero deps |
+| Test suite slowdown | Medium | `tests/ai/` isolated, `pytest -m "not ai"` for fast core runs |
+| Import-time side effects | Low | Lazy imports, `_check.py` guard, no module-level heavy work |
+| Version coupling | Medium | Core and AI can have different stability guarantees (core=stable, ai=preview) |
+| orchie users confused by rename | Low | The private repo under orchestrate-llc is the canonical source now |
+
+---
+
+## Decision Matrix
+
+| Option | Pros | Cons | Recommendation |
+|--------|------|------|----------------|
+| **A: Absorb into `codeupipe.ai`** | Single install, shared infra, dogfooding showcase, discovery | Dependency management complexity | ✅ **Recommended** |
+| **B: Keep separate, depend on codeupipe** | Clean separation, independent releases | Version matrix, duplicate CLI, no discovery benefit | Viable but suboptimal |
+| **C: Monorepo with separate packages** | Independence + co-location | Complex build, confusing for users | Over-engineered |
+
+---
+
+## Summary
+
+Ring 12 absorbs orchie as `codeupipe.ai` — an optional extras-gated AI agent suite that turns the pipeline framework into a full autonomous agent platform. Zero impact on the zero-dependency core. ~1280 new tests. One install: `pip install codeupipe[ai]`.
+
+The pipeline framework becomes the agent framework. The agent framework proves the pipeline framework works. Flywheel.
+
+---
+
+*Ring 12 is implemented. The `agent-loop` template (`cup init agent-loop <name>`) scaffolds the full agentic turn loop pattern as a new project.*

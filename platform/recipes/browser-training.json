@@ -1,0 +1,12 @@
+{
+  "id": "browser-training",
+  "name": "Browser Training",
+  "description": "Train shards in the browser using Web Workers — no native compute needed",
+  "version": "1.0.0",
+  "tier": "wasm",
+  "requires": [],
+  "steps": [],
+  "healthCheck": null,
+  "endpoints": [],
+  "note": "Browser training is built into the platform site. No installation needed — just enable it."
+}
