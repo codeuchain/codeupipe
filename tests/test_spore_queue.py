@@ -17,8 +17,10 @@ from pathlib import Path
 
 import pytest
 
-# Add spore dir to import path
+# Add spore dir to import path — skip entire module if prototype isn't checked out
 _spore_dir = Path(__file__).resolve().parent.parent / "prototypes" / "bird-bone" / "spore"
+if not _spore_dir.exists():
+    pytest.skip("prototypes/bird-bone/spore not available", allow_module_level=True)
 if str(_spore_dir) not in sys.path:
     sys.path.insert(0, str(_spore_dir))
 
