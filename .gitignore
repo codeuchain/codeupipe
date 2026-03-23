@@ -43,3 +43,6 @@ prototypes/*/
 !prototypes/_template/
 !prototypes/README.md
 !prototypes/metrics/
+
+# Signing keys — NEVER commit private keys; use GitHub Secrets for CI
+codeupipe/connect/extension/keys/

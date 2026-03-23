@@ -160,6 +160,11 @@ def _build_android_crx(
     The Android manifest strips ``nativeMessaging`` (unavailable on
     Android) so the extension installs cleanly and falls back to the
     WASM tier automatically.
+
+    Signing:
+    - Looks for a persistent signing key at keys/cup-bridge.pem
+    - Falls back to temporary key if persistent key not found
+    - With persistent key, the CRX has a stable extension ID across builds
     """
     if not android_manifest.exists():
         print("  [platform] WARNING: manifest.android.json not found — skipping CRX")
@@ -176,13 +181,19 @@ def _build_android_crx(
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
+    # Look for persistent signing key
+    key_path = extension_src / "keys" / "cup-bridge.pem"
+    key_to_use = key_path if key_path.exists() else None
+
     try:
         crx_bytes = mod.build_crx(
             extension_src,
+            key_path=key_to_use,
             manifest_override=android_manifest,
         )
         crx_path.write_bytes(crx_bytes)
         size_kb = len(crx_bytes) / 1024
-        print(f"  [platform] android CRX: {size_kb:.1f} KB")
+        key_status = "persistent key" if key_to_use else "temporary key"
+        print(f"  [platform] android CRX: {size_kb:.1f} KB ({key_status})")
     except Exception as exc:
         print(f"  [platform] WARNING: CRX build failed: {exc}")
