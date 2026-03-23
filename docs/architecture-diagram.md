@@ -86,12 +86,12 @@ graph TB
     Core --> Android
 
     %% ── Device Mesh ───────────────────────────────────────
-    Mobile["Mobile Device\n(AdbBridge · IosBridge 🔜)"]
+    Mobile["Mobile Device\n(Android Edge ✅ · IosBridge 🔜)"]
     Desktop["Desktop Compute\nDB · GPU · Files"]
     Servers["Servers\nAPIs · Services"]
 
     Android --> Mobile
-    PlatformSPA -.- Mobile
+    PlatformSPA --> Mobile
     NativeHost --> Desktop
     Desktop --> Servers
     Distribute --> Servers
@@ -146,7 +146,7 @@ graph TB
 | **Purple fill** | Core — the foundation everything depends on |
 | **Purple border** | Internal packages — Python modules inside `codeupipe/` |
 | **Yellow border** | Extension platform — browser extension, native host, SPA |
-| **Blue dashed border** | Device endpoints — desktop, servers, mobile (IosBridge planned) |
+| **Blue dashed border** | Device endpoints — desktop, servers, mobile (Android ✅, IosBridge 🔜) |
 | **Green dashed border** | Polyglot ports — same API in TS, Rust, Go |
 | **Orange border** | External connectors — standalone PyPI packages |
 | **Violet border** | Documentation — MkDocs site and build hooks |

@@ -55,6 +55,8 @@ codeupipe/
 │   ├── local_bridge.py      # LocalBridge — HTTP bridge to localhost compute
 │   └── extension/           # MV3 browser extension + native messaging
 │       ├── manifest.json    # Extension manifest (MAIN + ISOLATED worlds)
+│       ├── manifest.android.json # Android variant (no nativeMessaging)
+│       ├── build_crx.py     # CRX3 builder — stdlib-only, RSA signing
 │       ├── service-worker.js# CUP pipeline (12 filters) in SW
 │       ├── content-script.js# Page↔Extension relay + status badge
 │       ├── cup-bridge-api.js# window.cupBridge API (MAIN world)
@@ -312,6 +314,8 @@ codeupipe/
 <!-- cup:ref file=codeupipe/connect/bridge_launcher.py symbols=LaunchResult,BridgeLauncher,install_service,uninstall_service hash=9aa33a3 -->
 <!-- cup:ref file=codeupipe/connect/local_bridge.py symbols=BridgeError,BridgeEndpoint,LocalBridge hash=74de7b7 -->
 <!-- cup:ref file=codeupipe/connect/extension/native/native_host.py symbols=nm_read,nm_write,NativePayload,ReadMessageFilter,RouteActionFilter hash=7220c23 -->
+<!-- cup:ref file=codeupipe/connect/extension/build_crx.py symbols=build_crx,extension_id_from_key hash=c283aab -->
+<!-- cup:ref file=codeupipe/connect/extension/manifest.android.json hash=e1c2e7d -->
 | Type | Source | Role |
 |------|--------|------|
 | `ConnectorConfig` | connect/config.py | Parse `[connectors.*]` from cup.toml |
@@ -331,6 +335,10 @@ codeupipe/
 | `NativePayload` | extension/native/native_host.py | Minimal Payload for native host |
 | `ReadMessageFilter` | extension/native/native_host.py | Read NM message filter |
 | `RouteActionFilter` | extension/native/native_host.py | Route actions to handler filters |
+| `build_crx` | extension/build_crx.py | Build CRX3 from extension dir (stdlib-only) |
+| `extension_id_from_key` | extension/build_crx.py | Compute extension ID from RSA key |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->

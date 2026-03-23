@@ -1,0 +1,66 @@
+{
+  "manifest_version": 3,
+  "name": "CUP Platform Bridge",
+  "version": "1.0.0",
+  "description": "Browser ↔ compute bridge for codeupipe. WASM-only variant for Android (no native messaging).",
+
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://codeuchain.github.io/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
+      ],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://codeuchain.github.io/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
+      ],
+      "js": ["cup-bridge-api.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+
+  "externally_connectable": {
+    "matches": [
+      "https://codeuchain.github.io/*"
+    ]
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["wasm/*"],
+      "matches": ["https://codeuchain.github.io/*", "http://localhost:*/*"]
+    }
+  ]
+}
