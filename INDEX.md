@@ -912,6 +912,86 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 
 ---
 
+## Android Control
+
+<!-- cup:ref file=codeupipe/android/__init__.py hash=df52f0b -->
+<!-- cup:ref file=codeupipe/android/adb_result.py symbols=AdbResult hash=7a3225d -->
+<!-- cup:ref file=codeupipe/android/adb_bridge.py symbols=AdbBridge hash=d068f0a -->
+<!-- cup:ref file=codeupipe/android/emulator_manager.py symbols=EmulatorManager hash=90597f4 -->
+<!-- cup:ref file=codeupipe/android/android_open.py symbols=AndroidOpen hash=4e3b6ac -->
+<!-- cup:ref file=codeupipe/android/android_close.py symbols=AndroidClose hash=2e07bfb -->
+<!-- cup:ref file=codeupipe/android/android_tap.py symbols=AndroidTap hash=ad72e18 -->
+<!-- cup:ref file=codeupipe/android/android_type.py symbols=AndroidType hash=04828c3 -->
+<!-- cup:ref file=codeupipe/android/android_eval.py symbols=AndroidEval hash=fe84bbd -->
+<!-- cup:ref file=codeupipe/android/android_snapshot.py symbols=AndroidSnapshot hash=7068131 -->
+<!-- cup:ref file=codeupipe/android/android_screenshot.py symbols=AndroidScreenshot hash=96308b4 -->
+<!-- cup:ref file=codeupipe/android/android_install.py symbols=AndroidInstall hash=66c4be3 -->
+<!-- cup:ref file=codeupipe/android/android_log.py symbols=AndroidLog hash=e0ef94f -->
+<!-- cup:ref file=codeupipe/android/android_shell.py symbols=AndroidShell hash=6081a69 -->
+
+Programmatic Android device and emulator control via `adb`. Mirrors the `codeupipe.browser` architecture — each filter wraps a single ADB action; compose them into pipelines for multi-step mobile automation. Requires Android SDK platform-tools (`adb`).
+
+| Export | Role |
+|--------|------|
+| `AdbBridge` | Subprocess wrapper — single contact point with `adb` CLI |
+| `AdbResult` | Frozen dataclass: `stdout`, `stderr`, `returncode`, `.ok`, `.output` |
+| `EmulatorManager` | AVD lifecycle — create, start, stop, list, wait-for-boot |
+| `AndroidOpen` | Launch app by package/activity component |
+| `AndroidClose` | Force-stop an app |
+| `AndroidTap` | Tap at (x, y) screen coordinates |
+| `AndroidType` | Type text into focused element |
+| `AndroidEval` | Execute `adb shell` command |
+| `AndroidSnapshot` | Dump UI hierarchy XML via `uiautomator dump` |
+| `AndroidScreenshot` | Capture screenshot via `screencap` + `adb pull` |
+| `AndroidInstall` | Install APK via `adb install` |
+| `AndroidLog` | Capture logcat output |
+| `AndroidShell` | Raw `adb shell` escape hatch |
+
+**Payload keys:** `android_package`, `android_apk`, `android_command`, `android_eval`, `android_log`, `android_screenshot`, `android_screenshot_path`, `android_shell`, `android_shell_cmd`, `android_snapshot`, `android_text`, `android_x`, `android_y`, `android_output`, `android_ok`
+
+### AdbBridge.run() passthrough
+
+The 10 Filters above are convenience wrappers for the most common automation actions. `AdbBridge.run()` is a direct passthrough to any `adb` command:
+
+| Category | Methods / via `bridge.run()` | Example |
+|----------|------------------------------|---------|
+| **Device** | `devices`, `forward`, `push`, `pull` | `bridge.run("devices")` |
+| **App** | `start_app`, `stop_app`, `install`, `uninstall` | `bridge.start_app("com.app/.Main")` |
+| **Input** | `tap`, `swipe`, `type_text` | `bridge.tap(100, 200)` |
+| **Inspect** | `ui_dump`, `logcat`, `shell` | `bridge.ui_dump()` |
+| **Media** | `screenshot` | `bridge.screenshot("/tmp/s.png")` |
+| **Raw** | any `adb` subcommand | `bridge.run("shell", "dumpsys", "battery")` |
+
+### EmulatorManager lifecycle
+
+```python
+from codeupipe.android import EmulatorManager
+
+mgr = EmulatorManager()
+mgr.create_avd("test_avd", package="system-images;android-34;google_apis;arm64-v8a")
+bridge = mgr.start("test_avd", headless=True)
+mgr.wait_for_boot()
+# ... run filters with bridge ...
+mgr.stop()
+```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
 ## Testing Utilities
 
 <!-- cup:ref file=codeupipe/testing.py symbols=run_filter,run_pipeline,assert_payload,assert_keys,assert_state,mock_filter hash=65f0296 -->

@@ -81,11 +81,16 @@ graph TB
     PlatformSPA["Platform SPA\nDashboard · Store\nInstall · Products"]
     Extension --> PlatformSPA
 
+    %% ── Android Module ─────────────────────────────────────
+    Android["codeupipe.android\nAdbBridge · EmulatorManager\n10 Android Filters"]
+    Core --> Android
+
     %% ── Device Mesh ───────────────────────────────────────
-    Mobile["Mobile Device\n(AdbBridge / IosBridge)\n🔜 planned"]
+    Mobile["Mobile Device\n(AdbBridge · IosBridge 🔜)"]
     Desktop["Desktop Compute\nDB · GPU · Files"]
     Servers["Servers\nAPIs · Services"]
 
+    Android --> Mobile
     PlatformSPA -.- Mobile
     NativeHost --> Desktop
     Desktop --> Servers
@@ -126,7 +131,7 @@ graph TB
     classDef docs fill:#1e1e2e,stroke:#cba6f7,color:#cdd6f4
 
     class Core core
-    class Utils,Registry,Testing,Observe,Runtime,Graph,Converter,Distribute,Deploy,Auth,Linter,Connect,Browser,AI,Marketplace,CLI pkg
+    class Utils,Registry,Testing,Observe,Runtime,Graph,Converter,Distribute,Deploy,Auth,Linter,Connect,Browser,Android,AI,Marketplace,CLI pkg
     class Extension,NativeHost,PlatformSPA ext
     class Mobile,Desktop,Servers device
     class PortTS,PortRS,PortGo port
@@ -141,7 +146,7 @@ graph TB
 | **Purple fill** | Core — the foundation everything depends on |
 | **Purple border** | Internal packages — Python modules inside `codeupipe/` |
 | **Yellow border** | Extension platform — browser extension, native host, SPA |
-| **Blue dashed border** | Device endpoints — desktop, servers, mobile (planned) |
+| **Blue dashed border** | Device endpoints — desktop, servers, mobile (IosBridge planned) |
 | **Green dashed border** | Polyglot ports — same API in TS, Rust, Go |
 | **Orange border** | External connectors — standalone PyPI packages |
 | **Violet border** | Documentation — MkDocs site and build hooks |
