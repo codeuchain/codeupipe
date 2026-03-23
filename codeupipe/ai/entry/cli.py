@@ -27,10 +27,10 @@ async def discover_capabilities(
         top_k: Maximum number of results to return.
     """
     from codeupipe.ai.config import get_settings
-    from codeupipe.ai.discovery.registry import CapabilityRegistry
+    import codeupipe.ai.discovery.registry as _reg_mod
 
     settings = get_settings()
-    registry = CapabilityRegistry(settings.registry_path)
+    registry = _reg_mod.CapabilityRegistry(settings.registry_path)
 
     try:
         # Try text search first (no torch required)

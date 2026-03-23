@@ -13,7 +13,8 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
+
+from codeupipe.ai._compat import StrEnum
 
 
 # ── Helpers ───────────────────────────────────────────────────────────
@@ -28,7 +29,7 @@ def _new_id() -> str:
 
 # ── Enums ─────────────────────────────────────────────────────────────
 
-class RunOutcome(str, Enum):
+class RunOutcome(StrEnum):
     """How an agent run ended."""
 
     SUCCESS = "success"
@@ -38,7 +39,7 @@ class RunOutcome(str, Enum):
     UNKNOWN = "unknown"
 
 
-class ScenarioCategory(str, Enum):
+class ScenarioCategory(StrEnum):
     """Classification of evaluation scenarios."""
 
     STANDARD = "standard"
@@ -48,7 +49,7 @@ class ScenarioCategory(str, Enum):
     COST_CONSTRAINED = "cost_constrained"
 
 
-class ExperimentStatus(str, Enum):
+class ExperimentStatus(StrEnum):
     """Lifecycle state of an experiment."""
 
     PENDING = "pending"

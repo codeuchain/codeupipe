@@ -10,14 +10,15 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
 from typing import Any
+
+from codeupipe.ai._compat import StrEnum
 
 # Python 3.11+ has datetime.UTC; use timezone.utc for 3.9/3.10 compat
 _UTC = timezone.utc
 
 
-class CapabilityType(str, Enum):
+class CapabilityType(StrEnum):
     """Kind of capability registered in the hub."""
 
     TOOL = "tool"

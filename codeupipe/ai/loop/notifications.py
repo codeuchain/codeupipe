@@ -16,10 +16,12 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum, IntEnum
+from enum import IntEnum
+
+from codeupipe.ai._compat import StrEnum
 
 
-class NotificationSource(str, Enum):
+class NotificationSource(StrEnum):
     """Where a notification originated."""
 
     USER = "user"

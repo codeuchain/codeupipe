@@ -11,10 +11,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
+
+from codeupipe.ai._compat import StrEnum
 
 
-class TurnType(str, Enum):
+class TurnType(StrEnum):
     """What kind of input triggered this turn."""
 
     USER_PROMPT = "user_prompt"

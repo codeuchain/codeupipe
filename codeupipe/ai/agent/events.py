@@ -17,10 +17,11 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
+
+from codeupipe.ai._compat import StrEnum
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Kinds of events the agent emits."""
 
     TURN_START = "turn_start"

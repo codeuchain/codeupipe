@@ -575,7 +575,7 @@ Install: `pip install codeupipe[ai]` (core AI) · `codeupipe[ai-discovery]` (tor
 <!-- cup:ref file=codeupipe/ai/hub/__init__.py hash=ebda4eb -->
 <!-- cup:ref file=codeupipe/ai/discovery/__init__.py hash=fbfe81a -->
 <!-- cup:ref file=codeupipe/ai/discovery/embedder.py hash=3cf4c98 -->
-<!-- cup:ref file=codeupipe/ai/discovery/models.py hash=2757bd6 -->
+<!-- cup:ref file=codeupipe/ai/discovery/models.py hash=62205bd -->
 <!-- cup:ref file=codeupipe/ai/servers/__init__.py hash=765bb3f -->
 <!-- cup:ref file=codeupipe/ai/tui/__init__.py hash=f1946f2 -->
 <!-- cup:ref file=codeupipe/ai/eval/__init__.py hash=cb7b39b -->
