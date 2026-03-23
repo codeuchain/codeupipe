@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import StrEnum
+from enum import Enum
 
 
 # ── Helpers ───────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ def _new_id() -> str:
 
 # ── Enums ─────────────────────────────────────────────────────────────
 
-class RunOutcome(StrEnum):
+class RunOutcome(str, Enum):
     """How an agent run ended."""
 
     SUCCESS = "success"
@@ -38,7 +38,7 @@ class RunOutcome(StrEnum):
     UNKNOWN = "unknown"
 
 
-class ScenarioCategory(StrEnum):
+class ScenarioCategory(str, Enum):
     """Classification of evaluation scenarios."""
 
     STANDARD = "standard"
@@ -48,7 +48,7 @@ class ScenarioCategory(StrEnum):
     COST_CONSTRAINED = "cost_constrained"
 
 
-class ExperimentStatus(StrEnum):
+class ExperimentStatus(str, Enum):
     """Lifecycle state of an experiment."""
 
     PENDING = "pending"

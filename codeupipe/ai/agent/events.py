@@ -17,10 +17,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import StrEnum
+from enum import Enum
 
 
-class EventType(StrEnum):
+class EventType(str, Enum):
     """Kinds of events the agent emits."""
 
     TURN_START = "turn_start"

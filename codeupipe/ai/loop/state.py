@@ -11,10 +11,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import StrEnum
+from enum import Enum
 
 
-class TurnType(StrEnum):
+class TurnType(str, Enum):
     """What kind of input triggered this turn."""
 
     USER_PROMPT = "user_prompt"

@@ -9,6 +9,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+torch = pytest.importorskip("torch", reason="torch not installed; skipping embedder tests")
+
 from codeupipe.ai.config import reset_settings
 
 

@@ -1,0 +1,20 @@
+/* CopilotApp — TUI layout styles */
+
+Screen {
+    layout: horizontal;
+}
+
+ChatPane {
+    width: 2fr;
+    border: solid $primary;
+}
+
+EventPanel {
+    width: 1fr;
+    border: solid $secondary;
+}
+
+InputBar {
+    dock: bottom;
+    height: 3;
+}

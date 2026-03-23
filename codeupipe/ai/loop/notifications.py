@@ -16,10 +16,10 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import IntEnum, StrEnum
+from enum import Enum, IntEnum
 
 
-class NotificationSource(StrEnum):
+class NotificationSource(str, Enum):
     """Where a notification originated."""
 
     USER = "user"

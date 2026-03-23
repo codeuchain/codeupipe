@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
-from enum import StrEnum
+from datetime import datetime, timezone
+from enum import Enum
 from typing import Any
 
+# Python 3.11+ has datetime.UTC; use timezone.utc for 3.9/3.10 compat
+_UTC = timezone.utc
 
-class CapabilityType(StrEnum):
+
+class CapabilityType(str, Enum):
     """Kind of capability registered in the hub."""
 
     TOOL = "tool"
@@ -53,7 +56,7 @@ class CapabilityDefinition:
     source_path: str = ""
     content_hash: str = ""
     id: int | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = field(default_factory=lambda: datetime.now(_UTC))
 
     # ── Serialisation helpers ─────────────────────────────────────────
 

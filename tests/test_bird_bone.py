@@ -14,8 +14,10 @@ import pytest
 from codeupipe import Payload, Pipeline
 from codeupipe.testing import run_filter, assert_payload, assert_keys
 
-# Add prototype to import path
+# Add prototype to import path — skip entire module if prototype isn't checked out
 _proto = Path(__file__).resolve().parent.parent / "prototypes" / "bird-bone"
+if not _proto.exists():
+    pytest.skip("prototypes/bird-bone not available", allow_module_level=True)
 if str(_proto) not in sys.path:
     sys.path.insert(0, str(_proto))
 

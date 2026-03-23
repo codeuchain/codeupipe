@@ -27,14 +27,22 @@ class DiscoverByIntentLink:
             return payload
 
         # Import here to avoid circular deps and allow optional install
-        from codeupipe.ai.pipelines.intent_discovery import (
-            build_intent_discovery_chain,
-        )
+        try:
+            from codeupipe.ai.pipelines.intent_discovery import (
+                build_intent_discovery_chain,
+            )
+        except ImportError:
+            # ai-discovery extras (torch/transformers) not installed — skip
+            return payload
 
         # Run the discovery sub-chain
-        discovery_chain = build_intent_discovery_chain()
-        discovery_ctx = payload.insert("intent", prompt)
-        result = await discovery_chain.run(discovery_ctx)
+        try:
+            discovery_chain = build_intent_discovery_chain()
+            discovery_ctx = payload.insert("intent", prompt)
+            result = await discovery_chain.run(discovery_ctx)
+        except ImportError:
+            # torch/transformers not installed — skip discovery gracefully
+            return payload
 
         # Transfer discovered capabilities back
         capabilities = result.get("capabilities") or []
