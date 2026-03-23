@@ -365,14 +365,25 @@ function broadcastStatus() {
     lastProbe: state.lastProbe,
   };
 
-  // Send to all content scripts
-  chrome.tabs.query({}, (tabs) => {
+  // Only send to tabs that match our content script URL patterns.
+  // Sending to tabs without a content script listener causes
+  // "Receiving end does not exist" errors.
+  const urlPatterns = [
+    'https://codeuchain.github.io/*',
+    'http://localhost:*/*',
+    'http://127.0.0.1:*/*',
+  ];
+
+  chrome.tabs.query({ url: urlPatterns }, (tabs) => {
+    if (chrome.runtime.lastError) return;  // query itself failed
     for (const tab of tabs) {
-      try {
-        chrome.tabs.sendMessage(tab.id, statusMsg);
-      } catch {
-        // Tab may not have content script
-      }
+      chrome.tabs.sendMessage(tab.id, statusMsg, () => {
+        // Consume chrome.runtime.lastError so the error doesn't
+        // surface as an unhandled "Receiving end does not exist".
+        // This can still happen if the content script hasn't
+        // finished loading yet.
+        void chrome.runtime.lastError;
+      });
     }
   });
 }

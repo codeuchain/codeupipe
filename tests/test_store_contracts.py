@@ -437,3 +437,89 @@ class TestWasmFallbackBehaviour:
         fb_end = code.index("function formatResponse")
         fb_body = code[fb_start:fb_end]
         assert "get('response')" in fb_body
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# TIER 3 — Behaviour: broadcastStatus safety
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestBroadcastStatusContract:
+    """Verify broadcastStatus only targets tabs with content scripts
+    and consumes chrome.runtime.lastError to prevent unhandled errors."""
+
+    def test_queries_with_url_filter(self):
+        """broadcastStatus must pass { url: [...] } to chrome.tabs.query,
+        NOT an empty filter that hits every tab."""
+        code = (_EXT_SRC / "service-worker.js").read_text()
+        bc_start = code.index("function broadcastStatus")
+        # broadcastStatus ends at the next top-level section
+        bc_end = code.index("// ── Message Listeners")
+        bc_body = code[bc_start:bc_end]
+        assert "chrome.tabs.query({ url:" in bc_body or \
+               "chrome.tabs.query({url:" in bc_body, (
+            "broadcastStatus must filter tabs by URL pattern, "
+            "not query all tabs with {}"
+        )
+
+    def test_does_not_query_all_tabs(self):
+        """Must NOT call chrome.tabs.query({}, ...) which hits every tab."""
+        code = (_EXT_SRC / "service-worker.js").read_text()
+        bc_start = code.index("function broadcastStatus")
+        bc_end = code.index("// ── Message Listeners")
+        bc_body = code[bc_start:bc_end]
+        # The old pattern: chrome.tabs.query({}, (tabs) => {
+        assert "chrome.tabs.query({}, " not in bc_body, (
+            "broadcastStatus still queries ALL tabs — "
+            "must filter by content script URL patterns"
+        )
+
+    def test_url_patterns_match_content_script_manifest(self):
+        """URL patterns in broadcastStatus must include all content_scripts
+        match patterns from manifest.json."""
+        sw_code = (_EXT_SRC / "service-worker.js").read_text()
+        manifest = json.loads((_EXT_SRC / "manifest.json").read_text())
+
+        bc_start = sw_code.index("function broadcastStatus")
+        bc_end = sw_code.index("// ── Message Listeners")
+        bc_body = sw_code[bc_start:bc_end]
+
+        # Collect unique match patterns from manifest
+        manifest_patterns = set()
+        for entry in manifest.get("content_scripts", []):
+            for pattern in entry.get("matches", []):
+                manifest_patterns.add(pattern)
+
+        for pattern in manifest_patterns:
+            assert pattern in bc_body, (
+                f"broadcastStatus missing URL pattern from manifest: {pattern}"
+            )
+
+    def test_consumes_last_error_in_send_callback(self):
+        """chrome.tabs.sendMessage must have a callback that reads
+        chrome.runtime.lastError to suppress the unhandled error."""
+        code = (_EXT_SRC / "service-worker.js").read_text()
+        bc_start = code.index("function broadcastStatus")
+        bc_end = code.index("// ── Message Listeners")
+        bc_body = code[bc_start:bc_end]
+        # Must use the callback form of sendMessage
+        assert "chrome.tabs.sendMessage(tab.id, statusMsg," in bc_body or \
+               "sendMessage(tab.id, statusMsg, " in bc_body, (
+            "broadcastStatus must use callback form of sendMessage"
+        )
+        # Must consume lastError
+        assert "chrome.runtime.lastError" in bc_body, (
+            "broadcastStatus callback must read chrome.runtime.lastError"
+        )
+
+    def test_no_bare_try_catch_around_send(self):
+        """try/catch doesn't help for async Chrome API errors —
+        the callback + lastError pattern is required."""
+        code = (_EXT_SRC / "service-worker.js").read_text()
+        bc_start = code.index("function broadcastStatus")
+        bc_end = code.index("// ── Message Listeners")
+        bc_body = code[bc_start:bc_end]
+        # Should NOT have try { sendMessage } catch pattern
+        assert "try {" not in bc_body, (
+            "broadcastStatus should use callback form, not try/catch"
+        )
