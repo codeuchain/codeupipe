@@ -14,12 +14,18 @@ const CupDashboard = (function () {
   // ── CUP Filters ────────────────────────────────────────────────
 
   function readStatusFilter(payload) {
+    // Merge hardware capabilities (from probe) with installed recipe
+    // capabilities (from store provisions) into one unified list.
+    const hwCaps = CupPlatform.capabilities || [];
+    const installed = CupPlatform.installed || [];
+    const allCaps = [...new Set([...hwCaps, ...installed])];
+
     return payload
       .insert('tier', CupPlatform.tier)
       .insert('device', CupPlatform.device)
       .insert('nativeAlive', CupPlatform.nativeAlive)
       .insert('httpAlive', CupPlatform.httpAlive)
-      .insert('capabilities', CupPlatform.capabilities)
+      .insert('capabilities', allCaps)
       .insert('detected', CupPlatform.detected);
   }
 

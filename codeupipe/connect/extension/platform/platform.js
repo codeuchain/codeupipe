@@ -148,10 +148,17 @@ const CupPlatform = (function() {
 
     if (onProgress) onProgress({ phase: 'complete', result: result.result });
 
-    if (result.result && result.result.success) {
+    // Track as installed if successful, or if WASM fallback for a wasm-tier recipe
+    const isSuccess = result.result && result.result.success;
+    const isWasmAvailable = result.result
+      && result.result.status === 'wasm-fallback'
+      && recipe.tier === 'wasm';
+
+    if (isSuccess || isWasmAvailable) {
       if (!_state.installedCapabilities.includes(recipeId)) {
         _state.installedCapabilities.push(recipeId);
       }
+      _notifyStatus();
     }
 
     return result;

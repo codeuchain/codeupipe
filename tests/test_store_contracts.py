@@ -523,3 +523,91 @@ class TestBroadcastStatusContract:
         assert "try {" not in bc_body, (
             "broadcastStatus should use callback form, not try/catch"
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# TIER 3 — Behaviour: Dashboard capabilities merging
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestDashboardCapabilities:
+    """Verify dashboard merges hardware + installed recipe capabilities."""
+
+    def test_dashboard_reads_installed(self):
+        """readStatusFilter must read CupPlatform.installed, not just
+        CupPlatform.capabilities."""
+        code = (_PLATFORM_SRC / "dashboard.js").read_text()
+        status_start = code.index("function readStatusFilter")
+        status_end = code.index("function renderTierFilter")
+        status_body = code[status_start:status_end]
+        assert "CupPlatform.installed" in status_body, (
+            "Dashboard must read CupPlatform.installed "
+            "(recipe provisions) to show installed capabilities"
+        )
+
+    def test_dashboard_merges_hw_and_installed(self):
+        """readStatusFilter must combine hardware caps and installed caps."""
+        code = (_PLATFORM_SRC / "dashboard.js").read_text()
+        status_start = code.index("function readStatusFilter")
+        status_end = code.index("function renderTierFilter")
+        status_body = code[status_start:status_end]
+        # Must reference both sources
+        assert "CupPlatform.capabilities" in status_body
+        assert "CupPlatform.installed" in status_body
+
+    def test_dashboard_deduplicates(self):
+        """Merged list must not contain duplicates (e.g. if same cap
+        appears in both hw and installed)."""
+        code = (_PLATFORM_SRC / "dashboard.js").read_text()
+        status_start = code.index("function readStatusFilter")
+        status_end = code.index("function renderTierFilter")
+        status_body = code[status_start:status_end]
+        assert "new Set(" in status_body, (
+            "Dashboard must deduplicate merged capabilities via Set"
+        )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# TIER 3 — Behaviour: Provision installed tracking
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestProvisionInstalledTracking:
+    """Verify platform.js tracks wasm-fallback provisions as installed."""
+
+    def test_provision_tracks_wasm_fallback(self):
+        """provision() must add to installedCapabilities on wasm-fallback
+        for wasm-tier recipes."""
+        code = (_PLATFORM_SRC / "platform.js").read_text()
+        prov_start = code.index("async function provision")
+        prov_end = code.index("// ── Delegate")
+        prov_body = code[prov_start:prov_end]
+        assert "wasm-fallback" in prov_body, (
+            "provision must check for wasm-fallback status"
+        )
+        assert "recipe.tier" in prov_body, (
+            "provision must check recipe.tier to decide if wasm-fallback "
+            "counts as installed"
+        )
+
+    def test_provision_notifies_on_install(self):
+        """provision() must call _notifyStatus after adding installed cap,
+        so the dashboard refreshes."""
+        code = (_PLATFORM_SRC / "platform.js").read_text()
+        prov_start = code.index("async function provision")
+        prov_end = code.index("// ── Delegate")
+        prov_body = code[prov_start:prov_end]
+        assert "_notifyStatus()" in prov_body, (
+            "provision must call _notifyStatus after installing a cap "
+            "so dashboard polling picks it up"
+        )
+
+    def test_provision_does_not_duplicate(self):
+        """provision() must guard against adding the same cap twice."""
+        code = (_PLATFORM_SRC / "platform.js").read_text()
+        prov_start = code.index("async function provision")
+        prov_end = code.index("// ── Delegate")
+        prov_body = code[prov_start:prov_end]
+        assert ".includes(recipeId)" in prov_body, (
+            "provision must check for duplicates before pushing"
+        )
