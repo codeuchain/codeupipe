@@ -135,14 +135,23 @@ def _build_zip(extension_dir: Path, manifest_override: Optional[Path] = None) ->
 
     If manifest_override is provided, use that file as manifest.json
     in the ZIP instead of the one in extension_dir.
+
+    Excludes:
+      - Python files (.py), hidden files, __pycache__, node_modules
+      - STORE_LISTING.md (metadata, not runtime)
+      - manifest.android.json (variant, not runtime)
+      - platform/ subdirectory (SPA deployment files, not extension code)
     """
+    # Directories to skip entirely (not part of the extension runtime)
+    _SKIP_DIRS = {"__pycache__", "node_modules", "platform"}
+
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, _dirs, files in os.walk(extension_dir):
-            # Skip hidden dirs, __pycache__, .git, node_modules
+            # Skip hidden dirs and excluded directories
             root_path = Path(root)
             parts = root_path.relative_to(extension_dir).parts
-            if any(p.startswith(".") or p == "__pycache__" or p == "node_modules" for p in parts):
+            if any(p.startswith(".") or p in _SKIP_DIRS for p in parts):
                 continue
 
             for fname in sorted(files):
@@ -153,6 +162,9 @@ def _build_zip(extension_dir: Path, manifest_override: Optional[Path] = None) ->
                 if fname.startswith(".") or fname.endswith(".py"):
                     continue
                 if fname == "STORE_LISTING.md":
+                    continue
+                # Skip manifest variants (only manifest.json is the runtime manifest)
+                if fname.startswith("manifest.") and fname != "manifest.json":
                     continue
 
                 # Use override manifest if specified

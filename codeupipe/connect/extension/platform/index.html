@@ -79,6 +79,7 @@
           <span class="cup-badge cup-badge-chrome">Chrome ✓</span>
           <span class="cup-badge cup-badge-brave">Brave ✓</span>
           <span class="cup-badge cup-badge-arc">Arc ✓</span>
+          <span class="cup-badge cup-badge-android">Android ✓</span>
         </div>
 
         <!-- Desktop install -->
@@ -103,20 +104,32 @@
 
         <!-- Mobile install -->
         <div class="cup-install-tab" id="install-mobile">
-          <h4>📱 Mobile (Edge Android/iOS)</h4>
+          <h4>📱 Mobile (Edge Android)</h4>
           <p style="color: var(--muted); font-size: .85rem; margin-bottom: .5rem;">
-            Edge mobile supports extensions on Android. Sideloading on iOS requires TestFlight or MDM.
+            Edge Canary 148+ on Android has extensions built-in.
+            The CRX file installs directly via Developer Options — no flags needed.
           </p>
           <ol>
-            <li>Install <strong>Microsoft Edge</strong> from your app store</li>
-            <li>Open Edge → <code>edge://flags</code> → enable <strong>Extensions on Edge</strong></li>
-            <li>Navigate to <code>edge://extensions</code></li>
-            <li>Enable <strong>Developer mode</strong></li>
-            <li>Tap <strong>Load unpacked</strong> or install from a shared CRX URL</li>
+            <li>Install <strong>Microsoft Edge Canary</strong> from the Play Store (or APKPure)</li>
+            <li>Open Edge → Settings → <strong>About Microsoft Edge</strong></li>
+            <li>Tap the <strong>build number 7 times</strong> to unlock Developer Options</li>
+            <li>Go to Settings → <strong>Developer Options</strong></li>
+            <li>Tap <strong>"Extension install by crx"</strong></li>
+            <li>Select the downloaded <code>.crx</code> file → tap <strong>Add</strong></li>
+            <li>Return here — the dashboard will show ✅ Installed, 🟡 WASM Only</li>
           </ol>
+          <div style="display: flex; gap: .75rem; flex-wrap: wrap;">
+            <a href="cup-bridge-android.crx" class="cup-btn cup-btn-primary" download>
+              ⬇️ Download Android CRX
+            </a>
+            <a href="cup-bridge-extension.zip" class="cup-btn cup-btn-secondary" download>
+              📦 Desktop ZIP (Load Unpacked)
+            </a>
+          </div>
           <p style="color: var(--yellow); font-size: .8rem; margin-top: .5rem;">
-            ⚠️ Mobile extension support is experimental. The WASM tier (Tier 2)
-            provides CPU-only compute without an extension installed.
+            ⚠️ Native messaging is not available on Android.
+            The extension runs in <strong>WASM-only</strong> mode (Tier 2) — all
+            capability store recipes still work via browser compute.
           </p>
         </div>
 

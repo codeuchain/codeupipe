@@ -150,15 +150,29 @@ const CupStore = (function () {
       <div class="cup-modal">
         <h2>CUP Bridge Extension Required</h2>
         <p>To provision capabilities on your device, install the CUP Platform Bridge extension.</p>
+
+        <h4 style="margin-top:1rem;">🖥️ Desktop (Chrome / Edge / Brave)</h4>
         <ol>
-          <li>Download <code>cup-bridge-extension.zip</code> from the link below</li>
+          <li>Download <code>cup-bridge-extension.zip</code></li>
           <li>Open <code>chrome://extensions</code></li>
           <li>Enable "Developer mode"</li>
           <li>Click "Load unpacked" and select the extracted folder</li>
         </ol>
+
+        <h4 style="margin-top:1rem;">📱 Android (Edge Canary)</h4>
+        <ol>
+          <li>Download <code>cup-bridge-android.crx</code></li>
+          <li>Settings → About Edge → tap build number 7×</li>
+          <li>Developer Options → "Extension install by crx"</li>
+          <li>Select the <code>.crx</code> file → tap Add</li>
+        </ol>
+
         <div class="cup-modal-actions">
           <a href="cup-bridge-extension.zip" class="cup-btn cup-btn-primary" download>
-            Download Extension
+            ⬇️ Desktop ZIP
+          </a>
+          <a href="cup-bridge-android.crx" class="cup-btn cup-btn-primary" download>
+            📱 Android CRX
           </a>
           <button class="cup-btn cup-btn-secondary" onclick="this.closest('.cup-overlay').style.display='none'">
             Close

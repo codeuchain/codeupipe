@@ -240,6 +240,79 @@ class TestBuildExtensionZipDirect:
             assert len(zf.namelist()) >= 10
 
 
+# ── Tests: Android CRX ──────────────────────────────────────────────
+
+class TestAndroidCrx:
+    """Verify the Android CRX is produced and valid."""
+
+    def test_crx_created(self, fake_config):
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        assert crx.exists()
+        assert crx.stat().st_size > 1000
+
+    def test_crx_magic_bytes(self, fake_config):
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        assert data[:4] == b"Cr24"
+
+    def test_crx_version_3(self, fake_config):
+        import struct
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        version = struct.unpack("<I", data[4:8])[0]
+        assert version == 3
+
+    def test_crx_contains_valid_zip(self, fake_config):
+        import struct
+        from io import BytesIO
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        hs = struct.unpack("<I", data[8:12])[0]
+        zip_data = data[12 + hs:]
+        assert zip_data[:2] == b"PK"
+        with zipfile.ZipFile(BytesIO(zip_data)) as zf:
+            assert "manifest.json" in zf.namelist()
+
+    def test_crx_manifest_no_native_messaging(self, fake_config):
+        """Android CRX manifest must NOT have nativeMessaging."""
+        import struct
+        from io import BytesIO
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        hs = struct.unpack("<I", data[8:12])[0]
+        with zipfile.ZipFile(BytesIO(data[12 + hs:])) as zf:
+            manifest = json.loads(zf.read("manifest.json"))
+            assert "nativeMessaging" not in manifest.get("permissions", [])
+
+    def test_crx_manifest_has_storage(self, fake_config):
+        import struct
+        from io import BytesIO
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        hs = struct.unpack("<I", data[8:12])[0]
+        with zipfile.ZipFile(BytesIO(data[12 + hs:])) as zf:
+            manifest = json.loads(zf.read("manifest.json"))
+            assert "storage" in manifest["permissions"]
+
+    def test_crx_no_platform_dir(self, fake_config):
+        """CRX should not include the platform/ SPA directory."""
+        import struct
+        from io import BytesIO
+        on_post_build(fake_config)
+        crx = Path(fake_config["site_dir"]) / "platform" / "cup-bridge-android.crx"
+        data = crx.read_bytes()
+        hs = struct.unpack("<I", data[8:12])[0]
+        with zipfile.ZipFile(BytesIO(data[12 + hs:])) as zf:
+            for name in zf.namelist():
+                assert not name.startswith("platform/"), f"CRX should not contain {name}"
+
+
 # ── Tests: Extension JS contract verification ────────────────────────
 
 _EXT_SRC = _PROJECT_ROOT / "codeupipe" / "connect" / "extension"

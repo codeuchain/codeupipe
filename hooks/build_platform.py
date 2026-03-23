@@ -2,7 +2,7 @@
 
 Runs during ``on_post_build`` (after MkDocs has written the HTML site).
 Copies the platform SPA into ``site/platform/`` and creates a downloadable
-zip of the CUP Bridge Extension.
+zip of the CUP Bridge Extension (desktop) and CRX (Android).
 
 Layout produced in site/:
 
@@ -17,11 +17,13 @@ Layout produced in site/:
         │   ├── manifest.json
         │   ├── dream-training.json
         │   └── ...
-        └── cup-bridge-extension.zip   ← downloadable extension
+        ├── cup-bridge-extension.zip   ← desktop: unzip + Load Unpacked
+        └── cup-bridge-android.crx     ← Android: sideload via Edge Dev Options
 """
 
 import json
 import shutil
+import sys
 import zipfile
 from pathlib import Path
 
@@ -94,6 +96,13 @@ def on_post_build(config, **kwargs):
     _build_extension_zip(extension_src, zip_path)
     print(f"  [platform] extension zip: {zip_path.name}")
 
+    # ── 4. Build Android CRX ─────────────────────────────────────
+
+    crx_path = platform_dest / "cup-bridge-android.crx"
+    android_manifest = extension_src / "manifest.android.json"
+    _build_android_crx(extension_src, android_manifest, crx_path, project_root)
+    print(f"  [platform] android crx: {crx_path.name}")
+
 
 def _build_extension_zip(extension_src: Path, zip_path: Path):
     """Create a loadable Chrome extension zip.
@@ -137,3 +146,43 @@ def _build_extension_zip(extension_src: Path, zip_path: Path):
             for native_file in sorted(native_dir.iterdir()):
                 if native_file.is_file():
                     zf.write(str(native_file), f"native/{native_file.name}")
+
+
+def _build_android_crx(
+    extension_src: Path,
+    android_manifest: Path,
+    crx_path: Path,
+    project_root: Path,
+):
+    """Build a CRX3 file for Android sideloading.
+
+    Uses the build_crx module from the extension directory itself.
+    The Android manifest strips ``nativeMessaging`` (unavailable on
+    Android) so the extension installs cleanly and falls back to the
+    WASM tier automatically.
+    """
+    if not android_manifest.exists():
+        print("  [platform] WARNING: manifest.android.json not found — skipping CRX")
+        return
+
+    # Import build_crx from the extension directory (stdlib-only, no deps)
+    build_crx_path = extension_src / "build_crx.py"
+    if not build_crx_path.exists():
+        print("  [platform] WARNING: build_crx.py not found — skipping CRX")
+        return
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_crx", str(build_crx_path))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    try:
+        crx_bytes = mod.build_crx(
+            extension_src,
+            manifest_override=android_manifest,
+        )
+        crx_path.write_bytes(crx_bytes)
+        size_kb = len(crx_bytes) / 1024
+        print(f"  [platform] android CRX: {size_kb:.1f} KB")
+    except Exception as exc:
+        print(f"  [platform] WARNING: CRX build failed: {exc}")

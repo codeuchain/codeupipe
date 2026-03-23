@@ -314,7 +314,7 @@ codeupipe/
 <!-- cup:ref file=codeupipe/connect/bridge_launcher.py symbols=LaunchResult,BridgeLauncher,install_service,uninstall_service hash=9aa33a3 -->
 <!-- cup:ref file=codeupipe/connect/local_bridge.py symbols=BridgeError,BridgeEndpoint,LocalBridge hash=74de7b7 -->
 <!-- cup:ref file=codeupipe/connect/extension/native/native_host.py symbols=nm_read,nm_write,NativePayload,ReadMessageFilter,RouteActionFilter hash=7220c23 -->
-<!-- cup:ref file=codeupipe/connect/extension/build_crx.py symbols=build_crx,extension_id_from_key hash=c283aab -->
+<!-- cup:ref file=codeupipe/connect/extension/build_crx.py symbols=build_crx,extension_id_from_key hash=9c710ce -->
 <!-- cup:ref file=codeupipe/connect/extension/manifest.android.json hash=e1c2e7d -->
 | Type | Source | Role |
 |------|--------|------|

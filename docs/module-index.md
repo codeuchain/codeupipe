@@ -55,6 +55,8 @@ codeupipe/
 │   ├── local_bridge.py      # LocalBridge — HTTP bridge to localhost compute
 │   └── extension/           # MV3 browser extension + native messaging
 │       ├── manifest.json    # Extension manifest (MAIN + ISOLATED worlds)
+│       ├── manifest.android.json # Android variant (no nativeMessaging)
+│       ├── build_crx.py     # CRX3 builder — stdlib-only, RSA signing
 │       ├── service-worker.js# CUP pipeline (12 filters) in SW
 │       ├── content-script.js# Page↔Extension relay + status badge
 │       ├── cup-bridge-api.js# window.cupBridge API (MAIN world)
@@ -312,6 +314,8 @@ codeupipe/
 <!-- cup:ref file=codeupipe/connect/bridge_launcher.py symbols=LaunchResult,BridgeLauncher,install_service,uninstall_service hash=9aa33a3 -->
 <!-- cup:ref file=codeupipe/connect/local_bridge.py symbols=BridgeError,BridgeEndpoint,LocalBridge hash=74de7b7 -->
 <!-- cup:ref file=codeupipe/connect/extension/native/native_host.py symbols=nm_read,nm_write,NativePayload,ReadMessageFilter,RouteActionFilter hash=7220c23 -->
+<!-- cup:ref file=codeupipe/connect/extension/build_crx.py symbols=build_crx,extension_id_from_key hash=9c710ce -->
+<!-- cup:ref file=codeupipe/connect/extension/manifest.android.json hash=e1c2e7d -->
 | Type | Source | Role |
 |------|--------|------|
 | `ConnectorConfig` | connect/config.py | Parse `[connectors.*]` from cup.toml |
@@ -331,6 +335,10 @@ codeupipe/
 | `NativePayload` | extension/native/native_host.py | Minimal Payload for native host |
 | `ReadMessageFilter` | extension/native/native_host.py | Read NM message filter |
 | `RouteActionFilter` | extension/native/native_host.py | Route actions to handler filters |
+| `build_crx` | extension/build_crx.py | Build CRX3 from extension dir (stdlib-only) |
+| `extension_id_from_key` | extension/build_crx.py | Compute extension ID from RSA key |
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
@@ -896,6 +904,86 @@ The 10 Filters and 10 CLI commands above are **convenience wrappers** for the mo
 > **For agents:** `bridge.run()` + `--json` turns the browser into a structured-output tool. Combine `snapshot -i` for element discovery with `find role` for semantic queries, `set viewport` for responsive testing, and `diff snapshot` for change detection. The 10 Filters handle 90% of agent loops; `bridge.run()` handles the other 100%.
 
 > **Demo:** See `examples/browser_demo.py` for a working tour of all 11 tiers.
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+<!-- /cup:ref -->
+
+---
+
+## Android Control
+
+<!-- cup:ref file=codeupipe/android/__init__.py hash=df52f0b -->
+<!-- cup:ref file=codeupipe/android/adb_result.py symbols=AdbResult hash=7a3225d -->
+<!-- cup:ref file=codeupipe/android/adb_bridge.py symbols=AdbBridge hash=d068f0a -->
+<!-- cup:ref file=codeupipe/android/emulator_manager.py symbols=EmulatorManager hash=90597f4 -->
+<!-- cup:ref file=codeupipe/android/android_open.py symbols=AndroidOpen hash=4e3b6ac -->
+<!-- cup:ref file=codeupipe/android/android_close.py symbols=AndroidClose hash=2e07bfb -->
+<!-- cup:ref file=codeupipe/android/android_tap.py symbols=AndroidTap hash=ad72e18 -->
+<!-- cup:ref file=codeupipe/android/android_type.py symbols=AndroidType hash=04828c3 -->
+<!-- cup:ref file=codeupipe/android/android_eval.py symbols=AndroidEval hash=fe84bbd -->
+<!-- cup:ref file=codeupipe/android/android_snapshot.py symbols=AndroidSnapshot hash=7068131 -->
+<!-- cup:ref file=codeupipe/android/android_screenshot.py symbols=AndroidScreenshot hash=96308b4 -->
+<!-- cup:ref file=codeupipe/android/android_install.py symbols=AndroidInstall hash=66c4be3 -->
+<!-- cup:ref file=codeupipe/android/android_log.py symbols=AndroidLog hash=e0ef94f -->
+<!-- cup:ref file=codeupipe/android/android_shell.py symbols=AndroidShell hash=6081a69 -->
+
+Programmatic Android device and emulator control via `adb`. Mirrors the `codeupipe.browser` architecture — each filter wraps a single ADB action; compose them into pipelines for multi-step mobile automation. Requires Android SDK platform-tools (`adb`).
+
+| Export | Role |
+|--------|------|
+| `AdbBridge` | Subprocess wrapper — single contact point with `adb` CLI |
+| `AdbResult` | Frozen dataclass: `stdout`, `stderr`, `returncode`, `.ok`, `.output` |
+| `EmulatorManager` | AVD lifecycle — create, start, stop, list, wait-for-boot |
+| `AndroidOpen` | Launch app by package/activity component |
+| `AndroidClose` | Force-stop an app |
+| `AndroidTap` | Tap at (x, y) screen coordinates |
+| `AndroidType` | Type text into focused element |
+| `AndroidEval` | Execute `adb shell` command |
+| `AndroidSnapshot` | Dump UI hierarchy XML via `uiautomator dump` |
+| `AndroidScreenshot` | Capture screenshot via `screencap` + `adb pull` |
+| `AndroidInstall` | Install APK via `adb install` |
+| `AndroidLog` | Capture logcat output |
+| `AndroidShell` | Raw `adb shell` escape hatch |
+
+**Payload keys:** `android_package`, `android_apk`, `android_command`, `android_eval`, `android_log`, `android_screenshot`, `android_screenshot_path`, `android_shell`, `android_shell_cmd`, `android_snapshot`, `android_text`, `android_x`, `android_y`, `android_output`, `android_ok`
+
+### AdbBridge.run() passthrough
+
+The 10 Filters above are convenience wrappers for the most common automation actions. `AdbBridge.run()` is a direct passthrough to any `adb` command:
+
+| Category | Methods / via `bridge.run()` | Example |
+|----------|------------------------------|---------|
+| **Device** | `devices`, `forward`, `push`, `pull` | `bridge.run("devices")` |
+| **App** | `start_app`, `stop_app`, `install`, `uninstall` | `bridge.start_app("com.app/.Main")` |
+| **Input** | `tap`, `swipe`, `type_text` | `bridge.tap(100, 200)` |
+| **Inspect** | `ui_dump`, `logcat`, `shell` | `bridge.ui_dump()` |
+| **Media** | `screenshot` | `bridge.screenshot("/tmp/s.png")` |
+| **Raw** | any `adb` subcommand | `bridge.run("shell", "dumpsys", "battery")` |
+
+### EmulatorManager lifecycle
+
+```python
+from codeupipe.android import EmulatorManager
+
+mgr = EmulatorManager()
+mgr.create_avd("test_avd", package="system-images;android-34;google_apis;arm64-v8a")
+bridge = mgr.start("test_avd", headless=True)
+mgr.wait_for_boot()
+# ... run filters with bridge ...
+mgr.stop()
+```
+<!-- /cup:ref -->
+<!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->
 <!-- /cup:ref -->

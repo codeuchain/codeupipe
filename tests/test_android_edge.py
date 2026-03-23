@@ -293,6 +293,35 @@ class TestZipBuilder:
             for name in zf.namelist():
                 assert "__pycache__" not in name
 
+    def test_zip_excludes_platform_dir(self, tmp_path):
+        """The platform/ SPA directory is not part of the extension runtime."""
+        ext_dir = tmp_path / "ext"
+        platform_dir = ext_dir / "platform"
+        platform_dir.mkdir(parents=True)
+        (ext_dir / "manifest.json").write_text('{"manifest_version": 3}')
+        (platform_dir / "index.html").write_text("<h1>Platform SPA</h1>")
+        (platform_dir / "platform.js").write_text("// SPA code")
+
+        zip_bytes = self.mod._build_zip(ext_dir)
+        with zipfile.ZipFile(BytesIO(zip_bytes)) as zf:
+            for name in zf.namelist():
+                assert not name.startswith("platform/")
+
+    def test_zip_excludes_manifest_variants(self, tmp_path):
+        """manifest.android.json and other variants should be excluded."""
+        ext_dir = tmp_path / "ext"
+        ext_dir.mkdir()
+        (ext_dir / "manifest.json").write_text('{"manifest_version": 3}')
+        (ext_dir / "manifest.android.json").write_text('{"variant": true}')
+        (ext_dir / "manifest.chrome.json").write_text('{"variant": true}')
+
+        zip_bytes = self.mod._build_zip(ext_dir)
+        with zipfile.ZipFile(BytesIO(zip_bytes)) as zf:
+            names = zf.namelist()
+            assert "manifest.json" in names
+            assert "manifest.android.json" not in names
+            assert "manifest.chrome.json" not in names
+
 
 # ── CRX3 Structure Tests ────────────────────────────────────────────
 
@@ -500,3 +529,38 @@ class TestServiceWorkerAndroidCompat:
         """cup-bridge-api.js must expose provision() for capability store."""
         api = (EXTENSION_DIR / "cup-bridge-api.js").read_text()
         assert "provision:" in api or "provision :" in api
+
+
+# ── Platform Page Android Download Tests ─────────────────────────────
+
+class TestPlatformPageAndroidDownload:
+    """Verify the platform page offers Android CRX download."""
+
+    def test_index_has_android_crx_download_link(self):
+        html = (EXTENSION_DIR / "platform" / "index.html").read_text()
+        assert "cup-bridge-android.crx" in html
+
+    def test_index_has_android_badge(self):
+        html = (EXTENSION_DIR / "platform" / "index.html").read_text()
+        assert "Android ✓" in html
+
+    def test_index_mobile_section_no_flags_instructions(self):
+        """Edge Canary 148+ has extensions built-in — no flags step."""
+        html = (EXTENSION_DIR / "platform" / "index.html").read_text()
+        assert "edge://flags" not in html
+
+    def test_index_mobile_mentions_build_number_tapping(self):
+        html = (EXTENSION_DIR / "platform" / "index.html").read_text()
+        assert "build number 7 times" in html or "build number" in html
+
+    def test_index_mobile_mentions_wasm_only(self):
+        html = (EXTENSION_DIR / "platform" / "index.html").read_text()
+        assert "WASM-only" in html or "WASM" in html
+
+    def test_store_js_has_android_crx_download(self):
+        js = (EXTENSION_DIR / "platform" / "store.js").read_text()
+        assert "cup-bridge-android.crx" in js
+
+    def test_css_has_android_badge_style(self):
+        css = (EXTENSION_DIR / "platform" / "platform.css").read_text()
+        assert "cup-badge-android" in css
