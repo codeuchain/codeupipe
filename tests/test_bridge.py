@@ -52,7 +52,7 @@ from codeupipe.connect.bridge_launcher import (
 
 def _run_async(coro):
     """Run an async coroutine in a new event loop."""
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 class _MockHealthHandler(BaseHTTPRequestHandler):

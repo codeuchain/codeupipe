@@ -33,8 +33,9 @@ async def discover_capabilities(
     registry = _reg_mod.CapabilityRegistry(settings.registry_path)
 
     try:
-        # Try text search first (no torch required)
-        results = registry.text_search(query, limit=top_k)
+        # Use FTS5 text search with OR semantics for natural language queries
+        fts_query = " OR ".join(query.split())
+        results = registry.text_search(fts_query)[:top_k]
     except Exception as exc:  # noqa: BLE001
         if verbose:
             print(f"Discovery error: {exc}", file=sys.stderr)

@@ -1,9 +1,11 @@
 """Unit tests for CapabilityDefinition model."""
 
 import json
-from datetime import UTC
+from datetime import timezone
 
 import pytest
+
+_UTC = timezone.utc
 
 from codeupipe.ai.discovery.models import CapabilityDefinition, CapabilityType
 
@@ -84,7 +86,7 @@ class TestCapabilityDefinition:
 
     def test_created_at_defaults_to_utc(self):
         cap = CapabilityDefinition(name="x", description="y")
-        assert cap.created_at.tzinfo == UTC
+        assert cap.created_at.tzinfo == _UTC
 
     def test_repr(self):
         cap = CapabilityDefinition(
